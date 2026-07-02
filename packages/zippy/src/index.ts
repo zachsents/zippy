@@ -29,6 +29,16 @@ export {
   mapValuesAsync,
 } from "./map"
 export {
+  mean,
+  meanBy,
+  median,
+  medianBy,
+  mode,
+  modeBy,
+  sum,
+  sumBy,
+} from "./math"
+export {
   difference,
   intersection,
   isDisjointFrom,

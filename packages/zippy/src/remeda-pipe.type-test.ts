@@ -20,6 +20,16 @@ import {
   mapValuesAsync,
 } from "./map"
 import {
+  mean,
+  meanBy,
+  median,
+  medianBy,
+  mode,
+  modeBy,
+  sum,
+  sumBy,
+} from "./math"
+import {
   difference,
   intersection,
   isDisjointFrom,
@@ -103,6 +113,43 @@ const mapAsyncPipe = pipe(
 true satisfies IsEqual<typeof uniquePipe, Array<1 | 2>>
 true satisfies IsEqual<typeof mapPipe, Array<"one" | "other">>
 true satisfies IsEqual<typeof mapAsyncPipe, Promise<Array<"one" | "other">>>
+
+const sumPipe = pipe([1, 2, 3] as const, sum())
+const sumByPipe = pipe(
+  [{ count: 1 }, { count: 2 }] as const,
+  sumBy((value: { readonly count: number }) => value.count),
+)
+const meanPipe = pipe([1, 2, 3] as const, mean())
+const meanByPipe = pipe(
+  [{ score: 1 }, { score: 2 }] as const,
+  meanBy((value: { readonly score: number }) => value.score),
+)
+const medianPipe = pipe([1, 2, 3] as const, median())
+const medianByPipe = pipe(
+  [{ score: 1 }, { score: 2 }] as const,
+  medianBy((value: { readonly score: number }) => value.score),
+)
+const modePipe = pipe([1, 2, 2] as const, mode())
+const modeValues = [
+  { kind: "a", score: 1 },
+  { kind: "b", score: 2 },
+] as const
+const modeByPipe = pipe(
+  modeValues,
+  modeBy((value: (typeof modeValues)[number]) => value.kind),
+)
+
+true satisfies IsEqual<typeof sumPipe, number>
+true satisfies IsEqual<typeof sumByPipe, number>
+true satisfies IsEqual<typeof meanPipe, number | undefined>
+true satisfies IsEqual<typeof meanByPipe, number | undefined>
+true satisfies IsEqual<typeof medianPipe, number | undefined>
+true satisfies IsEqual<typeof medianByPipe, number | undefined>
+true satisfies IsEqual<typeof modePipe, 1 | 2 | undefined>
+true satisfies IsEqual<
+  typeof modeByPipe,
+  (typeof modeValues)[number] | undefined
+>
 
 const mapValuesPipe = pipe(
   { a: 1, b: 2 } as const,

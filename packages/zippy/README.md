@@ -1,6 +1,6 @@
 # @zachsents/zippy
 
-Small TypeScript utility functions for arrays, objects, guards, sets, and
+Small TypeScript utility functions for arrays, objects, guards, math, sets, and
 zipping values.
 
 Most collection helpers can be called data-first or data-last for piping. The
@@ -25,6 +25,21 @@ examples below use the data-first form.
 - `mapAsync` - Map array values with async support. Like
   `Promise.all(values.map(mapper))`.
 - `unique` - Remove duplicate values. Like `[...new Set(values)]`.
+
+### Math
+
+- `mean` - Return the arithmetic average of numbers, or `undefined` for an
+  empty array.
+- `meanBy` - Return the arithmetic average of mapped numbers, or `undefined`
+  for an empty array.
+- `median` - Return the median of numbers, or `undefined` for an empty array.
+- `medianBy` - Return the median of mapped numbers, or `undefined` for an empty
+  array.
+- `mode` - Return the most common value, or `undefined` for an empty array.
+- `modeBy` - Return the first value whose mapped key is most common, or
+  `undefined` for an empty array.
+- `sum` - Add numbers. Returns `0` for an empty array.
+- `sumBy` - Add mapped numbers. Returns `0` for an empty array.
 
 ### Objects
 
