@@ -3,7 +3,9 @@ type CastArrayResult<T> = [Exclude<T, undefined | void>] extends [never]
   : [Exclude<T, undefined | void>] extends [readonly unknown[]]
     ? Exclude<T, undefined | void>
     : Array<
-        T extends readonly (infer Value)[] ? Value : Exclude<T, undefined | void>
+        T extends readonly (infer Value)[]
+          ? Value
+          : Exclude<T, undefined | void>
       >
 
 const impl = (value: unknown) =>
