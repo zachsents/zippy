@@ -1,0 +1,96 @@
+name: Release npm
+
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: read
+  id-token: write
+
+concurrency:
+  group: release-npm
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish @zachsents/zippy
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          registry-url: https://registry.npmjs.org
+
+      - name: Read Bun version
+        id: bun-version
+        run: |
+          package_manager="$(node -p "require('./package.json').packageManager")"
+          echo "version=${package_manager#bun@}" >> "$GITHUB_OUTPUT"
+
+      - name: Set up Bun
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: ${{ steps.bun-version.outputs.version }}
+
+      - name: Install dependencies
+        run: bun install --frozen-lockfile
+
+      - name: Validate release version
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+        run: |
+          if [ -z "${NODE_AUTH_TOKEN:-}" ]; then
+            echo "::error::Missing NPM_TOKEN repository secret"
+            exit 1
+          fi
+
+          package_name="$(node -p "require('./packages/zippy/package.json').name")"
+          package_version="$(node -p "require('./packages/zippy/package.json').version")"
+
+          echo "PACKAGE_NAME=${package_name}" >> "$GITHUB_ENV"
+          echo "PACKAGE_VERSION=${package_version}" >> "$GITHUB_ENV"
+
+          if [ "${GITHUB_REF_TYPE}" = "tag" ]; then
+            tag_version="${GITHUB_REF_NAME#v}"
+
+            if [ "$tag_version" != "$package_version" ]; then
+              echo "::error::Release tag ${GITHUB_REF_NAME} does not match ${package_name}@${package_version}"
+              exit 1
+            fi
+          fi
+
+      - name: Publish to npm
+        run: bun run publish:zippy
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_CONFIG_PROVENANCE: true
+
+      - name: Verify npm release
+        run: |
+          for attempt in 1 2 3 4 5 6; do
+            published_version="$(npm view "${PACKAGE_NAME}@${PACKAGE_VERSION}" version --prefer-online 2>/dev/null || true)"
+            latest_version="$(npm view "${PACKAGE_NAME}" dist-tags.latest --prefer-online 2>/dev/null || true)"
+
+            if [ "$published_version" = "$PACKAGE_VERSION" ] && [ "$latest_version" = "$PACKAGE_VERSION" ]; then
+              exit 0
+            fi
+
+            echo "Waiting for npm registry metadata to update (${attempt}/6)"
+            sleep 10
+          done
+
+          if [ "$published_version" != "$PACKAGE_VERSION" ]; then
+            echo "::error::Expected ${PACKAGE_NAME}@${PACKAGE_VERSION}, got ${published_version}"
+            exit 1
+          fi
+
+          if [ "$latest_version" != "$PACKAGE_VERSION" ]; then
+            echo "::error::Expected latest dist-tag ${PACKAGE_VERSION}, got ${latest_version}"
+            exit 1
+          fi
