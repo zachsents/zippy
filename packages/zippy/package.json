@@ -1,0 +1,64 @@
+{
+  "name": "@zachsents/zippy",
+  "version": "0.1.0",
+  "description": "A TypeScript utility library.",
+  "license": "MIT",
+  "type": "module",
+  "publishConfig": {
+    "access": "public"
+  },
+  "zshy": {
+    "exports": {
+      ".": "./src/index.ts"
+    },
+    "cjs": false,
+    "conditions": {
+      "bun": "src"
+    }
+  },
+  "exports": {
+    ".": {
+      "bun": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "typecheck": "command -v tsgo >/dev/null && tsgo --noEmit || tsc --noEmit",
+    "lint": "oxlint --type-aware",
+    "lint:fix": "oxlint --type-aware --fix --fix-suggestions",
+    "format": "prettier . --write",
+    "fix": "bun run lint:fix && bun run format",
+    "test": "bun test",
+    "build": "zshy",
+    "pack:dry": "npm pack --dry-run --json",
+    "check": "bun run typecheck && bun run fix && bun run test && bun run build && bun run pack:dry",
+    "prepublishOnly": "bun run check",
+    "publish:public": "npm publish --access public"
+  },
+  "files": [
+    "dist",
+    "src/**/*.ts",
+    "!src/**/*.test.ts",
+    "!src/**/*.type-test.ts",
+    "README.md",
+    "LICENSE"
+  ],
+  "sideEffects": false,
+  "main": "./dist/index.js",
+  "module": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "engines": {
+    "node": ">=20.9"
+  },
+  "devDependencies": {
+    "@types/bun": "latest",
+    "oxlint": "^1.71.0",
+    "oxlint-tsgolint": "^0.23.0",
+    "prettier": "3.4.2",
+    "prettier-plugin-jsdoc": "^1.8.0",
+    "type-fest": "^5.7.0",
+    "typescript": "^6.0.3",
+    "zshy": "^0.7.2"
+  }
+}
