@@ -20,7 +20,7 @@ function isNonNullish<T>(value: T): value is NonNullable<T> {
   return !isNullish(value)
 }
 
-function isDefined<T>(value: T): value is Exclude<T, undefined> {
+function isDefined<T>(value: T): value is Exclude<T, undefined | void> {
   return !isUndefined(value)
 }
 
@@ -118,10 +118,10 @@ export function filterOutNullish<T>(values?: readonly T[]) {
 
 export function filterOutUndefined<T>(
   values: readonly T[],
-): Array<Exclude<T, undefined>>
+): Array<Exclude<T, undefined | void>>
 export function filterOutUndefined(): <T>(
   values: readonly T[],
-) => Array<Exclude<T, undefined>>
+) => Array<Exclude<T, undefined | void>>
 export function filterOutUndefined<T>(values?: readonly T[]) {
   if (values === undefined) {
     return <Value>(values: readonly Value[]) => values.filter(isDefined)

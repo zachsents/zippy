@@ -50,6 +50,14 @@ if (isUndefined(maybeUndefined)) {
   true satisfies IsEqual<typeof maybeUndefined, number>
 }
 
+declare const maybeVoid: number | void
+
+if (isUndefined(maybeVoid)) {
+  true satisfies IsEqual<typeof maybeVoid, void>
+} else {
+  true satisfies IsEqual<typeof maybeVoid, number>
+}
+
 declare const maybeNull: string | null
 
 if (isNull(maybeNull)) {

@@ -9,7 +9,11 @@ describe("castArray", () => {
 
   test("wraps non-array values", () => {
     expect(castArray("zippy")).toEqual(["zippy"])
-    expect(castArray(undefined)).toEqual([undefined])
+  })
+
+  test("returns an empty array for undefined values", () => {
+    expect(castArray(undefined)).toEqual([])
+    expect(castArray()(undefined)).toEqual([])
   })
 
   test("returns array values unchanged", () => {

@@ -6,4 +6,7 @@
 
 ## Publishing
 
-- Only publish when the user explicitly asks for it, but when they do, carry the publish through from the CLI instead of stopping at instructions. Use the repo publish script when available, let the CLI open browser-based npm auth or 2FA, tell the user to approve it in the browser, then continue the terminal flow until publish succeeds or fails.
+- Only publish when the user explicitly asks for it, but when they do, carry the publish through from the CLI instead of stopping at instructions. Use the repo publish script when available.
+- Run publish commands in an interactive terminal/PTY so npm can prompt for browser-based auth or 2FA. If npm prints `Press ENTER to open in the browser...`, press Enter yourself and leave the publish process running while the user completes the browser approval. Do not ask the user for an OTP before trying this browser-auth flow.
+- If non-interactive publish fails with `EOTP`, retry interactively before asking for an OTP. Ask for an OTP only if the interactive browser-auth flow is unavailable, fails, or explicitly asks for a code instead of opening browser approval.
+- After publish reports success, verify the exact version with `npm view <package>@<version> version --prefer-online` and verify the `latest` dist-tag. `npm view <package> version` can lag or return stale metadata immediately after publish, so do not treat that alone as a failed publish.

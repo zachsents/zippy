@@ -16,7 +16,7 @@ export function isFalsy<T>(value: T): value is T & Falsy {
   return !value
 }
 
-export function isUndefined<T>(value: T): value is T & undefined {
+export function isUndefined<T>(value: T): value is Extract<T, undefined | void> {
   return value === undefined
 }
 

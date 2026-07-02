@@ -115,7 +115,7 @@ describe("filter exclusion helpers", () => {
   })
 
   test("removes undefined values", () => {
-    const values = [1, null, undefined]
+    const values = [1, null, undefined, void 0]
     const defined = filterOutUndefined(values)
 
     expect(defined).toEqual([1, null])
@@ -123,9 +123,9 @@ describe("filter exclusion helpers", () => {
 
   test("removes undefined values data-last", () => {
     const keepDefined: (
-      values: readonly (number | null | undefined)[],
+      values: readonly (number | null | undefined | void)[],
     ) => Array<number | null> = filterOutUndefined()
 
-    expect(keepDefined([1, null, undefined])).toEqual([1, null])
+    expect(keepDefined([1, null, undefined, void 0])).toEqual([1, null])
   })
 })

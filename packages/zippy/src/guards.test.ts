@@ -40,6 +40,7 @@ describe("type guards", () => {
 
   test("detects undefined", () => {
     expect(isUndefined(undefined)).toBe(true)
+    expect(isUndefined(void 0)).toBe(true)
     expect(isUndefined(null)).toBe(false)
     expect(isUndefined(0)).toBe(false)
   })

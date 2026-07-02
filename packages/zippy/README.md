@@ -10,8 +10,8 @@ examples below use the data-first form.
 
 ### Arrays
 
-- `castArray` - Keep arrays as-is, otherwise wrap a value in an array. Like
-  `Array.isArray(value) ? value : [value]`.
+- `castArray` - Keep arrays as-is, return an empty array for `undefined`,
+  otherwise wrap a value in an array.
 - `filter` - Filter an array with a predicate or type guard. Like
   `values.filter(predicate)`.
 - `filterOut` - Remove values that match a predicate or type guard. Like

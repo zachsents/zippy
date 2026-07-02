@@ -81,8 +81,20 @@ const presentDataLast = filterOutNullish()([1, null, 2, undefined] as const)
 true satisfies IsEqual<typeof presentDataFirst, Array<1 | 2>>
 true satisfies IsEqual<typeof presentDataLast, Array<1 | 2>>
 
-const definedDataFirst = filterOutUndefined([1, null, undefined] as const)
-const definedDataLast = filterOutUndefined()([1, null, undefined] as const)
+declare const voidValue: void
+
+const definedDataFirst = filterOutUndefined([
+  1,
+  null,
+  undefined,
+  voidValue,
+] as const)
+const definedDataLast = filterOutUndefined()([
+  1,
+  null,
+  undefined,
+  voidValue,
+] as const)
 
 true satisfies IsEqual<typeof definedDataFirst, Array<1 | null>>
 true satisfies IsEqual<typeof definedDataLast, Array<1 | null>>

@@ -45,9 +45,16 @@ const entries = [
 
 const castArrayPipe = pipe("zippy" as const, castArray())
 const castReadonlyArrayPipe = pipe([1, 2] as const, castArray())
+declare const maybeCastArrayValue: "zippy" | void
+const castMaybePipe = pipe(
+  maybeCastArrayValue,
+  castArray(),
+  map((value) => value),
+)
 
 true satisfies IsEqual<typeof castArrayPipe, Array<"zippy">>
 true satisfies IsEqual<typeof castReadonlyArrayPipe, readonly [1, 2]>
+true satisfies IsEqual<typeof castMaybePipe, Array<"zippy">>
 
 const filterPipe = pipe(
   [1, 2, 3, 4] as const,
