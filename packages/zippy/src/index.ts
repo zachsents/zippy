@@ -38,6 +38,7 @@ export {
   sum,
   sumBy,
 } from "./math"
+export { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
 export {
   difference,
   intersection,
