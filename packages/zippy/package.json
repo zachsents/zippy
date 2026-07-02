@@ -1,6 +1,6 @@
 {
   "name": "@zachsents/zippy",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "A TypeScript utility library.",
   "license": "MIT",
   "type": "module",
@@ -57,6 +57,7 @@
     "oxlint-tsgolint": "^0.23.0",
     "prettier": "3.4.2",
     "prettier-plugin-jsdoc": "^1.8.0",
+    "remeda": "^2.39.0",
     "type-fest": "^5.7.0",
     "typescript": "^6.0.3",
     "zshy": "^0.7.2"

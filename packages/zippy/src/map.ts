@@ -78,18 +78,12 @@ export function mapAsync<T, Mapped>(
     const [mapper] = args
 
     return (values: readonly T[]) =>
-      Promise.all(
-        values.map((value, index) =>
-          Promise.resolve(mapper(value, index, values)),
-        ),
-      )
+      Promise.all(values.map((value, index) => mapper(value, index, values)))
   }
 
   const [values, mapper] = args
 
-  return Promise.all(
-    values.map((value, index) => Promise.resolve(mapper(value, index, values))),
-  )
+  return Promise.all(values.map((value, index) => mapper(value, index, values)))
 }
 
 export function mapValues<Value, Mapped>(

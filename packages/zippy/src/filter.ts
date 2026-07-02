@@ -49,14 +49,12 @@ export function filter<T>(
     const [predicate] = args
 
     return <Value extends T>(values: readonly Value[]) =>
-      values.filter((value, index) => Boolean(predicate(value, index, values)))
+      values.filter((value, index) => predicate(value, index, values))
   }
 
   const [values, predicate] = args
 
-  return values.filter((value, index) =>
-    Boolean(predicate(value, index, values)),
-  )
+  return values.filter((value, index) => predicate(value, index, values))
 }
 
 export function filterOut<T, Narrowed extends T>(

@@ -1,9 +1,9 @@
 import { unique } from "./unique"
 
-function toSet<T>(arrays: ArrayLike<readonly T[]>): Set<T> {
+function toSet<T>(arrays: Iterable<readonly T[]>): Set<T> {
   const result = new Set<T>()
 
-  for (const values of Array.from(arrays)) {
+  for (const values of arrays) {
     for (const value of values) {
       result.add(value)
     }
@@ -150,7 +150,7 @@ export function isSubsetOf(
   const [values, otherValues] = args
   const otherSet = new Set(otherValues)
 
-  return unique(values).every((value) => otherSet.has(value))
+  return values.every((value) => otherSet.has(value))
 }
 
 export function isSupersetOf(
@@ -197,5 +197,5 @@ export function isDisjointFrom(
   const [left, right] = args
   const rightSet = new Set(right)
 
-  return unique(left).every((value) => !rightSet.has(value))
+  return left.every((value) => !rightSet.has(value))
 }
