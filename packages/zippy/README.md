@@ -48,6 +48,8 @@ path selector.
 
 ### Objects
 
+- `deepMerge` - Recursively merge plain object values, with source values
+  overriding destination values.
 - `mapEntries` - Transform object entries into a new object. Like
   `Object.fromEntries(Object.entries(values).map((entry, index) => mapper(entry, index, values)))`.
 - `mapEntriesAsync` - Transform object entries with async support. Like
@@ -60,6 +62,7 @@ path selector.
   `Object.fromEntries(Object.entries(values).map(([key, value]) => [key, mapper(value, key, values)]))`.
 - `mapValuesAsync` - Transform object values with async support. Like
   `mapValues` with awaited values.
+- `merge` - Shallow merge two objects. Like `{ ...destination, ...source }`.
 
 ### Sets
 

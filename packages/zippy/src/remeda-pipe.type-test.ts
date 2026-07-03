@@ -21,6 +21,7 @@ import {
 } from "./map"
 import { mean, meanBy } from "./mean"
 import { median, medianBy } from "./median"
+import { deepMerge, merge } from "./merge"
 import { mode, modeBy } from "./mode"
 import { difference, differenceBy } from "./difference"
 import { intersection, intersectionBy } from "./intersection"
@@ -197,6 +198,11 @@ const mapEntriesAsyncPipe = pipe(
       [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
   ),
 )
+const mergePipe = pipe({ a: 1, b: "left" }, merge({ b: 2, c: true }))
+const deepMergePipe = pipe(
+  { config: { retries: 1, flags: { debug: false } }, enabled: true },
+  deepMerge({ config: { timeout: 100, flags: { trace: true } } }),
+)
 
 true satisfies IsEqual<typeof mapValuesPipe, Record<string, "one" | "other">>
 true satisfies IsEqual<
@@ -215,6 +221,18 @@ true satisfies IsEqual<
 true satisfies IsEqual<
   typeof mapEntriesAsyncPipe,
   Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<typeof mergePipe, { a: number; b: number; c: boolean }>
+true satisfies IsEqual<
+  typeof deepMergePipe,
+  {
+    config: {
+      retries: number
+      timeout: number
+      flags: { debug: boolean; trace: boolean }
+    }
+    enabled: boolean
+  }
 >
 
 const unionPipe = pipe([1, 2] as const, union(["zippy"] as const))
@@ -392,6 +410,11 @@ const mapEntriesAsyncInferencePipe = pipe(
       [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
   ),
 )
+const mergeInferencePipe = pipe({ a: 1, b: "left" }, merge({ b: 2, c: true }))
+const deepMergeInferencePipe = pipe(
+  { config: { retries: 1, flags: { debug: false } }, enabled: true },
+  deepMerge({ config: { timeout: 100, flags: { trace: true } } }),
+)
 const unionInferencePipe = pipe([1, 2] as const, union(["zippy"] as const))
 const byInferenceLeft = [{ id: 1 }]
 const byInferenceRight = [{ id: 2 }]
@@ -534,6 +557,21 @@ true satisfies IsEqual<
 true satisfies IsEqual<
   typeof mapEntriesAsyncInferencePipe,
   Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mergeInferencePipe,
+  { a: number; b: number; c: boolean }
+>
+true satisfies IsEqual<
+  typeof deepMergeInferencePipe,
+  {
+    config: {
+      retries: number
+      timeout: number
+      flags: { debug: boolean; trace: boolean }
+    }
+    enabled: boolean
+  }
 >
 true satisfies IsEqual<typeof unionInferencePipe, Array<1 | 2 | "zippy">>
 true satisfies IsEqual<typeof unionByInferencePipe, ByInferenceUnion>

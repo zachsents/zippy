@@ -30,6 +30,7 @@ export {
 } from "./map"
 export { mean, meanBy } from "./mean"
 export { median, medianBy } from "./median"
+export { deepMerge, merge } from "./merge"
 export { mode, modeBy } from "./mode"
 export { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
 export { difference, differenceBy } from "./difference"
