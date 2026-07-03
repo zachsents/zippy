@@ -32,15 +32,11 @@ export { mean, meanBy } from "./mean"
 export { median, medianBy } from "./median"
 export { mode, modeBy } from "./mode"
 export { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
-export {
-  difference,
-  intersection,
-  isDisjointFrom,
-  isSubsetOf,
-  isSupersetOf,
-  symmetricDifference,
-  union,
-} from "./set"
+export { difference } from "./difference"
+export { intersection } from "./intersection"
+export { isDisjointFrom, isSubsetOf, isSupersetOf } from "./set-predicates"
+export { symmetricDifference } from "./symmetric-difference"
 export { sum, sumBy } from "./sum"
+export { union } from "./union"
 export { unique } from "./unique"
 export { zip, zipCustom, zipWith } from "./zip"

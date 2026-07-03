@@ -1,14 +1,10 @@
 import { describe, expect, test } from "bun:test"
 
-import {
-  difference,
-  intersection,
-  isDisjointFrom,
-  isSubsetOf,
-  isSupersetOf,
-  symmetricDifference,
-  union,
-} from "./set"
+import { difference } from "./difference"
+import { intersection } from "./intersection"
+import { isDisjointFrom, isSubsetOf, isSupersetOf } from "./set-predicates"
+import { symmetricDifference } from "./symmetric-difference"
+import { union } from "./union"
 
 describe("union", () => {
   test("returns unique values from each array in first occurrence order", () => {

@@ -1,14 +1,10 @@
 // This file is typechecked only and will never actually run.
 import type { IsEqual } from "type-fest"
-import {
-  difference,
-  intersection,
-  isDisjointFrom,
-  isSubsetOf,
-  isSupersetOf,
-  symmetricDifference,
-  union,
-} from "./set"
+import { difference } from "./difference"
+import { intersection } from "./intersection"
+import { isDisjointFrom, isSubsetOf, isSupersetOf } from "./set-predicates"
+import { symmetricDifference } from "./symmetric-difference"
+import { union } from "./union"
 
 const unionDataFirst = union([1, 2] as const, ["zippy"] as const)
 const unionDataFirstRest = union(

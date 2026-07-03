@@ -22,16 +22,12 @@ import {
 import { mean, meanBy } from "./mean"
 import { median, medianBy } from "./median"
 import { mode, modeBy } from "./mode"
-import {
-  difference,
-  intersection,
-  isDisjointFrom,
-  isSubsetOf,
-  isSupersetOf,
-  symmetricDifference,
-  union,
-} from "./set"
+import { difference } from "./difference"
+import { intersection } from "./intersection"
+import { isDisjointFrom, isSubsetOf, isSupersetOf } from "./set-predicates"
+import { symmetricDifference } from "./symmetric-difference"
 import { sum, sumBy } from "./sum"
+import { union } from "./union"
 import { unique } from "./unique"
 import { zip, zipCustom, zipWith } from "./zip"
 
