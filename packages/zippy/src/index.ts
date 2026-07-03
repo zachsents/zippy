@@ -28,6 +28,7 @@ export {
   mapValues,
   mapValuesAsync,
 } from "./map"
+export { match, matchMerge } from "./match"
 export { mean, meanBy } from "./mean"
 export { median, medianBy } from "./median"
 export { deepMerge, merge } from "./merge"
@@ -48,6 +49,7 @@ export {
   symmetricDifferenceBy,
 } from "./symmetric-difference"
 export { sum, sumBy } from "./sum"
+export { tuple } from "./tuple"
 export { union, unionBy } from "./union"
 export { unique, uniqueBy } from "./unique"
-export { zip, zipCustom, zipWith } from "./zip"
+export { zip } from "./zip"

@@ -93,13 +93,15 @@ selector.
   `[...new Set([...values, ...otherValues])]`.
 - `unionBy` - Return unique values across arrays by mapped key.
 
-### Zipping
+### Matching and Zipping
 
+- `match` - Pair values by matching each left value with the first unmatched
+  right value. Defaults to index matching and supports custom matching and
+  optional merging.
+- `matchMerge` - Match arrays of objects and shallow merge each matched pair.
 - `zip` - Pair values from two arrays by index. Like
   `left.slice(0, right.length).map((value, index) => [value, right[index]])`.
-- `zipCustom` - Pair values with custom matching and optional merging.
-- `zipWith` - Pair and map values from two arrays by index. Like `zip` plus a
-  mapper.
+  Pass a merger callback as the third argument to map each positional pair.
 
 ### Guards
 
@@ -115,3 +117,4 @@ selector.
 ### Other
 
 - `identity` - Return the input value unchanged. Like `(value) => value`.
+- `tuple` - Return arguments as a tuple. Like `(...values) => values`.
