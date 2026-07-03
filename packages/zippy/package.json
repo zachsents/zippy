@@ -4,6 +4,11 @@
   "description": "A TypeScript utility library.",
   "license": "MIT",
   "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/zachsents/zippy",
+    "directory": "packages/zippy"
+  },
   "publishConfig": {
     "access": "public"
   },
