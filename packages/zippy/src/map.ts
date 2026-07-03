@@ -14,6 +14,10 @@ type AsyncArrayMapper<T, Mapped> = (
   values: readonly T[],
 ) => Promisable<Mapped>
 
+type MapAsyncOptions = {
+  concurrency?: number
+}
+
 type DictionaryMapper<Value, Mapped> = (
   value: Value,
   key: string,
@@ -37,6 +41,87 @@ type AsyncEntryMapper<Value, MappedKey extends PropertyKey, MappedValue> = (
   index: number,
   values: Dictionary<Value>,
 ) => Promisable<readonly [key: MappedKey, value: MappedValue]>
+
+type MapAsyncDataFirstArgs<T, Mapped> = [
+  values: readonly T[],
+  mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
+]
+
+type MapAsyncDataLastArgs<T, Mapped> = [
+  mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
+]
+
+type MapAsyncArgs<T, Mapped> =
+  | MapAsyncDataFirstArgs<T, Mapped>
+  | MapAsyncDataLastArgs<T, Mapped>
+
+function isMapAsyncDataLastArgs<T, Mapped>(
+  args: MapAsyncArgs<T, Mapped>,
+): args is MapAsyncDataLastArgs<T, Mapped> {
+  return typeof args[0] === "function"
+}
+
+function mapAsyncConcurrency(options?: MapAsyncOptions) {
+  const { concurrency } = options ?? {}
+
+  if (concurrency === undefined) {
+    return undefined
+  }
+
+  if (!Number.isInteger(concurrency) || concurrency < 1) {
+    throw new RangeError("mapAsync concurrency must be a positive integer")
+  }
+
+  return concurrency
+}
+
+function mapAsyncValues<T, Mapped>(
+  values: readonly T[],
+  mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
+) {
+  const concurrency = mapAsyncConcurrency(options)
+
+  if (concurrency === undefined || concurrency >= values.length) {
+    return Promise.all(
+      values.map((value, index) => mapper(value, index, values)),
+    )
+  }
+
+  const entries = values.entries()
+  const result: Array<Awaited<Mapped>> = []
+  let rejected = false
+
+  async function worker() {
+    for (;;) {
+      if (rejected) {
+        return
+      }
+
+      const next = entries.next()
+
+      if (next.done) {
+        return
+      }
+
+      const [index, value] = next.value
+
+      result[index] = await mapper(value, index, values)
+    }
+  }
+
+  return Promise.all(
+    Array.from({ length: concurrency }, () =>
+      worker().catch((error: unknown) => {
+        rejected = true
+
+        throw error
+      }),
+    ),
+  ).then(() => result)
+}
 
 export function map<T, Mapped>(
   values: readonly T[],
@@ -65,25 +150,22 @@ export function map<T, Mapped>(
 export function mapAsync<T, Mapped>(
   values: readonly T[],
   mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
 ): Promise<Array<Awaited<Mapped>>>
 export function mapAsync<T, Mapped>(
   mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
 ): (values: readonly T[]) => Promise<Array<Awaited<Mapped>>>
-export function mapAsync<T, Mapped>(
-  ...args:
-    | [values: readonly T[], mapper: AsyncArrayMapper<T, Mapped>]
-    | [mapper: AsyncArrayMapper<T, Mapped>]
-) {
-  if (args.length === 1) {
-    const [mapper] = args
+export function mapAsync<T, Mapped>(...args: MapAsyncArgs<T, Mapped>) {
+  if (isMapAsyncDataLastArgs(args)) {
+    const [mapper, options] = args
 
-    return (values: readonly T[]) =>
-      Promise.all(values.map((value, index) => mapper(value, index, values)))
+    return (values: readonly T[]) => mapAsyncValues(values, mapper, options)
   }
 
-  const [values, mapper] = args
+  const [values, mapper, options] = args
 
-  return Promise.all(values.map((value, index) => mapper(value, index, values)))
+  return mapAsyncValues(values, mapper, options)
 }
 
 export function mapValues<Value, Mapped>(

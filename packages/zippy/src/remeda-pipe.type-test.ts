@@ -112,11 +112,21 @@ const mapAsyncPipe = pipe(
   [1, 2, 3] as const,
   mapAsync(async (value: 1 | 2 | 3) => (value === 1 ? "one" : "other")),
 )
+const mapAsyncOptionsPipe = pipe(
+  [1, 2, 3] as const,
+  mapAsync(async (value: 1 | 2 | 3) => (value === 1 ? "one" : "other"), {
+    concurrency: 2,
+  }),
+)
 
 true satisfies IsEqual<typeof uniquePipe, Array<1 | 2>>
 true satisfies IsEqual<typeof uniqueByPipe, Array<{ id: number }>>
 true satisfies IsEqual<typeof mapPipe, Array<"one" | "other">>
 true satisfies IsEqual<typeof mapAsyncPipe, Promise<Array<"one" | "other">>>
+true satisfies IsEqual<
+  typeof mapAsyncOptionsPipe,
+  Promise<Array<"one" | "other">>
+>
 
 const sumPipe = pipe([1, 2, 3] as const, sum())
 const sumByPipe = pipe(

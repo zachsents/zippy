@@ -11,6 +11,8 @@ import {
   mapValuesAsync,
 } from "./map"
 
+const asyncNumberIdentity = async (value: number) => value
+
 describe("map", () => {
   test("maps array values", () => {
     expect(map([1, 2, 3], (value) => value * 2)).toEqual([2, 4, 6])
@@ -50,6 +52,60 @@ describe("mapAsync", () => {
         return 4 - value
       }),
     ).resolves.toEqual([3, 2, 1])
+  })
+
+  test("limits mapper concurrency", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapAsync(
+      [1, 2, 3, 4],
+      async (value) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await new Promise((resolve) => setTimeout(resolve, 1))
+
+        active -= 1
+
+        return value * 2
+      },
+      { concurrency: 2 },
+    )
+
+    expect(result).toEqual([2, 4, 6, 8])
+    expect(maxActive).toBe(2)
+  })
+
+  test("limits mapper concurrency data-last", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapAsync(
+      async (value: number) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await new Promise((resolve) => setTimeout(resolve, 1))
+
+        active -= 1
+
+        return value * 2
+      },
+      { concurrency: 1 },
+    )([1, 2, 3])
+
+    expect(result).toEqual([2, 4, 6])
+    expect(maxActive).toBe(1)
+  })
+
+  test("throws for invalid concurrency limits", () => {
+    expect(() =>
+      mapAsync([1], asyncNumberIdentity, { concurrency: 0 }),
+    ).toThrow(RangeError)
+    expect(() =>
+      mapAsync([1], asyncNumberIdentity, { concurrency: 1.5 }),
+    ).toThrow("positive integer")
   })
 })
 

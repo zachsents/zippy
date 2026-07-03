@@ -27,12 +27,29 @@ const mapAsyncDataFirst = mapAsync([1, 2, 3] as const, async (value) =>
 const mapAsyncDataLast = mapAsync(async (value: 1 | 2 | 3) =>
   value === 1 ? "one" : "other",
 )([1, 2, 3] as const)
+const mapAsyncOptionsDataFirst = mapAsync(
+  [1, 2, 3] as const,
+  async (value) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)
+const mapAsyncOptionsDataLast = mapAsync(
+  async (value: 1 | 2 | 3) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)([1, 2, 3] as const)
 
 true satisfies IsEqual<
   typeof mapAsyncDataFirst,
   Promise<Array<"one" | "other">>
 >
 true satisfies IsEqual<typeof mapAsyncDataLast, Promise<Array<"one" | "other">>>
+true satisfies IsEqual<
+  typeof mapAsyncOptionsDataFirst,
+  Promise<Array<"one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapAsyncOptionsDataLast,
+  Promise<Array<"one" | "other">>
+>
 
 const mapValuesDataFirst = mapValues({ a: 1, b: 2 } as const, (value) =>
   value === 1 ? "one" : "other",

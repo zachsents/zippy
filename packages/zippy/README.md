@@ -23,7 +23,8 @@ examples below use the data-first form.
   `values.filter((value) => value !== undefined)`.
 - `map` - Map array values. Like `values.map(mapper)`.
 - `mapAsync` - Map array values with async support. Like
-  `Promise.all(values.map(mapper))`.
+  `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit
+  parallel mapper calls.
 - `unique` - Remove duplicate values. Like `[...new Set(values)]`.
 - `uniqueBy` - Remove duplicate values by a mapped key or type-safe
   property/dot path selector.
