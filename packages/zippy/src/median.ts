@@ -10,7 +10,9 @@ function medianValues(values: readonly number[]) {
     return undefined
   }
 
-  const sorted = values.toSorted((left, right) => left - right)
+  const sorted = [...values]
+  // eslint-disable-next-line unicorn/no-array-sort -- Intentionally sort a copied array for older runtimes.
+  sorted.sort((left, right) => left - right)
   const midpoint = Math.floor(sorted.length / 2)
   const right = sorted[midpoint]
 
