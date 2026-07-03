@@ -57,9 +57,84 @@ type MapAsyncArgs<T, Mapped> =
   | MapAsyncDataFirstArgs<T, Mapped>
   | MapAsyncDataLastArgs<T, Mapped>
 
+type MapValuesAsyncDataFirstArgs<Value, Mapped> = [
+  values: Dictionary<Value>,
+  mapper: AsyncDictionaryMapper<Value, Mapped>,
+  options?: MapAsyncOptions,
+]
+
+type MapValuesAsyncDataLastArgs<Value, Mapped> = [
+  mapper: AsyncDictionaryMapper<Value, Mapped>,
+  options?: MapAsyncOptions,
+]
+
+type MapValuesAsyncArgs<Value, Mapped> =
+  | MapValuesAsyncDataFirstArgs<Value, Mapped>
+  | MapValuesAsyncDataLastArgs<Value, Mapped>
+
+type MapKeysAsyncDataFirstArgs<Value, MappedKey extends PropertyKey> = [
+  values: Dictionary<Value>,
+  mapper: AsyncDictionaryMapper<Value, MappedKey>,
+  options?: MapAsyncOptions,
+]
+
+type MapKeysAsyncDataLastArgs<Value, MappedKey extends PropertyKey> = [
+  mapper: AsyncDictionaryMapper<Value, MappedKey>,
+  options?: MapAsyncOptions,
+]
+
+type MapKeysAsyncArgs<Value, MappedKey extends PropertyKey> =
+  | MapKeysAsyncDataFirstArgs<Value, MappedKey>
+  | MapKeysAsyncDataLastArgs<Value, MappedKey>
+
+type MapEntriesAsyncDataFirstArgs<
+  Value,
+  MappedKey extends PropertyKey,
+  MappedValue,
+> = [
+  values: Dictionary<Value>,
+  mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>,
+  options?: MapAsyncOptions,
+]
+
+type MapEntriesAsyncDataLastArgs<
+  Value,
+  MappedKey extends PropertyKey,
+  MappedValue,
+> = [
+  mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>,
+  options?: MapAsyncOptions,
+]
+
+type MapEntriesAsyncArgs<Value, MappedKey extends PropertyKey, MappedValue> =
+  | MapEntriesAsyncDataFirstArgs<Value, MappedKey, MappedValue>
+  | MapEntriesAsyncDataLastArgs<Value, MappedKey, MappedValue>
+
 function isMapAsyncDataLastArgs<T, Mapped>(
   args: MapAsyncArgs<T, Mapped>,
 ): args is MapAsyncDataLastArgs<T, Mapped> {
+  return typeof args[0] === "function"
+}
+
+function isMapValuesAsyncDataLastArgs<Value, Mapped>(
+  args: MapValuesAsyncArgs<Value, Mapped>,
+): args is MapValuesAsyncDataLastArgs<Value, Mapped> {
+  return typeof args[0] === "function"
+}
+
+function isMapKeysAsyncDataLastArgs<Value, MappedKey extends PropertyKey>(
+  args: MapKeysAsyncArgs<Value, MappedKey>,
+): args is MapKeysAsyncDataLastArgs<Value, MappedKey> {
+  return typeof args[0] === "function"
+}
+
+function isMapEntriesAsyncDataLastArgs<
+  Value,
+  MappedKey extends PropertyKey,
+  MappedValue,
+>(
+  args: MapEntriesAsyncArgs<Value, MappedKey, MappedValue>,
+): args is MapEntriesAsyncDataLastArgs<Value, MappedKey, MappedValue> {
   return typeof args[0] === "function"
 }
 
@@ -77,20 +152,18 @@ function mapAsyncConcurrency(options?: MapAsyncOptions) {
   return concurrency
 }
 
-function mapAsyncValues<T, Mapped>(
-  values: readonly T[],
-  mapper: AsyncArrayMapper<T, Mapped>,
+function mapAsyncItems<Item, Mapped>(
+  items: readonly Item[],
+  mapper: (item: Item, index: number) => Promisable<Mapped>,
   options?: MapAsyncOptions,
 ) {
   const concurrency = mapAsyncConcurrency(options)
 
-  if (concurrency === undefined || concurrency >= values.length) {
-    return Promise.all(
-      values.map((value, index) => mapper(value, index, values)),
-    )
+  if (concurrency === undefined || concurrency >= items.length) {
+    return Promise.all(items.map((item, index) => mapper(item, index)))
   }
 
-  const entries = values.entries()
+  const entries = items.entries()
   const result: Array<Awaited<Mapped>> = []
   let rejected = false
 
@@ -108,7 +181,7 @@ function mapAsyncValues<T, Mapped>(
 
       const [index, value] = next.value
 
-      result[index] = await mapper(value, index, values)
+      result[index] = await mapper(value, index)
     }
   }
 
@@ -121,6 +194,18 @@ function mapAsyncValues<T, Mapped>(
       }),
     ),
   ).then(() => result)
+}
+
+function mapAsyncValues<T, Mapped>(
+  values: readonly T[],
+  mapper: AsyncArrayMapper<T, Mapped>,
+  options?: MapAsyncOptions,
+) {
+  return mapAsyncItems(
+    values,
+    (value, index) => mapper(value, index, values),
+    options,
+  )
 }
 
 export function map<T, Mapped>(
@@ -202,33 +287,33 @@ export function mapValues<Value, Mapped>(
 export function mapValuesAsync<Value, Mapped>(
   values: Dictionary<Value>,
   mapper: AsyncDictionaryMapper<Value, Mapped>,
+  options?: MapAsyncOptions,
 ): Promise<Record<string, Awaited<Mapped>>>
 export function mapValuesAsync<Value, Mapped>(
   mapper: AsyncDictionaryMapper<Value, Mapped>,
+  options?: MapAsyncOptions,
 ): <InputValue extends Value>(
   values: Dictionary<InputValue>,
 ) => Promise<Record<string, Awaited<Mapped>>>
 export function mapValuesAsync<Value, Mapped>(
-  ...args:
-    | [values: Dictionary<Value>, mapper: AsyncDictionaryMapper<Value, Mapped>]
-    | [mapper: AsyncDictionaryMapper<Value, Mapped>]
+  ...args: MapValuesAsyncArgs<Value, Mapped>
 ) {
-  if (args.length === 1) {
-    const [mapper] = args
+  if (isMapValuesAsyncDataLastArgs(args)) {
+    const [mapper, options] = args
 
     return <InputValue extends Value>(values: Dictionary<InputValue>) =>
-      mapValuesAsync(values, mapper)
+      mapValuesAsync(values, mapper, options)
   }
 
-  const [values, mapper] = args
+  const [values, mapper, options] = args
 
-  return Promise.all(
-    Object.entries(values).map(
-      async ([key, value]): Promise<readonly [string, Awaited<Mapped>]> => [
-        key,
-        await mapper(value, key, values),
-      ],
-    ),
+  return mapAsyncItems(
+    Object.entries(values),
+    async ([key, value]): Promise<readonly [string, Awaited<Mapped>]> => [
+      key,
+      await mapper(value, key, values),
+    ],
+    options,
   ).then((mappedEntries) => {
     const result: Record<string, Awaited<Mapped>> = {}
 
@@ -274,36 +359,33 @@ export function mapKeys<Value, MappedKey extends PropertyKey>(
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
   values: Dictionary<Value>,
   mapper: AsyncDictionaryMapper<Value, MappedKey>,
+  options?: MapAsyncOptions,
 ): Promise<Record<MappedKey, Value>>
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
   mapper: AsyncDictionaryMapper<Value, MappedKey>,
+  options?: MapAsyncOptions,
 ): <InputValue extends Value>(
   values: Dictionary<InputValue>,
 ) => Promise<Record<MappedKey, InputValue>>
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
-  ...args:
-    | [
-        values: Dictionary<Value>,
-        mapper: AsyncDictionaryMapper<Value, MappedKey>,
-      ]
-    | [mapper: AsyncDictionaryMapper<Value, MappedKey>]
+  ...args: MapKeysAsyncArgs<Value, MappedKey>
 ) {
-  if (args.length === 1) {
-    const [mapper] = args
+  if (isMapKeysAsyncDataLastArgs(args)) {
+    const [mapper, options] = args
 
     return <InputValue extends Value>(values: Dictionary<InputValue>) =>
-      mapKeysAsync(values, mapper)
+      mapKeysAsync(values, mapper, options)
   }
 
-  const [values, mapper] = args
+  const [values, mapper, options] = args
 
-  return Promise.all(
-    Object.entries(values).map(
-      async ([key, value]): Promise<readonly [MappedKey, Value]> => [
-        await mapper(value, key, values),
-        value,
-      ],
-    ),
+  return mapAsyncItems(
+    Object.entries(values),
+    async ([key, value]): Promise<readonly [MappedKey, Value]> => [
+      await mapper(value, key, values),
+      value,
+    ],
+    options,
   ).then((mappedEntries) => {
     const result: Record<MappedKey, Value> = Object.create(null)
 
@@ -359,6 +441,7 @@ export function mapEntriesAsync<
 >(
   values: Dictionary<Value>,
   mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>,
+  options?: MapAsyncOptions,
 ): Promise<Record<MappedKey, MappedValue>>
 export function mapEntriesAsync<
   Value,
@@ -366,6 +449,7 @@ export function mapEntriesAsync<
   MappedValue,
 >(
   mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>,
+  options?: MapAsyncOptions,
 ): <InputValue extends Value>(
   values: Dictionary<InputValue>,
 ) => Promise<Record<MappedKey, MappedValue>>
@@ -373,28 +457,21 @@ export function mapEntriesAsync<
   Value,
   MappedKey extends PropertyKey,
   MappedValue,
->(
-  ...args:
-    | [
-        values: Dictionary<Value>,
-        mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>,
-      ]
-    | [mapper: AsyncEntryMapper<Value, MappedKey, MappedValue>]
-) {
-  if (args.length === 1) {
-    const [mapper] = args
+>(...args: MapEntriesAsyncArgs<Value, MappedKey, MappedValue>) {
+  if (isMapEntriesAsyncDataLastArgs(args)) {
+    const [mapper, options] = args
 
     return <InputValue extends Value>(values: Dictionary<InputValue>) =>
-      mapEntriesAsync(values, mapper)
+      mapEntriesAsync(values, mapper, options)
   }
 
-  const [values, mapper] = args
+  const [values, mapper, options] = args
   const entries = Object.entries(values)
 
-  return Promise.all(
-    entries.map((entry, index) =>
-      Promise.resolve(mapper(entry, index, values)),
-    ),
+  return mapAsyncItems(
+    entries,
+    (entry, index) => Promise.resolve(mapper(entry, index, values)),
+    options,
   ).then((mappedEntries) => {
     const result: Record<MappedKey, MappedValue> = Object.create(null)
 

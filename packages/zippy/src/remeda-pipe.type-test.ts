@@ -187,6 +187,12 @@ const mapValuesAsyncPipe = pipe(
   { a: 1, b: 2 } as const,
   mapValuesAsync(async (value: 1 | 2) => (value === 1 ? "one" : "other")),
 )
+const mapValuesAsyncOptionsPipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapValuesAsync(async (value: 1 | 2) => (value === 1 ? "one" : "other"), {
+    concurrency: 2,
+  }),
+)
 const mapKeysPipe = pipe(
   { a: 1, b: 2 } as const,
   mapKeys((_value: 1 | 2, key) => (key === "a" ? "first" : "other")),
@@ -194,6 +200,13 @@ const mapKeysPipe = pipe(
 const mapKeysAsyncPipe = pipe(
   { a: 1, b: 2 } as const,
   mapKeysAsync(async (_value: 1 | 2, key) => (key === "a" ? "first" : "other")),
+)
+const mapKeysAsyncOptionsPipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapKeysAsync(
+    async (_value: 1 | 2, key) => (key === "a" ? "first" : "other"),
+    { concurrency: 2 },
+  ),
 )
 const mapEntriesPipe = pipe(
   { a: 1, b: 2 } as const,
@@ -209,6 +222,14 @@ const mapEntriesAsyncPipe = pipe(
       [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
   ),
 )
+const mapEntriesAsyncOptionsPipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapEntriesAsync(
+    async ([key, value]: readonly [string, 1 | 2]) =>
+      [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
+    { concurrency: 2 },
+  ),
+)
 const mergePipe = pipe({ a: 1, b: "left" }, merge({ b: 2, c: true }))
 const deepMergePipe = pipe(
   { config: { retries: 1, flags: { debug: false } }, enabled: true },
@@ -220,9 +241,17 @@ true satisfies IsEqual<
   typeof mapValuesAsyncPipe,
   Promise<Record<string, "one" | "other">>
 >
+true satisfies IsEqual<
+  typeof mapValuesAsyncOptionsPipe,
+  Promise<Record<string, "one" | "other">>
+>
 true satisfies IsEqual<typeof mapKeysPipe, Record<"first" | "other", 1 | 2>>
 true satisfies IsEqual<
   typeof mapKeysAsyncPipe,
+  Promise<Record<"first" | "other", 1 | 2>>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncOptionsPipe,
   Promise<Record<"first" | "other", 1 | 2>>
 >
 true satisfies IsEqual<
@@ -231,6 +260,10 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<
   typeof mapEntriesAsyncPipe,
+  Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncOptionsPipe,
   Promise<Record<"first" | "other", "one" | "other">>
 >
 true satisfies IsEqual<typeof mergePipe, { a: number; b: number; c: boolean }>
