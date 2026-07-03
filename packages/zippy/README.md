@@ -99,9 +99,10 @@ selector.
 ### Matching and Zipping
 
 - `match` - Pair values by matching each left value with the first unmatched
-  right value. Defaults to index matching and supports custom matching and
-  optional merging.
-- `matchMerge` - Match arrays of objects and shallow merge each matched pair.
+  right value using a required matcher callback or shared property path. Pass a
+  merger callback as the fourth argument to map each matched pair.
+- `matchMerge` - Match arrays of objects with a required matcher and shallow
+  merge each matched pair.
 - `zip` - Pair values from two arrays by index. Like
   `left.slice(0, right.length).map((value, index) => [value, right[index]])`.
   Pass a merger callback as the third argument to map each positional pair.

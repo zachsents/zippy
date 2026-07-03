@@ -3,20 +3,6 @@ import { describe, expect, test } from "bun:test"
 import { match, matchMerge } from "./match"
 
 describe("match", () => {
-  test("pairs values by index by default", () => {
-    expect(match(["a", "b"], [1, 2])).toEqual([
-      ["a", 1],
-      ["b", 2],
-    ])
-  })
-
-  test("pairs values by index by default data-last", () => {
-    expect(match([1, 2])(["a", "b"])).toEqual([
-      ["a", 1],
-      ["b", 2],
-    ])
-  })
-
   test("matches values with a custom matcher", () => {
     const leftB = { id: "b", label: "B" }
     const leftA = { id: "a", label: "A" }
@@ -26,9 +12,11 @@ describe("match", () => {
     const rightDuplicateB = { id: "b", count: 3 }
 
     expect(
-      match([leftB, leftA, leftMissing], [rightA, rightB, rightDuplicateB], {
-        matcher: (leftValue, rightValue) => leftValue.id === rightValue.id,
-      }),
+      match(
+        [leftB, leftA, leftMissing],
+        [rightA, rightB, rightDuplicateB],
+        (leftValue, rightValue) => leftValue.id === rightValue.id,
+      ),
     ).toEqual([
       [leftB, rightB],
       [leftA, rightA],
@@ -44,9 +32,11 @@ describe("match", () => {
     const rightDuplicateB = { id: "b", count: 3 }
 
     expect(
-      match([leftB, leftA, leftMissing], [rightA, rightB, rightDuplicateB], {
-        matcher: "id",
-      }),
+      match(
+        [leftB, leftA, leftMissing],
+        [rightA, rightB, rightDuplicateB],
+        "id",
+      ),
     ).toEqual([
       [leftB, rightB],
       [leftA, rightA],
@@ -60,13 +50,9 @@ describe("match", () => {
           { user: { id: "second" }, count: 2 },
           { user: { id: "first" }, count: 1 },
         ],
-        {
-          matcher: "user.id",
-          merger: (
-            leftValue: { user: { id: string }; label: string },
-            rightValue,
-          ) => `${leftValue.label}:${rightValue.count}`,
-        },
+        "user.id",
+        (leftValue: { user: { id: string }; label: string }, rightValue) =>
+          `${leftValue.label}:${rightValue.count}`,
       )([
         { user: { id: "first" }, label: "A" },
         { user: { id: "second" }, label: "B" },
@@ -78,16 +64,20 @@ describe("match", () => {
     const leftNaN = { id: NaN, label: "left" }
     const rightNaN = { id: NaN, count: 1 }
 
-    expect(match([leftNaN], [rightNaN], { matcher: "id" })).toEqual([
-      [leftNaN, rightNaN],
-    ])
+    expect(match([leftNaN], [rightNaN], "id")).toEqual([[leftNaN, rightNaN]])
   })
 
   test("merges matched values with a custom merger", () => {
     expect(
-      match(["a", "b"], [1, 2], {
-        merger: (leftValue, rightValue) => `${leftValue}:${rightValue}`,
-      }),
+      match(
+        ["a", "b"],
+        [
+          { key: "b", count: 2 },
+          { key: "a", count: 1 },
+        ],
+        (leftValue, rightValue) => leftValue === rightValue.key,
+        (leftValue, rightValue) => `${leftValue}:${rightValue.count}`,
+      ),
     ).toEqual(["a:1", "b:2"])
   })
 
@@ -98,12 +88,10 @@ describe("match", () => {
           { id: "second", count: 2 },
           { id: "first", count: 1 },
         ],
-        {
-          matcher: (leftValue: { id: string; label: string }, rightValue) =>
-            leftValue.id === rightValue.id,
-          merger: (leftValue: { id: string; label: string }, rightValue) =>
-            `${leftValue.label}:${rightValue.count}`,
-        },
+        (leftValue: { id: string; label: string }, rightValue) =>
+          leftValue.id === rightValue.id,
+        (leftValue: { id: string; label: string }, rightValue) =>
+          `${leftValue.label}:${rightValue.count}`,
       )([
         { id: "first", label: "A" },
         { id: "second", label: "B" },
@@ -118,25 +106,20 @@ describe("match", () => {
     const mergerSourcesMatch: boolean[] = []
 
     expect(
-      match(leftValues, rightValues, {
-        matcher: (
-          leftValue,
-          rightValue,
-          leftIndex,
-          rightIndex,
-          left,
-          right,
-        ) => {
+      match(
+        leftValues,
+        rightValues,
+        (leftValue, rightValue, leftIndex, rightIndex, left, right) => {
           matcherSourcesMatch.push(left === leftValues && right === rightValues)
 
           return leftValue === rightValue && leftIndex + 1 === rightIndex
         },
-        merger: (leftValue, rightValue, leftIndex, rightIndex, left, right) => {
+        (leftValue, rightValue, leftIndex, rightIndex, left, right) => {
           mergerSourcesMatch.push(left === leftValues && right === rightValues)
 
           return `${leftIndex}:${rightIndex}:${leftValue}:${rightValue}`
         },
-      }),
+      ),
     ).toEqual(["0:1:z:z", "1:2:i:i"])
     expect(matcherSourcesMatch).toEqual([true, true, true, true])
     expect(mergerSourcesMatch).toEqual([true, true])
@@ -144,7 +127,7 @@ describe("match", () => {
 })
 
 describe("matchMerge", () => {
-  test("shallow merges matched objects by index by default", () => {
+  test("matches and shallow merges objects with a property path matcher", () => {
     expect(
       matchMerge(
         [
@@ -155,6 +138,7 @@ describe("matchMerge", () => {
           { id: "a", label: "right A", count: 1 },
           { id: "b", label: "right B", count: 2 },
         ],
+        "id",
       ),
     ).toEqual([
       { id: "a", label: "right A", count: 1 },
