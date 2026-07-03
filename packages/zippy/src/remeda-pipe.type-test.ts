@@ -113,16 +113,22 @@ const sumByPipe = pipe(
   [{ count: 1 }, { count: 2 }] as const,
   sumBy((value: { readonly count: number }) => value.count),
 )
+const sumByPathPipe = pipe(
+  [{ count: 1 }, { count: 2 }] as const,
+  sumBy("count"),
+)
 const meanPipe = pipe([1, 2, 3] as const, mean())
 const meanByPipe = pipe(
   [{ score: 1 }, { score: 2 }] as const,
   meanBy((value: { readonly score: number }) => value.score),
 )
+const meanByPathPipe = pipe([{ score: 1 }, { score: 2 }], meanBy("score"))
 const medianPipe = pipe([1, 2, 3] as const, median())
 const medianByPipe = pipe(
   [{ score: 1 }, { score: 2 }] as const,
   medianBy((value: { readonly score: number }) => value.score),
 )
+const medianByPathPipe = pipe([{ score: 1 }, { score: 2 }], medianBy("score"))
 const modePipe = pipe([1, 2, 2] as const, mode())
 const modeValues = [
   { kind: "a", score: 1 },
@@ -132,16 +138,24 @@ const modeByPipe = pipe(
   modeValues,
   modeBy((value: (typeof modeValues)[number]) => value.kind),
 )
+const modeByPathPipe = pipe(modeValues, modeBy("kind"))
 
 true satisfies IsEqual<typeof sumPipe, number>
 true satisfies IsEqual<typeof sumByPipe, number>
+true satisfies IsEqual<typeof sumByPathPipe, number>
 true satisfies IsEqual<typeof meanPipe, number | undefined>
 true satisfies IsEqual<typeof meanByPipe, number | undefined>
+true satisfies IsEqual<typeof meanByPathPipe, number | undefined>
 true satisfies IsEqual<typeof medianPipe, number | undefined>
 true satisfies IsEqual<typeof medianByPipe, number | undefined>
+true satisfies IsEqual<typeof medianByPathPipe, number | undefined>
 true satisfies IsEqual<typeof modePipe, 1 | 2 | undefined>
 true satisfies IsEqual<
   typeof modeByPipe,
+  (typeof modeValues)[number] | undefined
+>
+true satisfies IsEqual<
+  typeof modeByPathPipe,
   (typeof modeValues)[number] | undefined
 >
 
@@ -242,3 +256,226 @@ true satisfies IsEqual<typeof zipWithPipe, Array<"first" | "other">>
 true satisfies IsEqual<typeof zipCustomPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipCustomMatcherPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipCustomMergerPipe, Array<"first" | "other">>
+
+const castArrayInferencePipe = pipe("zippy" as const, castArray())
+const filterInferencePipe = pipe(
+  [1, 2, 3] as const,
+  filter((value: 1 | 2 | 3) => value > 1),
+)
+const filterGuardInferencePipe = pipe(entries, filter(isAEntry))
+const filterOutInferencePipe = pipe(
+  [1, 2, 3] as const,
+  filterOut((value: 1 | 2 | 3) => value > 1),
+)
+const filterOutGuardInferencePipe = pipe(entries, filterOut(isAEntry))
+const filterOutFalsyInferencePipe = pipe(
+  [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n] as const,
+  filterOutFalsy(),
+)
+const filterOutNullishInferencePipe = pipe(
+  [1, null, 2, undefined] as const,
+  filterOutNullish(),
+)
+const filterOutUndefinedInferencePipe = pipe(
+  [1, null, undefined] as const,
+  filterOutUndefined(),
+)
+const uniqueInferencePipe = pipe([1, 2, 1] as const, unique())
+const mapInferencePipe = pipe(
+  [1, 2, 3] as const,
+  map((value) => (value === 1 ? "one" : "other")),
+)
+const mapAsyncInferencePipe = pipe(
+  [1, 2, 3] as const,
+  mapAsync(async (value) => (value === 1 ? "one" : "other")),
+)
+const sumInferencePipe = pipe([1, 2, 3] as const, sum())
+const sumByInferencePipe = pipe(
+  [{ count: 1 }, { count: 2 }] as const,
+  sumBy((value) => value.count),
+)
+const sumByPathInferencePipe = pipe([{ hello: 5 }], sumBy("hello"))
+const meanInferencePipe = pipe([1, 2, 3] as const, mean())
+const meanByInferencePipe = pipe(
+  [{ score: 1 }, { score: 2 }] as const,
+  meanBy((value) => value.score),
+)
+const meanByPathInferencePipe = pipe(
+  [{ score: 1 }, { score: 2 }],
+  meanBy("score"),
+)
+const medianInferencePipe = pipe([1, 2, 3] as const, median())
+const medianByInferencePipe = pipe(
+  [{ score: 1 }, { score: 2 }] as const,
+  medianBy((value) => value.score),
+)
+const medianByPathInferencePipe = pipe(
+  [{ score: 1 }, { score: 2 }],
+  medianBy("score"),
+)
+const modeInferencePipe = pipe([1, 2, 2] as const, mode())
+const modeByInferencePipe = pipe(
+  modeValues,
+  modeBy((value) => value.kind),
+)
+const modeByPathInferencePipe = pipe(modeValues, modeBy("kind"))
+const mapValuesInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapValues((value) => (value === 1 ? "one" : "other")),
+)
+const mapValuesAsyncInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapValuesAsync(async (value) => (value === 1 ? "one" : "other")),
+)
+const mapKeysInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapKeys((_value, key) => (key === "a" ? "first" : "other")),
+)
+const mapKeysAsyncInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapKeysAsync(async (_value, key) => (key === "a" ? "first" : "other")),
+)
+const mapEntriesInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapEntries(
+    ([key, value]) =>
+      [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
+  ),
+)
+const mapEntriesAsyncInferencePipe = pipe(
+  { a: 1, b: 2 } as const,
+  mapEntriesAsync(
+    async ([key, value]) =>
+      [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
+  ),
+)
+const unionInferencePipe = pipe([1, 2] as const, union(["zippy"] as const))
+const differenceInferencePipe = pipe(
+  [1, 2, 3] as const,
+  difference([2] as const),
+)
+const intersectionInferencePipe = pipe(
+  [1, 2, 3] as const,
+  intersection([2] as const),
+)
+const symmetricDifferenceInferencePipe = pipe(
+  [1, 2] as const,
+  symmetricDifference(["zippy"] as const),
+)
+const isSubsetOfInferencePipe = pipe(
+  [1, 2] as const,
+  isSubsetOf([1, 2, 3] as const),
+)
+const isSupersetOfInferencePipe = pipe(
+  [1, 2, 3] as const,
+  isSupersetOf([1, 2] as const),
+)
+const isDisjointFromInferencePipe = pipe(
+  [1, 2] as const,
+  isDisjointFrom([3] as const),
+)
+const zipInferencePipe = pipe(["a", "b"] as const, zip([1, 2] as const))
+const zipWithInferencePipe = pipe(
+  ["a", "b"] as const,
+  zipWith([1, 2] as const, (leftValue, rightValue) =>
+    leftValue === "a" && rightValue === 1 ? "first" : "other",
+  ),
+)
+const zipCustomInferencePipe = pipe(
+  ["a", "b"] as const,
+  zipCustom([1, 2] as const),
+)
+const zipCustomMatcherInferencePipe = pipe(
+  ["a", "b"] as const,
+  zipCustom([1, 2] as const, {
+    matcher: (leftValue, rightValue) => leftValue === "a" && rightValue === 1,
+  }),
+)
+const zipCustomMergerInferencePipe = pipe(
+  ["a", "b"] as const,
+  zipCustom([1, 2] as const, {
+    merger: (leftValue, rightValue) =>
+      leftValue === "a" && rightValue === 1 ? "first" : "other",
+  }),
+)
+
+true satisfies IsEqual<typeof castArrayInferencePipe, Array<"zippy">>
+true satisfies IsEqual<typeof filterInferencePipe, Array<1 | 2 | 3>>
+true satisfies IsEqual<typeof filterGuardInferencePipe, AEntry[]>
+true satisfies IsEqual<typeof filterOutInferencePipe, Array<1 | 2 | 3>>
+true satisfies IsEqual<typeof filterOutGuardInferencePipe, Array<BEntry | null>>
+true satisfies IsEqual<
+  typeof filterOutFalsyInferencePipe,
+  Array<1 | "zippy" | true | 2n>
+>
+true satisfies IsEqual<typeof filterOutNullishInferencePipe, Array<1 | 2>>
+true satisfies IsEqual<typeof filterOutUndefinedInferencePipe, Array<1 | null>>
+true satisfies IsEqual<typeof uniqueInferencePipe, Array<1 | 2>>
+true satisfies IsEqual<typeof mapInferencePipe, Array<"one" | "other">>
+true satisfies IsEqual<
+  typeof mapAsyncInferencePipe,
+  Promise<Array<"one" | "other">>
+>
+true satisfies IsEqual<typeof sumInferencePipe, number>
+true satisfies IsEqual<typeof sumByInferencePipe, number>
+true satisfies IsEqual<typeof sumByPathInferencePipe, number>
+true satisfies IsEqual<typeof meanInferencePipe, number | undefined>
+true satisfies IsEqual<typeof meanByInferencePipe, number | undefined>
+true satisfies IsEqual<typeof meanByPathInferencePipe, number | undefined>
+true satisfies IsEqual<typeof medianInferencePipe, number | undefined>
+true satisfies IsEqual<typeof medianByInferencePipe, number | undefined>
+true satisfies IsEqual<typeof medianByPathInferencePipe, number | undefined>
+true satisfies IsEqual<typeof modeInferencePipe, 1 | 2 | undefined>
+true satisfies IsEqual<
+  typeof modeByInferencePipe,
+  (typeof modeValues)[number] | undefined
+>
+true satisfies IsEqual<
+  typeof modeByPathInferencePipe,
+  (typeof modeValues)[number] | undefined
+>
+true satisfies IsEqual<
+  typeof mapValuesInferencePipe,
+  Record<string, "one" | "other">
+>
+true satisfies IsEqual<
+  typeof mapValuesAsyncInferencePipe,
+  Promise<Record<string, "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapKeysInferencePipe,
+  Record<"first" | "other", 1 | 2>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncInferencePipe,
+  Promise<Record<"first" | "other", 1 | 2>>
+>
+true satisfies IsEqual<
+  typeof mapEntriesInferencePipe,
+  Record<"first" | "other", "one" | "other">
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncInferencePipe,
+  Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<typeof unionInferencePipe, Array<1 | 2 | "zippy">>
+true satisfies IsEqual<typeof differenceInferencePipe, Array<1 | 2 | 3>>
+true satisfies IsEqual<typeof intersectionInferencePipe, Array<1 | 2 | 3>>
+true satisfies IsEqual<
+  typeof symmetricDifferenceInferencePipe,
+  Array<1 | 2 | "zippy">
+>
+true satisfies IsEqual<typeof isSubsetOfInferencePipe, boolean>
+true satisfies IsEqual<typeof isSupersetOfInferencePipe, boolean>
+true satisfies IsEqual<typeof isDisjointFromInferencePipe, boolean>
+true satisfies IsEqual<typeof zipInferencePipe, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<typeof zipWithInferencePipe, Array<"first" | "other">>
+true satisfies IsEqual<typeof zipCustomInferencePipe, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<
+  typeof zipCustomMatcherInferencePipe,
+  Array<["a" | "b", 1 | 2]>
+>
+true satisfies IsEqual<
+  typeof zipCustomMergerInferencePipe,
+  Array<"first" | "other">
+>

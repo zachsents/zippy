@@ -26,6 +26,23 @@ describe("meanBy", () => {
     ).toBe(5)
   })
 
+  test("returns the average of numbers selected by property path", () => {
+    expect(meanBy([{ score: 2 }, { score: 4 }, { score: 9 }], "score")).toBe(5)
+  })
+
+  test("returns the average of numbers selected by dot path", () => {
+    expect(
+      meanBy(
+        [
+          { stats: { score: 2 } },
+          { stats: { score: 4 } },
+          { stats: { score: 9 } },
+        ],
+        "stats.score",
+      ),
+    ).toBe(5)
+  })
+
   test("returns undefined for an empty array", () => {
     expect(meanBy([], () => 1)).toBeUndefined()
   })
@@ -34,5 +51,9 @@ describe("meanBy", () => {
     expect(
       meanBy((value: { score: number }) => value.score)([{ score: 2 }]),
     ).toBe(2)
+  })
+
+  test("returns the average of property path numbers data-last", () => {
+    expect(meanBy("score")([{ score: 2 }])).toBe(2)
   })
 })

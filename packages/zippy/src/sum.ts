@@ -1,21 +1,19 @@
-type NumberMapper<T> = (value: T, index: number, values: readonly T[]) => number
+import {
+  selectNumber,
+  type PropertyPathByValue,
+  type SelectorFunction,
+  type ValidPropertyPath,
+} from "./selector"
 
-function sumValues(values: readonly number[]) {
-  let result = 0
-
-  for (const value of values) {
-    result += value
-  }
-
-  return result
-}
-
-function sumMapped<T>(values: readonly T[], mapper: NumberMapper<T>) {
+function impl<T>(
+  values: readonly T[],
+  mapper: SelectorFunction<T, number> | string = Number,
+) {
   let result = 0
   let index = 0
 
   for (const value of values) {
-    result += mapper(value, index, values)
+    result += selectNumber(mapper, value, index, values)
     index += 1
   }
 
@@ -26,28 +24,34 @@ export function sum(values: readonly number[]): number
 export function sum(): (values: readonly number[]) => number
 export function sum(values?: readonly number[]) {
   if (values === undefined) {
-    return sumValues
+    return (values: readonly number[]) => impl(values)
   }
 
-  return sumValues(values)
+  return impl(values)
 }
 
-export function sumBy<T>(values: readonly T[], mapper: NumberMapper<T>): number
 export function sumBy<T>(
-  mapper: NumberMapper<T>,
+  values: readonly T[],
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
+): number
+export function sumBy<T>(
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
 ): (values: readonly T[]) => number
+export function sumBy<const Path extends string>(
+  mapper: Path,
+): <T>(values: readonly T[] & ValidPropertyPath<T, Path, number>) => number
 export function sumBy<T>(
   ...args:
-    | [values: readonly T[], mapper: NumberMapper<T>]
-    | [mapper: NumberMapper<T>]
+    | [values: readonly T[], mapper: SelectorFunction<T, number> | string]
+    | [mapper: SelectorFunction<T, number> | string]
 ) {
   if (args.length === 1) {
     const [mapper] = args
 
-    return (values: readonly T[]) => sumMapped(values, mapper)
+    return (values: readonly T[]) => impl(values, mapper)
   }
 
   const [values, mapper] = args
 
-  return sumMapped(values, mapper)
+  return impl(values, mapper)
 }

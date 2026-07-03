@@ -28,6 +28,9 @@ examples below use the data-first form.
 
 ### Math
 
+The `*By` math helpers accept a mapper function or a type-safe property/dot
+path selector.
+
 - `mean` - Return the arithmetic average of numbers, or `undefined` for an
   empty array.
 - `meanBy` - Return the arithmetic average of mapped numbers, or `undefined`

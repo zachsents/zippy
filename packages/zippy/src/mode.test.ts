@@ -40,6 +40,22 @@ describe("modeBy", () => {
     expect(modeBy([firstA, b, secondA], (value) => value.kind)).toBe(firstA)
   })
 
+  test("returns the first value with the most common property path key", () => {
+    const firstA = { kind: "a", label: "first-a" }
+    const b = { kind: "b", label: "b" }
+    const secondA = { kind: "a", label: "second-a" }
+
+    expect(modeBy([firstA, b, secondA], "kind")).toBe(firstA)
+  })
+
+  test("returns the first value with the most common dot path key", () => {
+    const firstA = { meta: { kind: "a" }, label: "first-a" }
+    const b = { meta: { kind: "b" }, label: "b" }
+    const secondA = { meta: { kind: "a" }, label: "second-a" }
+
+    expect(modeBy([firstA, b, secondA], "meta.kind")).toBe(firstA)
+  })
+
   test("returns the first value whose mapped key is first in a tie", () => {
     const firstA = { kind: "a", label: "first-a" }
     const firstB = { kind: "b", label: "first-b" }
@@ -63,5 +79,13 @@ describe("modeBy", () => {
     expect(
       modeBy((value: { kind: string }) => value.kind)([firstA, b, secondA]),
     ).toBe(firstA)
+  })
+
+  test("returns the first value with the most common property path key data-last", () => {
+    const firstA = { kind: "a", label: "first-a" }
+    const b = { kind: "b", label: "b" }
+    const secondA = { kind: "a", label: "second-a" }
+
+    expect(modeBy("kind")([firstA, b, secondA])).toBe(firstA)
   })
 })

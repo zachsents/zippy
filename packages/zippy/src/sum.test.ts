@@ -21,6 +21,16 @@ describe("sumBy", () => {
     expect(sumBy([{ count: 2 }, { count: 3 }], (value) => value.count)).toBe(5)
   })
 
+  test("adds numbers selected by property path", () => {
+    expect(sumBy([{ count: 2 }, { count: 3 }], "count")).toBe(5)
+  })
+
+  test("adds numbers selected by dot path", () => {
+    expect(
+      sumBy([{ stats: { score: 2 } }, { stats: { score: 3 } }], "stats.score"),
+    ).toBe(5)
+  })
+
   test("passes index and source array to the mapper", () => {
     const values = [{ count: 2 }, { count: 3 }]
     const sourcesMatch: boolean[] = []
@@ -39,5 +49,9 @@ describe("sumBy", () => {
     expect(
       sumBy((value: { count: number }) => value.count)([{ count: 2 }]),
     ).toBe(2)
+  })
+
+  test("adds property path numbers data-last", () => {
+    expect(sumBy("count")([{ count: 2 }])).toBe(2)
   })
 })

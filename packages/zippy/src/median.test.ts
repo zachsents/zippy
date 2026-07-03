@@ -37,6 +37,29 @@ describe("medianBy", () => {
     ).toBe(6)
   })
 
+  test("returns the median of numbers selected by property path", () => {
+    expect(
+      medianBy(
+        [{ score: 10 }, { score: 2 }, { score: 4 }, { score: 8 }],
+        "score",
+      ),
+    ).toBe(6)
+  })
+
+  test("returns the median of numbers selected by dot path", () => {
+    expect(
+      medianBy(
+        [
+          { stats: { score: 10 } },
+          { stats: { score: 2 } },
+          { stats: { score: 4 } },
+          { stats: { score: 8 } },
+        ],
+        "stats.score",
+      ),
+    ).toBe(6)
+  })
+
   test("returns undefined for an empty array", () => {
     expect(medianBy([], () => 1)).toBeUndefined()
   })
@@ -50,5 +73,9 @@ describe("medianBy", () => {
         { score: 8 },
       ]),
     ).toBe(6)
+  })
+
+  test("returns the median of property path numbers data-last", () => {
+    expect(medianBy("score")([{ score: 10 }, { score: 2 }])).toBe(6)
   })
 })

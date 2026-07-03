@@ -1,4 +1,9 @@
-type KeyMapper<T, Key> = (value: T, index: number, values: readonly T[]) => Key
+import {
+  selectValue,
+  type PropertyPath,
+  type SelectorFunction,
+  type ValidPropertyPath,
+} from "./selector"
 
 function modeValue<T>(values: readonly T[]) {
   const counts = new Map<T, number>()
@@ -30,14 +35,17 @@ function modeValue<T>(values: readonly T[]) {
   return bestValue
 }
 
-function modeMapped<T, Key>(values: readonly T[], mapper: KeyMapper<T, Key>) {
-  const counts = new Map<Key, number>()
-  const firstValues = new Map<Key, T>()
-  const orderedKeys: Key[] = []
+function modeMapped<T>(
+  values: readonly T[],
+  mapper: SelectorFunction<T> | string,
+) {
+  const counts = new Map<unknown, number>()
+  const firstValues = new Map<unknown, T>()
+  const orderedKeys: unknown[] = []
   let index = 0
 
   for (const value of values) {
-    const key = mapper(value, index, values)
+    const key = selectValue(mapper, value, index, values)
     const count = counts.get(key)
 
     if (count === undefined) {
@@ -76,17 +84,22 @@ export function mode<T>(values?: readonly T[]) {
   return modeValue(values)
 }
 
-export function modeBy<T, Key>(
+export function modeBy<T>(
   values: readonly T[],
-  mapper: KeyMapper<T, Key>,
+  mapper: SelectorFunction<T> | PropertyPath<T>,
 ): T | undefined
-export function modeBy<T, Key>(
-  mapper: KeyMapper<T, Key>,
+export function modeBy<T>(
+  mapper: SelectorFunction<T> | PropertyPath<T>,
 ): (values: readonly T[]) => T | undefined
-export function modeBy<T, Key>(
+export function modeBy<const Path extends string>(
+  mapper: Path,
+): <T>(
+  values: readonly T[] & ValidPropertyPath<T, Path, unknown>,
+) => T | undefined
+export function modeBy<T>(
   ...args:
-    | [values: readonly T[], mapper: KeyMapper<T, Key>]
-    | [mapper: KeyMapper<T, Key>]
+    | [values: readonly T[], mapper: SelectorFunction<T> | string]
+    | [mapper: SelectorFunction<T> | string]
 ) {
   if (args.length === 1) {
     const [mapper] = args

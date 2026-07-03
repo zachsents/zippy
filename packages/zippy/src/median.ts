@@ -1,4 +1,9 @@
-type NumberMapper<T> = (value: T, index: number, values: readonly T[]) => number
+import {
+  selectNumber,
+  type PropertyPathByValue,
+  type SelectorFunction,
+  type ValidPropertyPath,
+} from "./selector"
 
 function medianValues(values: readonly number[]) {
   if (values.length === 0) {
@@ -26,6 +31,21 @@ function medianValues(values: readonly number[]) {
   return (left + right) / 2
 }
 
+function medianMapped<T>(
+  values: readonly T[],
+  mapper: SelectorFunction<T, number> | string,
+) {
+  const mappedValues: number[] = []
+  let index = 0
+
+  for (const value of values) {
+    mappedValues.push(selectNumber(mapper, value, index, values))
+    index += 1
+  }
+
+  return medianValues(mappedValues)
+}
+
 export function median(values: readonly number[]): number | undefined
 export function median(): (values: readonly number[]) => number | undefined
 export function median(values?: readonly number[]) {
@@ -38,30 +58,27 @@ export function median(values?: readonly number[]) {
 
 export function medianBy<T>(
   values: readonly T[],
-  mapper: NumberMapper<T>,
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
 ): number | undefined
 export function medianBy<T>(
-  mapper: NumberMapper<T>,
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
 ): (values: readonly T[]) => number | undefined
+export function medianBy<const Path extends string>(
+  mapper: Path,
+): <T>(
+  values: readonly T[] & ValidPropertyPath<T, Path, number>,
+) => number | undefined
 export function medianBy<T>(
   ...args:
-    | [values: readonly T[], mapper: NumberMapper<T>]
-    | [mapper: NumberMapper<T>]
+    | [values: readonly T[], mapper: SelectorFunction<T, number> | string]
+    | [mapper: SelectorFunction<T, number> | string]
 ) {
   if (args.length === 1) {
     const [mapper] = args
 
-    return (values: readonly T[]) => medianBy(values, mapper)
+    return (values: readonly T[]) => medianMapped(values, mapper)
   }
 
   const [values, mapper] = args
-  const mappedValues: number[] = []
-  let index = 0
-
-  for (const value of values) {
-    mappedValues.push(mapper(value, index, values))
-    index += 1
-  }
-
-  return medianValues(mappedValues)
+  return medianMapped(values, mapper)
 }

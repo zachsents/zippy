@@ -1,4 +1,9 @@
-type NumberMapper<T> = (value: T, index: number, values: readonly T[]) => number
+import {
+  selectNumber,
+  type PropertyPathByValue,
+  type SelectorFunction,
+  type ValidPropertyPath,
+} from "./selector"
 
 function sumValues(values: readonly number[]) {
   let result = 0
@@ -10,12 +15,15 @@ function sumValues(values: readonly number[]) {
   return result
 }
 
-function sumMapped<T>(values: readonly T[], mapper: NumberMapper<T>) {
+function sumMapped<T>(
+  values: readonly T[],
+  mapper: SelectorFunction<T, number> | string,
+) {
   let result = 0
   let index = 0
 
   for (const value of values) {
-    result += mapper(value, index, values)
+    result += selectNumber(mapper, value, index, values)
     index += 1
   }
 
@@ -38,20 +46,31 @@ export function mean(values?: readonly number[]) {
 
 export function meanBy<T>(
   values: readonly T[],
-  mapper: NumberMapper<T>,
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
 ): number | undefined
 export function meanBy<T>(
-  mapper: NumberMapper<T>,
+  mapper: SelectorFunction<T, number> | PropertyPathByValue<T, number>,
 ): (values: readonly T[]) => number | undefined
+export function meanBy<const Path extends string>(
+  mapper: Path,
+): <T>(
+  values: readonly T[] & ValidPropertyPath<T, Path, number>,
+) => number | undefined
 export function meanBy<T>(
   ...args:
-    | [values: readonly T[], mapper: NumberMapper<T>]
-    | [mapper: NumberMapper<T>]
+    | [values: readonly T[], mapper: SelectorFunction<T, number> | string]
+    | [mapper: SelectorFunction<T, number> | string]
 ) {
   if (args.length === 1) {
     const [mapper] = args
 
-    return (values: readonly T[]) => meanBy(values, mapper)
+    return (values: readonly T[]) => {
+      if (values.length === 0) {
+        return undefined
+      }
+
+      return sumMapped(values, mapper) / values.length
+    }
   }
 
   const [values, mapper] = args
