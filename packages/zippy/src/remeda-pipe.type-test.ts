@@ -19,16 +19,9 @@ import {
   mapValues,
   mapValuesAsync,
 } from "./map"
-import {
-  mean,
-  meanBy,
-  median,
-  medianBy,
-  mode,
-  modeBy,
-  sum,
-  sumBy,
-} from "./math"
+import { mean, meanBy } from "./mean"
+import { median, medianBy } from "./median"
+import { mode, modeBy } from "./mode"
 import {
   difference,
   intersection,
@@ -38,6 +31,7 @@ import {
   symmetricDifference,
   union,
 } from "./set"
+import { sum, sumBy } from "./sum"
 import { unique } from "./unique"
 import { zip, zipCustom, zipWith } from "./zip"
 

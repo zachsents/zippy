@@ -4,6 +4,10 @@
 
 - Do not annotate return types on overloaded function implementation signatures. Keep return type annotations on the overload signatures themselves; the implementation return annotation is unnecessary and can fight inference.
 
+## Source layout
+
+- Follow the existing flat `packages/zippy/src` file layout before creating or moving utilities. Keep related variants in one top-level file, such as `sum` with `sumBy` or `filter` with `filterOut`, with matching top-level `.test.ts` and `.type-test.ts` files. Do not create nested utility folders, per-function barrels, or shared helper files unless the surrounding codebase already uses that pattern for the same kind of helper.
+
 ## Publishing
 
 - Only publish when the user explicitly asks for it, but when they do, carry the publish through from the CLI instead of stopping at instructions. Use the repo publish script when available.

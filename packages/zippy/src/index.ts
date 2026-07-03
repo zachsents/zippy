@@ -28,16 +28,9 @@ export {
   mapValues,
   mapValuesAsync,
 } from "./map"
-export {
-  mean,
-  meanBy,
-  median,
-  medianBy,
-  mode,
-  modeBy,
-  sum,
-  sumBy,
-} from "./math"
+export { mean, meanBy } from "./mean"
+export { median, medianBy } from "./median"
+export { mode, modeBy } from "./mode"
 export { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
 export {
   difference,
@@ -48,5 +41,6 @@ export {
   symmetricDifference,
   union,
 } from "./set"
+export { sum, sumBy } from "./sum"
 export { unique } from "./unique"
 export { zip, zipCustom, zipWith } from "./zip"
