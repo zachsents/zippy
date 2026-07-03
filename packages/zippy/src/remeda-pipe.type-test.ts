@@ -336,33 +336,41 @@ const zipMergerPipe = pipe(
     leftValue === "a" && rightValue === 1 ? "first" : "other",
   ),
 )
-const matchPipe = pipe(["a", "b"] as const, match([1, 2] as const))
+const matchPipe = pipe(
+  ["a", "b"] as const,
+  match(
+    ["b", "a"] as const,
+    (leftValue: "a" | "b", rightValue) => leftValue === rightValue,
+  ),
+)
 const matchMatcherPipe = pipe(
   ["a", "b"] as const,
-  match([1, 2] as const, {
-    matcher: (leftValue: "a" | "b", rightValue) =>
-      leftValue === "a" && rightValue === 1,
-  }),
+  match(
+    [1, 2] as const,
+    (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
+  ),
 )
 const matchPathMatcherPipe = pipe(
   [{ id: "a" }, { id: "b" }],
-  match([{ id: "b" }, { id: "a" }], { matcher: "id" }),
+  match([{ id: "b" }, { id: "a" }], "id"),
 )
 const matchMergerPipe = pipe(
   ["a", "b"] as const,
-  match([1, 2] as const, {
-    merger: (leftValue: "a" | "b", rightValue) =>
+  match(
+    [1, 2] as const,
+    (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
+    (leftValue: "a" | "b", rightValue) =>
       leftValue === "a" && rightValue === 1 ? "first" : "other",
-  }),
+  ),
 )
 const matchMergePipe = pipe(
   [{ id: "a", label: "A" }],
-  matchMerge([{ id: "a", count: 1 }]),
+  matchMerge([{ id: "a", count: 1 }], "id"),
 )
 
 true satisfies IsEqual<typeof zipPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipMergerPipe, Array<"first" | "other">>
-true satisfies IsEqual<typeof matchPipe, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<typeof matchPipe, Array<["a" | "b", "a" | "b"]>>
 true satisfies IsEqual<typeof matchMatcherPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<
   typeof matchPathMatcherPipe,
@@ -540,27 +548,33 @@ const zipMergerInferencePipe = pipe(
     leftValue === "a" && rightValue === 1 ? "first" : "other",
   ),
 )
-const matchInferencePipe = pipe(["a", "b"] as const, match([1, 2] as const))
+const matchInferencePipe = pipe(
+  [{ id: "a" }, { id: "b" }],
+  match([{ id: "b" }, { id: "a" }], "id"),
+)
 const matchMatcherInferencePipe = pipe(
   ["a", "b"] as const,
-  match([1, 2] as const, {
-    matcher: (leftValue, rightValue) => leftValue === "a" && rightValue === 1,
-  }),
+  match(
+    [1, 2] as const,
+    (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
+  ),
 )
 const matchPathMatcherInferencePipe = pipe(
   [{ id: "a" }, { id: "b" }],
-  match([{ id: "b" }, { id: "a" }], { matcher: "id" }),
+  match([{ id: "b" }, { id: "a" }], "id"),
 )
 const matchMergerInferencePipe = pipe(
   ["a", "b"] as const,
-  match([1, 2] as const, {
-    merger: (leftValue, rightValue) =>
+  match(
+    [1, 2] as const,
+    (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
+    (leftValue, rightValue) =>
       leftValue === "a" && rightValue === 1 ? "first" : "other",
-  }),
+  ),
 )
 const matchMergeInferencePipe = pipe(
   [{ id: "a", label: "A" }],
-  matchMerge([{ id: "a", count: 1 }]),
+  matchMerge([{ id: "a", count: 1 }], "id"),
 )
 
 true satisfies IsEqual<typeof castArrayInferencePipe, Array<"zippy">>
@@ -666,7 +680,10 @@ true satisfies IsEqual<typeof isDisjointFromInferencePipe, boolean>
 true satisfies IsEqual<typeof isDisjointFromByInferencePipe, boolean>
 true satisfies IsEqual<typeof zipInferencePipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipMergerInferencePipe, Array<"first" | "other">>
-true satisfies IsEqual<typeof matchInferencePipe, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<
+  typeof matchInferencePipe,
+  Array<[{ id: string }, { id: string }]>
+>
 true satisfies IsEqual<
   typeof matchMatcherInferencePipe,
   Array<["a" | "b", 1 | 2]>
