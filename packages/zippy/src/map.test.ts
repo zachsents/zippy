@@ -11,6 +11,10 @@ import {
   mapValuesAsync,
 } from "./map"
 
+const asyncNumberIdentity = async (value: number) => value
+const wait = (duration: number) =>
+  new Promise<void>((resolve) => setTimeout(resolve, duration))
+
 describe("map", () => {
   test("maps array values", () => {
     expect(map([1, 2, 3], (value) => value * 2)).toEqual([2, 4, 6])
@@ -50,6 +54,60 @@ describe("mapAsync", () => {
         return 4 - value
       }),
     ).resolves.toEqual([3, 2, 1])
+  })
+
+  test("limits mapper concurrency", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapAsync(
+      [1, 2, 3, 4],
+      async (value) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return value * 2
+      },
+      { concurrency: 2 },
+    )
+
+    expect(result).toEqual([2, 4, 6, 8])
+    expect(maxActive).toBe(2)
+  })
+
+  test("limits mapper concurrency data-last", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapAsync(
+      async (value: number) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return value * 2
+      },
+      { concurrency: 1 },
+    )([1, 2, 3])
+
+    expect(result).toEqual([2, 4, 6])
+    expect(maxActive).toBe(1)
+  })
+
+  test("throws for invalid concurrency limits", () => {
+    expect(() =>
+      mapAsync([1], asyncNumberIdentity, { concurrency: 0 }),
+    ).toThrow(RangeError)
+    expect(() =>
+      mapAsync([1], asyncNumberIdentity, { concurrency: 1.5 }),
+    ).toThrow("positive integer")
   })
 })
 
@@ -121,6 +179,58 @@ describe("mapValuesAsync", () => {
     })
     expect(sourceMatches).toEqual([true, true])
   })
+
+  test("limits mapper concurrency", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapValuesAsync(
+      { a: 1, b: 2, c: 3 },
+      async (value) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return value * 10
+      },
+      { concurrency: 2 },
+    )
+
+    expect(result).toEqual({
+      a: 10,
+      b: 20,
+      c: 30,
+    })
+    expect(maxActive).toBe(2)
+  })
+
+  test("limits mapper concurrency data-last", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapValuesAsync(
+      async (value: number) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return value * 10
+      },
+      { concurrency: 1 },
+    )({ a: 1, b: 2 })
+
+    expect(result).toEqual({
+      a: 10,
+      b: 20,
+    })
+    expect(maxActive).toBe(1)
+  })
 })
 
 describe("mapKeys", () => {
@@ -182,6 +292,58 @@ describe("mapKeysAsync", () => {
     ).resolves.toEqual({
       same: 2,
     })
+  })
+
+  test("limits mapper concurrency", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapKeysAsync(
+      { first: 1, second: 2, third: 3 },
+      async (_value, key) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return key.toUpperCase()
+      },
+      { concurrency: 2 },
+    )
+
+    expect(result).toEqual({
+      FIRST: 1,
+      SECOND: 2,
+      THIRD: 3,
+    })
+    expect(maxActive).toBe(2)
+  })
+
+  test("limits mapper concurrency data-last", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapKeysAsync(
+      async (_value: number, key) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return key.toUpperCase()
+      },
+      { concurrency: 1 },
+    )({ first: 1, second: 2 })
+
+    expect(result).toEqual({
+      FIRST: 1,
+      SECOND: 2,
+    })
+    expect(maxActive).toBe(1)
   })
 })
 
@@ -268,5 +430,57 @@ describe("mapEntriesAsync", () => {
       "1:b": 3,
     })
     expect(sourceMatches).toEqual([true, true])
+  })
+
+  test("limits mapper concurrency", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapEntriesAsync(
+      { a: 1, b: 2, c: 3 },
+      async ([key, value]) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return [key.toUpperCase(), value * 10] as const
+      },
+      { concurrency: 2 },
+    )
+
+    expect(result).toEqual({
+      A: 10,
+      B: 20,
+      C: 30,
+    })
+    expect(maxActive).toBe(2)
+  })
+
+  test("limits mapper concurrency data-last", async () => {
+    let active = 0
+    let maxActive = 0
+
+    const result = await mapEntriesAsync(
+      async ([key, value]: readonly [string, number]) => {
+        active += 1
+        maxActive = Math.max(maxActive, active)
+
+        await wait(1)
+
+        active -= 1
+
+        return [key.toUpperCase(), value * 10] as const
+      },
+      { concurrency: 1 },
+    )({ a: 1, b: 2 })
+
+    expect(result).toEqual({
+      A: 10,
+      B: 20,
+    })
+    expect(maxActive).toBe(1)
   })
 })

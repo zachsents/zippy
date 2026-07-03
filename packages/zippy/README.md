@@ -23,7 +23,8 @@ examples below use the data-first form.
   `values.filter((value) => value !== undefined)`.
 - `map` - Map array values. Like `values.map(mapper)`.
 - `mapAsync` - Map array values with async support. Like
-  `Promise.all(values.map(mapper))`.
+  `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit
+  parallel mapper calls.
 - `unique` - Remove duplicate values. Like `[...new Set(values)]`.
 - `uniqueBy` - Remove duplicate values by a mapped key or type-safe
   property/dot path selector.
@@ -53,15 +54,17 @@ path selector.
 - `mapEntries` - Transform object entries into a new object. Like
   `Object.fromEntries(Object.entries(values).map((entry, index) => mapper(entry, index, values)))`.
 - `mapEntriesAsync` - Transform object entries with async support. Like
-  `Object.fromEntries(await Promise.all(Object.entries(values).map((entry, index) => mapper(entry, index, values))))`.
+  `Object.fromEntries(await Promise.all(Object.entries(values).map((entry, index) => mapper(entry, index, values))))`,
+  or pass `{ concurrency }` to limit parallel mapper calls.
 - `mapKeys` - Transform object keys. Like
   `Object.fromEntries(Object.entries(values).map(([key, value]) => [mapper(value, key, values), value]))`.
 - `mapKeysAsync` - Transform object keys with async support. Like `mapKeys`
-  with awaited keys.
+  with awaited keys, or pass `{ concurrency }` to limit parallel mapper calls.
 - `mapValues` - Transform object values. Like
   `Object.fromEntries(Object.entries(values).map(([key, value]) => [key, mapper(value, key, values)]))`.
 - `mapValuesAsync` - Transform object values with async support. Like
-  `mapValues` with awaited values.
+  `mapValues` with awaited values, or pass `{ concurrency }` to limit parallel
+  mapper calls.
 - `merge` - Shallow merge two objects. Like `{ ...destination, ...source }`.
 
 ### Sets

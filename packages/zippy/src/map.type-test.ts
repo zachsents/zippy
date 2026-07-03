@@ -27,12 +27,29 @@ const mapAsyncDataFirst = mapAsync([1, 2, 3] as const, async (value) =>
 const mapAsyncDataLast = mapAsync(async (value: 1 | 2 | 3) =>
   value === 1 ? "one" : "other",
 )([1, 2, 3] as const)
+const mapAsyncOptionsDataFirst = mapAsync(
+  [1, 2, 3] as const,
+  async (value) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)
+const mapAsyncOptionsDataLast = mapAsync(
+  async (value: 1 | 2 | 3) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)([1, 2, 3] as const)
 
 true satisfies IsEqual<
   typeof mapAsyncDataFirst,
   Promise<Array<"one" | "other">>
 >
 true satisfies IsEqual<typeof mapAsyncDataLast, Promise<Array<"one" | "other">>>
+true satisfies IsEqual<
+  typeof mapAsyncOptionsDataFirst,
+  Promise<Array<"one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapAsyncOptionsDataLast,
+  Promise<Array<"one" | "other">>
+>
 
 const mapValuesDataFirst = mapValues({ a: 1, b: 2 } as const, (value) =>
   value === 1 ? "one" : "other",
@@ -57,6 +74,15 @@ const mapValuesAsyncDataFirst = mapValuesAsync(
 const mapValuesAsyncDataLast = mapValuesAsync(async (value: 1 | 2) =>
   value === 1 ? "one" : "other",
 )({ a: 1, b: 2 } as const)
+const mapValuesAsyncOptionsDataFirst = mapValuesAsync(
+  { a: 1, b: 2 } as const,
+  async (value) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)
+const mapValuesAsyncOptionsDataLast = mapValuesAsync(
+  async (value: 1 | 2) => (value === 1 ? "one" : "other"),
+  { concurrency: 2 },
+)({ a: 1, b: 2 } as const)
 
 true satisfies IsEqual<
   typeof mapValuesAsyncDataFirst,
@@ -64,6 +90,14 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<
   typeof mapValuesAsyncDataLast,
+  Promise<Record<string, "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapValuesAsyncOptionsDataFirst,
+  Promise<Record<string, "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapValuesAsyncOptionsDataLast,
   Promise<Record<string, "one" | "other">>
 >
 
@@ -87,6 +121,15 @@ const mapKeysAsyncDataFirst = mapKeysAsync(
 const mapKeysAsyncDataLast = mapKeysAsync(async (_value: 1 | 2, key) =>
   key === "a" ? "first" : "other",
 )({ a: 1, b: 2 } as const)
+const mapKeysAsyncOptionsDataFirst = mapKeysAsync(
+  { a: 1, b: 2 } as const,
+  async (_value, key) => (key === "a" ? "first" : "other"),
+  { concurrency: 2 },
+)
+const mapKeysAsyncOptionsDataLast = mapKeysAsync(
+  async (_value: 1 | 2, key) => (key === "a" ? "first" : "other"),
+  { concurrency: 2 },
+)({ a: 1, b: 2 } as const)
 
 true satisfies IsEqual<
   typeof mapKeysAsyncDataFirst,
@@ -94,6 +137,14 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<
   typeof mapKeysAsyncDataLast,
+  Promise<Record<"first" | "other", 1 | 2>>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncOptionsDataFirst,
+  Promise<Record<"first" | "other", 1 | 2>>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncOptionsDataLast,
   Promise<Record<"first" | "other", 1 | 2>>
 >
 
@@ -125,6 +176,17 @@ const mapEntriesAsyncDataLast = mapEntriesAsync(
   async ([key, value]: readonly [string, 1 | 2]) =>
     [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
 )({ a: 1, b: 2 } as const)
+const mapEntriesAsyncOptionsDataFirst = mapEntriesAsync(
+  { a: 1, b: 2 } as const,
+  async ([key, value]) =>
+    [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
+  { concurrency: 2 },
+)
+const mapEntriesAsyncOptionsDataLast = mapEntriesAsync(
+  async ([key, value]: readonly [string, 1 | 2]) =>
+    [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
+  { concurrency: 2 },
+)({ a: 1, b: 2 } as const)
 
 true satisfies IsEqual<
   typeof mapEntriesAsyncDataFirst,
@@ -132,5 +194,13 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<
   typeof mapEntriesAsyncDataLast,
+  Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncOptionsDataFirst,
+  Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncOptionsDataLast,
   Promise<Record<"first" | "other", "one" | "other">>
 >
