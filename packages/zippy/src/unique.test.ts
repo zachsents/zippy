@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 
-import { unique } from "./unique"
+import { unique, uniqueBy } from "./unique"
 
 describe("unique", () => {
   test("returns values without duplicates", () => {
@@ -27,5 +27,52 @@ describe("unique", () => {
     const second = { name: "zippy" }
 
     expect(unique([first, second, first])).toEqual([first, second])
+  })
+})
+
+describe("uniqueBy", () => {
+  test("returns values with unique selected keys", () => {
+    expect(
+      uniqueBy(
+        [
+          { id: 1, name: "first" },
+          { id: 2, name: "second" },
+          { id: 1, name: "duplicate" },
+        ],
+        (value) => value.id,
+      ),
+    ).toEqual([
+      { id: 1, name: "first" },
+      { id: 2, name: "second" },
+    ])
+  })
+
+  test("accepts a property path selector", () => {
+    expect(
+      uniqueBy(
+        [
+          { user: { id: 1 }, name: "first" },
+          { user: { id: 2 }, name: "second" },
+          { user: { id: 1 }, name: "duplicate" },
+        ],
+        "user.id",
+      ),
+    ).toEqual([
+      { user: { id: 1 }, name: "first" },
+      { user: { id: 2 }, name: "second" },
+    ])
+  })
+
+  test("returns a pipeable function", () => {
+    expect(
+      uniqueBy("id")([
+        { id: 1, name: "first" },
+        { id: 2, name: "second" },
+        { id: 1, name: "duplicate" },
+      ]),
+    ).toEqual([
+      { id: 1, name: "first" },
+      { id: 2, name: "second" },
+    ])
   })
 })

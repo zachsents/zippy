@@ -25,6 +25,8 @@ examples below use the data-first form.
 - `mapAsync` - Map array values with async support. Like
   `Promise.all(values.map(mapper))`.
 - `unique` - Remove duplicate values. Like `[...new Set(values)]`.
+- `uniqueBy` - Remove duplicate values by a mapped key or type-safe
+  property/dot path selector.
 
 ### Math
 
@@ -61,20 +63,32 @@ path selector.
 
 ### Sets
 
+The `*By` set helpers accept a mapper function or a type-safe property/dot path
+selector.
+
 - `difference` - Return unique values missing from other arrays. Like
   `[...new Set(values)].filter((value) => !excludedValues.includes(value))`.
+- `differenceBy` - Return unique values missing by mapped key.
 - `intersection` - Return unique values shared by all arrays. Like
   `[...new Set(values)].filter((value) => otherArrays.every((array) => array.includes(value)))`.
+- `intersectionBy` - Return unique values shared by mapped key.
 - `isDisjointFrom` - Check whether two arrays have no shared values. Like
   `values.every((value) => !right.includes(value))`.
+- `isDisjointFromBy` - Check whether two arrays have no shared mapped keys.
 - `isSubsetOf` - Check whether every value exists in another array. Like
   `values.every((value) => otherValues.includes(value))`.
+- `isSubsetOfBy` - Check whether every mapped key exists in another array.
 - `isSupersetOf` - Check whether another array is a subset of this one. Like
   `otherValues.every((value) => values.includes(value))`.
+- `isSupersetOfBy` - Check whether another array's mapped keys are a subset of
+  this one.
 - `symmetricDifference` - Return unique values that appear in only one array.
   Like `difference(left, right)` plus `difference(right, left)`.
+- `symmetricDifferenceBy` - Return unique values whose mapped key appears in
+  only one array.
 - `union` - Return unique values across arrays. Like
   `[...new Set([...values, ...otherValues])]`.
+- `unionBy` - Return unique values across arrays by mapped key.
 
 ### Zipping
 
