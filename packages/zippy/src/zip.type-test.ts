@@ -36,6 +36,20 @@ const zipCustomMatcherDataLast = zipCustom([1, 2] as const, {
   matcher: (leftValue: "a" | "b", rightValue) =>
     leftValue === "a" && rightValue === 1,
 })(["a", "b"] as const)
+const zipCustomPathMatcherDataFirst = zipCustom(
+  [{ id: "a" }, { id: "b" }] as const,
+  [{ id: "b" }, { id: "a" }] as const,
+  { matcher: "id" },
+)
+const zipCustomDotPathMatcherDataFirst = zipCustom(
+  [{ user: { id: "a" } }, { user: { id: "b" } }] as const,
+  [{ user: { id: "b" } }, { user: { id: "a" } }] as const,
+  { matcher: "user.id" },
+)
+const zipCustomPathMatcherDataLast = zipCustom(
+  [{ id: "b" }, { id: "a" }] as const,
+  { matcher: "id" },
+)([{ id: "a" }, { id: "b" }] as const)
 const zipCustomMergerDataFirst = zipCustom(
   ["a", "b"] as const,
   [1, 2] as const,
@@ -48,6 +62,18 @@ const zipCustomMergerDataLast = zipCustom([1, 2] as const, {
   merger: (leftValue: "a" | "b", rightValue) =>
     leftValue === "a" && rightValue === 1 ? "first" : "other",
 })(["a", "b"] as const)
+const zipCustomPathMatcherMergerDataFirst = zipCustom(
+  [{ id: "a" }, { id: "b" }] as const,
+  [
+    { id: "b", count: 2 },
+    { id: "a", count: 1 },
+  ] as const,
+  {
+    matcher: "id",
+    merger: (leftValue, rightValue) =>
+      leftValue.id === "a" && rightValue.count === 1 ? "first" : "other",
+  },
+)
 
 true satisfies IsEqual<typeof zipCustomDataFirst, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipCustomDataLast, Array<["a" | "b", 1 | 2]>>
@@ -60,7 +86,53 @@ true satisfies IsEqual<
   Array<["a" | "b", 1 | 2]>
 >
 true satisfies IsEqual<
+  typeof zipCustomPathMatcherDataFirst,
+  Array<
+    [
+      { readonly id: "a" } | { readonly id: "b" },
+      { readonly id: "b" } | { readonly id: "a" },
+    ]
+  >
+>
+true satisfies IsEqual<
+  typeof zipCustomDotPathMatcherDataFirst,
+  Array<
+    [
+      (
+        | { readonly user: { readonly id: "a" } }
+        | { readonly user: { readonly id: "b" } }
+      ),
+      (
+        | { readonly user: { readonly id: "b" } }
+        | { readonly user: { readonly id: "a" } }
+      ),
+    ]
+  >
+>
+true satisfies IsEqual<
+  typeof zipCustomPathMatcherDataLast,
+  Array<
+    [
+      { readonly id: "a" } | { readonly id: "b" },
+      { readonly id: "b" } | { readonly id: "a" },
+    ]
+  >
+>
+true satisfies IsEqual<
   typeof zipCustomMergerDataFirst,
   Array<"first" | "other">
 >
 true satisfies IsEqual<typeof zipCustomMergerDataLast, Array<"first" | "other">>
+true satisfies IsEqual<
+  typeof zipCustomPathMatcherMergerDataFirst,
+  Array<"first" | "other">
+>
+
+// @ts-expect-error string matchers must exist on both sides.
+zipCustom([{ id: 1 }] as const, [{ name: "one" }] as const, { matcher: "id" })
+
+// @ts-expect-error data-last string matchers must exist on the bound right side.
+zipCustom([{ name: "one" }] as const, { matcher: "id" })
+
+// @ts-expect-error data-last string matchers are checked once left values are provided.
+zipCustom([{ id: 1 }] as const, { matcher: "id" })([{ name: "one" }] as const)

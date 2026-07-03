@@ -300,6 +300,10 @@ const zipCustomMatcherPipe = pipe(
       leftValue === "a" && rightValue === 1,
   }),
 )
+const zipCustomPathMatcherPipe = pipe(
+  [{ id: "a" }, { id: "b" }],
+  zipCustom([{ id: "b" }, { id: "a" }], { matcher: "id" }),
+)
 const zipCustomMergerPipe = pipe(
   ["a", "b"] as const,
   zipCustom([1, 2] as const, {
@@ -312,6 +316,10 @@ true satisfies IsEqual<typeof zipPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipWithPipe, Array<"first" | "other">>
 true satisfies IsEqual<typeof zipCustomPipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipCustomMatcherPipe, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<
+  typeof zipCustomPathMatcherPipe,
+  Array<[{ id: string }, { id: string }]>
+>
 true satisfies IsEqual<typeof zipCustomMergerPipe, Array<"first" | "other">>
 
 const castArrayInferencePipe = pipe("zippy" as const, castArray())
@@ -490,6 +498,10 @@ const zipCustomMatcherInferencePipe = pipe(
     matcher: (leftValue, rightValue) => leftValue === "a" && rightValue === 1,
   }),
 )
+const zipCustomPathMatcherInferencePipe = pipe(
+  [{ id: "a" }, { id: "b" }],
+  zipCustom([{ id: "b" }, { id: "a" }], { matcher: "id" }),
+)
 const zipCustomMergerInferencePipe = pipe(
   ["a", "b"] as const,
   zipCustom([1, 2] as const, {
@@ -605,6 +617,10 @@ true satisfies IsEqual<typeof zipCustomInferencePipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<
   typeof zipCustomMatcherInferencePipe,
   Array<["a" | "b", 1 | 2]>
+>
+true satisfies IsEqual<
+  typeof zipCustomPathMatcherInferencePipe,
+  Array<[{ id: string }, { id: string }]>
 >
 true satisfies IsEqual<
   typeof zipCustomMergerInferencePipe,

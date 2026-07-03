@@ -1,3 +1,9 @@
+import {
+  getPropertyPathValue,
+  type PropertyPath,
+  type ValidPropertyPath,
+} from "./selector"
+
 type Zipper<Left, Right, Mapped> = (
   leftValue: Left,
   rightValue: Right,
@@ -15,6 +21,14 @@ type ZipCustomMatcher<Left, Right> = (
   rightValues: readonly Right[],
 ) => unknown
 
+type ZipCustomMatcherInput<Left, Right> =
+  | ZipCustomMatcher<Left, Right>
+  | Extract<PropertyPath<Left>, PropertyPath<Right>>
+
+type ZipCustomRuntimeMatcher<Left, Right> =
+  | ZipCustomMatcher<Left, Right>
+  | string
+
 type ZipCustomMerger<Left, Right, Merged> = (
   leftValue: Left,
   rightValue: Right,
@@ -25,18 +39,39 @@ type ZipCustomMerger<Left, Right, Merged> = (
 ) => Merged
 
 type ZipCustomOptions<Left, Right> = {
-  matcher?: ZipCustomMatcher<Left, Right>
+  matcher?: ZipCustomMatcherInput<Left, Right>
   merger?: undefined
 }
 
 type ZipCustomOptionsWithMerger<Left, Right, Merged> = {
-  matcher?: ZipCustomMatcher<Left, Right>
+  matcher?: ZipCustomMatcherInput<Left, Right>
+  merger: ZipCustomMerger<Left, Right, Merged>
+}
+
+type ZipCustomOptionsWithPathMatcher<Path extends string> = {
+  matcher: Path
+  merger?: undefined
+}
+
+type ZipCustomOptionsWithPathMatcherAndMerger<
+  Left,
+  Right,
+  Path extends string,
+  Merged,
+> = {
+  matcher: Path
   merger: ZipCustomMerger<Left, Right, Merged>
 }
 
 type ZipCustomRuntimeOptions<Left, Right, Merged> =
-  | ZipCustomOptions<Left, Right>
-  | ZipCustomOptionsWithMerger<Left, Right, Merged>
+  | {
+      matcher?: ZipCustomRuntimeMatcher<Left, Right>
+      merger?: undefined
+    }
+  | {
+      matcher?: ZipCustomRuntimeMatcher<Left, Right>
+      merger: ZipCustomMerger<Left, Right, Merged>
+    }
 
 type ZipCustomDataFirstArgs<Left, Right, Merged> = [
   leftValues: readonly Left[],
@@ -62,6 +97,36 @@ function defaultZipCustomMatcher(
   return leftIndex === rightIndex
 }
 
+function isSameValueZero(left: unknown, right: unknown) {
+  return left === right || (left !== left && right !== right)
+}
+
+function matchesZipCustomValue<Left, Right>(
+  matcher: ZipCustomRuntimeMatcher<Left, Right>,
+  leftValue: Left,
+  rightValue: Right,
+  leftIndex: number,
+  rightIndex: number,
+  leftValues: readonly Left[],
+  rightValues: readonly Right[],
+) {
+  if (typeof matcher === "function") {
+    return matcher(
+      leftValue,
+      rightValue,
+      leftIndex,
+      rightIndex,
+      leftValues,
+      rightValues,
+    )
+  }
+
+  return isSameValueZero(
+    getPropertyPathValue(leftValue, matcher),
+    getPropertyPathValue(rightValue, matcher),
+  )
+}
+
 function defaultZipCustomMerger<Left, Right>(
   leftValue: Left,
   rightValue: Right,
@@ -74,7 +139,7 @@ function zipCustomValues<Left, Right, Merged>(
   rightValues: readonly Right[],
   options?: ZipCustomRuntimeOptions<Left, Right, Merged>,
 ) {
-  const matcher: ZipCustomMatcher<Left, Right> =
+  const matcher: ZipCustomRuntimeMatcher<Left, Right> =
     options?.matcher ?? defaultZipCustomMatcher
   const merger: ZipCustomMerger<Left, Right, Merged | [Left, Right]> =
     options?.merger ?? defaultZipCustomMerger
@@ -88,7 +153,8 @@ function zipCustomValues<Left, Right, Merged>(
       }
 
       if (
-        !matcher(
+        !matchesZipCustomValue(
+          matcher,
           leftValue,
           rightValue,
           leftIndex,
@@ -207,10 +273,22 @@ export function zipCustom<Left, Right>(
   rightValues: readonly Right[],
   options?: ZipCustomOptions<Left, Right>,
 ): Array<[Left, Right]>
+export function zipCustom<Left, Right, const Path extends string, Merged>(
+  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
+  options: ZipCustomOptionsWithPathMatcherAndMerger<Left, Right, Path, Merged>,
+): (
+  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
+) => Merged[]
 export function zipCustom<Left, Right, Merged>(
   rightValues: readonly Right[],
   options: ZipCustomOptionsWithMerger<Left, Right, Merged>,
 ): (leftValues: readonly Left[]) => Merged[]
+export function zipCustom<Right, const Path extends string>(
+  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
+  options: ZipCustomOptionsWithPathMatcher<Path>,
+): <Left>(
+  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
+) => Array<[Left, Right]>
 export function zipCustom<Left, Right>(
   rightValues: readonly Right[],
   options: ZipCustomOptions<Left, Right>,

@@ -118,6 +118,56 @@ describe("zipCustom", () => {
     ])
   })
 
+  test("matches values with a property path matcher", () => {
+    const leftB = { id: "b", label: "B" }
+    const leftA = { id: "a", label: "A" }
+    const leftMissing = { id: "missing", label: "Missing" }
+    const rightA = { id: "a", count: 1 }
+    const rightB = { id: "b", count: 2 }
+    const rightDuplicateB = { id: "b", count: 3 }
+
+    expect(
+      zipCustom(
+        [leftB, leftA, leftMissing],
+        [rightA, rightB, rightDuplicateB],
+        { matcher: "id" },
+      ),
+    ).toEqual([
+      [leftB, rightB],
+      [leftA, rightA],
+    ])
+  })
+
+  test("matches values with a dot path matcher data-last", () => {
+    expect(
+      zipCustom(
+        [
+          { user: { id: "second" }, count: 2 },
+          { user: { id: "first" }, count: 1 },
+        ],
+        {
+          matcher: "user.id",
+          merger: (
+            leftValue: { user: { id: string }; label: string },
+            rightValue,
+          ) => `${leftValue.label}:${rightValue.count}`,
+        },
+      )([
+        { user: { id: "first" }, label: "A" },
+        { user: { id: "second" }, label: "B" },
+      ]),
+    ).toEqual(["A:1", "B:2"])
+  })
+
+  test("uses SameValueZero equality for property path matchers", () => {
+    const leftNaN = { id: NaN, label: "left" }
+    const rightNaN = { id: NaN, count: 1 }
+
+    expect(zipCustom([leftNaN], [rightNaN], { matcher: "id" })).toEqual([
+      [leftNaN, rightNaN],
+    ])
+  })
+
   test("merges matched values with a custom merger", () => {
     expect(
       zipCustom(["a", "b"], [1, 2], {
