@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 
-import { median, medianBy } from "./median"
+import { median } from "./median"
 
 describe("median", () => {
   test("returns the middle sorted number for odd-length arrays", () => {
@@ -27,10 +27,10 @@ describe("median", () => {
   })
 })
 
-describe("medianBy", () => {
+describe("median selectors", () => {
   test("returns the median of mapped numbers", () => {
     expect(
-      medianBy(
+      median(
         [{ score: 10 }, { score: 2 }, { score: 4 }, { score: 8 }],
         (value) => value.score,
       ),
@@ -39,7 +39,7 @@ describe("medianBy", () => {
 
   test("returns the median of numbers selected by property path", () => {
     expect(
-      medianBy(
+      median(
         [{ score: 10 }, { score: 2 }, { score: 4 }, { score: 8 }],
         "score",
       ),
@@ -48,7 +48,7 @@ describe("medianBy", () => {
 
   test("returns the median of numbers selected by dot path", () => {
     expect(
-      medianBy(
+      median(
         [
           { stats: { score: 10 } },
           { stats: { score: 2 } },
@@ -61,12 +61,12 @@ describe("medianBy", () => {
   })
 
   test("returns undefined for an empty array", () => {
-    expect(medianBy([], () => 1)).toBeUndefined()
+    expect(median([], () => 1)).toBeUndefined()
   })
 
   test("returns the median of mapped numbers data-last", () => {
     expect(
-      medianBy((value: { score: number }) => value.score)([
+      median((value: { score: number }) => value.score)([
         { score: 10 },
         { score: 2 },
         { score: 4 },
@@ -75,7 +75,30 @@ describe("medianBy", () => {
     ).toBe(6)
   })
 
+  test("passes index and source array to the mapper data-last", () => {
+    const values = [{ score: 10 }, { score: 2 }, { score: 4 }, { score: 8 }]
+    const sourcesMatch: boolean[] = []
+
+    expect(
+      median((value: { score: number }, index, source) => {
+        sourcesMatch.push(source === values)
+
+        return value.score + index
+      })(values),
+    ).toBe(8)
+    expect(sourcesMatch).toEqual([true, true, true, true])
+  })
+
   test("returns the median of property path numbers data-last", () => {
-    expect(medianBy("score")([{ score: 10 }, { score: 2 }])).toBe(6)
+    expect(median("score")([{ score: 10 }, { score: 2 }])).toBe(6)
+  })
+
+  test("returns the median of dot path numbers data-last", () => {
+    expect(
+      median("stats.score")([
+        { stats: { score: 10 } },
+        { stats: { score: 2 } },
+      ]),
+    ).toBe(6)
   })
 })

@@ -3,6 +3,13 @@
 ## TypeScript
 
 - Do not annotate return types on overloaded function implementation signatures. Keep return type annotations on the overload signatures themselves; the implementation return annotation is unnecessary and can fight inference.
+- Treat overload order as intentional API surface, especially for data-last selector helpers. The language server uses overload order plus inference details such as `NoInfer<T>` when choosing the active overload, and that affects autocomplete even when CLI type tests still pass.
+- For selector overload pairs, keep the more authoritative/contextual overload before the broader generic fallback. For example, `selector: SelectorFunction<NoInfer<T>, number> -> (values: readonly T[]) => number` should stay before `selector: SelectorFunction<T, number> -> <U extends T>(values: readonly U[]) => number`; the first overload improves callback autocomplete from the eventual values type, while the second preserves extra properties on later inline values.
+
+## Type tests
+
+- For data-last selector overloads that return a function, test both a named values variable and an inline array literal when the selector parameter is narrower than the values. A non-generic returned function like `(values: readonly T[]) => number` can accept the named variable but reject the inline literal through excess-property checking; use a generic returned function like `<U extends T>(values: readonly U[]) => number` when later values may carry extra properties.
+- When checking this behavior, compare the returned function generic against a non-generic returned function. Do not test it by deleting the whole selector overload if an authoritative `NoInfer<T>` overload remains, because that changes overload selection instead of just the returned function's values inference.
 
 ## Source layout
 

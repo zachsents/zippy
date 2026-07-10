@@ -1,4 +1,12 @@
-import type { Get, Paths } from "type-fest"
+import type {
+  Get,
+  If,
+  IsEqual,
+  IsLiteral,
+  IsUnknown,
+  LiteralToPrimitive,
+  Paths,
+} from "type-fest"
 
 export type SelectorFunction<T, Selected = unknown> = (
   value: T,
@@ -6,28 +14,45 @@ export type SelectorFunction<T, Selected = unknown> = (
   values: readonly T[],
 ) => Selected
 
-export type PropertyPath<T> = Extract<
-  Paths<T, { bracketNotation: false }>,
+export type SelectorPath<T, Selected = unknown> = Extract<
+  keyof {
+    [K in Extract<Paths<T, { bracketNotation: false }>, string> as Get<
+      T,
+      K
+    > extends Selected
+      ? K
+      : never]: never
+  },
   string
 >
 
-export type PropertyPathValue<T, Path extends PropertyPath<T>> = Get<T, Path>
-
-export type PropertyPathByValue<T, Selected> =
-  PropertyPath<T> extends infer Path extends string
-    ? Path extends unknown
-      ? Get<T, Path> extends Selected
-        ? Path
-        : never
-      : never
-    : never
-
-export type ValueSelector<T, Selected> =
+export type Selector<T, Selected = unknown> =
   | SelectorFunction<T, Selected>
-  | PropertyPathByValue<T, Selected>
+  | SelectorPath<T, Selected>
 
-export type ValidPropertyPath<T, Path extends string, Selected> =
-  Path extends PropertyPathByValue<T, Selected> ? unknown : never
+export type MatchingPathValue<T, Path extends string> =
+  IsLiteral<Get<T, Path>> extends true
+    ? LiteralToPrimitive<Get<T, Path>>
+    : Get<T, Path>
+
+export type MatchingPath<Left, Right> = Extract<
+  keyof {
+    [K in Extract<SelectorPath<Left>, SelectorPath<Right>> as IsEqual<
+      MatchingPathValue<Left, K>,
+      MatchingPathValue<Right, K>
+    > extends true
+      ? K
+      : never]: never
+  },
+  string
+>
+
+export type PathSatisfier<
+  Path extends string = string,
+  Value = unknown,
+> = Path extends `${infer Key}.${infer Rest}`
+  ? { [K in Key]: PathSatisfier<Rest, Value> }
+  : { [K in Path]: Value }
 
 function isPropertyContainer(
   value: unknown,
@@ -37,57 +62,19 @@ function isPropertyContainer(
   )
 }
 
+export function getPropertyPathValue<T, Path extends SelectorPath<T>>(
+  value: T,
+  path: Path,
+): Get<T, Path>
+export function getPropertyPathValue<T>(
+  value: T,
+  path: string,
+): If<IsUnknown<T>, unknown, Get<T, SelectorPath<T>> | undefined>
 export function getPropertyPathValue(value: unknown, path: string) {
-  let result = value
-
-  for (const key of path.split(".")) {
-    if (!isPropertyContainer(result)) return undefined
-    result = result[key]
-  }
-
-  return result
-}
-
-export function selectValue<T, Selected>(
-  selector: SelectorFunction<T, Selected>,
-  value: T,
-  index: number,
-  values: readonly T[],
-): Selected
-export function selectValue<T>(
-  selector: string,
-  value: T,
-  index: number,
-  values: readonly T[],
-): unknown
-export function selectValue<T, Selected>(
-  selector: SelectorFunction<T, Selected> | string,
-  value: T,
-  index: number,
-  values: readonly T[],
-): unknown
-export function selectValue<T, Selected>(
-  selector: SelectorFunction<T, Selected> | string,
-  value: T,
-  index: number,
-  values: readonly T[],
-) {
-  if (typeof selector === "function") {
-    return selector(value, index, values)
-  }
-
-  return getPropertyPathValue(value, selector)
-}
-
-export function selectNumber<T>(
-  selector: SelectorFunction<T, number> | string,
-  value: T,
-  index: number,
-  values: readonly T[],
-) {
-  if (typeof selector === "function") {
-    return selector(value, index, values)
-  }
-
-  return Number(getPropertyPathValue(value, selector))
+  return path
+    .split(".")
+    .reduce(
+      (acc, key) => (isPropertyContainer(acc) ? acc[key] : undefined),
+      value,
+    )
 }
