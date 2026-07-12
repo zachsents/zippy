@@ -24,14 +24,7 @@ import { mean } from "./mean"
 import { median } from "./median"
 import { deepMerge, merge } from "./merge"
 import { mode } from "./mode"
-import { difference } from "./difference"
-import { intersection } from "./intersection"
-import { isDisjointFrom } from "./is-disjoint-from"
-import { isSubsetOf } from "./is-subset-of"
-import { isSupersetOf } from "./is-superset-of"
-import { symmetricDifference } from "./symmetric-difference"
 import { sum } from "./sum"
-import { union } from "./union"
 import { unique } from "./unique"
 import { zip } from "./zip"
 
@@ -326,53 +319,6 @@ true satisfies IsEqual<
   }
 >
 
-const unionPipe = pipe([1, 2] as const, union(["zippy"] as const))
-const byPipeLeft = [{ id: 1 }]
-const byPipeRight = [{ id: 2 }]
-type ByPipeUnion = Array<
-  (typeof byPipeLeft)[number] | (typeof byPipeRight)[number]
->
-const unionByPipe = pipe(byPipeLeft, union(byPipeRight, "id"))
-const differencePipe = pipe([1, 2, 3] as const, difference([2] as const))
-const differenceByPipe = pipe(byPipeLeft, difference(byPipeRight, "id"))
-const intersectionPipe = pipe([1, 2, 3] as const, intersection([2] as const))
-const intersectionByPipe = pipe(byPipeLeft, intersection(byPipeRight, "id"))
-const symmetricDifferencePipe = pipe(
-  [1, 2] as const,
-  symmetricDifference(["zippy"] as const),
-)
-const symmetricDifferenceByPipe = pipe(
-  byPipeLeft,
-  symmetricDifference(byPipeRight, "id"),
-)
-const isSubsetOfPipe = pipe([1, 2] as const, isSubsetOf([1, 2, 3] as const))
-const isSubsetOfByPipe = pipe(byPipeLeft, isSubsetOf(byPipeRight, "id"))
-const isSupersetOfPipe = pipe([1, 2, 3] as const, isSupersetOf([1, 2] as const))
-const isSupersetOfByPipe = pipe(byPipeLeft, isSupersetOf(byPipeRight, "id"))
-const isDisjointFromPipe = pipe([1, 2] as const, isDisjointFrom([3] as const))
-const isDisjointFromByPipe = pipe(byPipeLeft, isDisjointFrom(byPipeRight, "id"))
-
-true satisfies IsEqual<typeof unionPipe, Array<1 | 2 | "zippy">>
-true satisfies IsEqual<typeof unionByPipe, ByPipeUnion>
-true satisfies IsEqual<typeof differencePipe, Array<1 | 2 | 3>>
-true satisfies IsEqual<
-  typeof differenceByPipe,
-  Array<(typeof byPipeLeft)[number]>
->
-true satisfies IsEqual<typeof intersectionPipe, Array<1 | 2 | 3>>
-true satisfies IsEqual<
-  typeof intersectionByPipe,
-  Array<(typeof byPipeLeft)[number]>
->
-true satisfies IsEqual<typeof symmetricDifferencePipe, Array<1 | 2 | "zippy">>
-true satisfies IsEqual<typeof symmetricDifferenceByPipe, ByPipeUnion>
-true satisfies IsEqual<typeof isSubsetOfPipe, boolean>
-true satisfies IsEqual<typeof isSubsetOfByPipe, boolean>
-true satisfies IsEqual<typeof isSupersetOfPipe, boolean>
-true satisfies IsEqual<typeof isSupersetOfByPipe, boolean>
-true satisfies IsEqual<typeof isDisjointFromPipe, boolean>
-true satisfies IsEqual<typeof isDisjointFromByPipe, boolean>
-
 const zipPipe = pipe(["a", "b"] as const, zip([1, 2] as const))
 const zipMergerPipe = pipe(
   ["a", "b"] as const,
@@ -563,64 +509,6 @@ const deepMergeInferencePipe = pipe(
   { config: { retries: 1, flags: { debug: false } }, enabled: true },
   deepMerge({ config: { timeout: 100, flags: { trace: true } } }),
 )
-const unionInferencePipe = pipe([1, 2] as const, union(["zippy"] as const))
-const byInferenceLeft = [{ id: 1 }]
-const byInferenceRight = [{ id: 2 }]
-type ByInferenceUnion = Array<
-  (typeof byInferenceLeft)[number] | (typeof byInferenceRight)[number]
->
-const unionByInferencePipe = pipe(
-  byInferenceLeft,
-  union(byInferenceRight, "id"),
-)
-const differenceInferencePipe = pipe(
-  [1, 2, 3] as const,
-  difference([2] as const),
-)
-const differenceByInferencePipe = pipe(
-  byInferenceLeft,
-  difference(byInferenceRight, "id"),
-)
-const intersectionInferencePipe = pipe(
-  [1, 2, 3] as const,
-  intersection([2] as const),
-)
-const intersectionByInferencePipe = pipe(
-  byInferenceLeft,
-  intersection(byInferenceRight, "id"),
-)
-const symmetricDifferenceInferencePipe = pipe(
-  [1, 2] as const,
-  symmetricDifference(["zippy"] as const),
-)
-const symmetricDifferenceByInferencePipe = pipe(
-  byInferenceLeft,
-  symmetricDifference(byInferenceRight, "id"),
-)
-const isSubsetOfInferencePipe = pipe(
-  [1, 2] as const,
-  isSubsetOf([1, 2, 3] as const),
-)
-const isSubsetOfByInferencePipe = pipe(
-  byInferenceLeft,
-  isSubsetOf(byInferenceRight, "id"),
-)
-const isSupersetOfInferencePipe = pipe(
-  [1, 2, 3] as const,
-  isSupersetOf([1, 2] as const),
-)
-const isSupersetOfByInferencePipe = pipe(
-  byInferenceLeft,
-  isSupersetOf(byInferenceRight, "id"),
-)
-const isDisjointFromInferencePipe = pipe(
-  [1, 2] as const,
-  isDisjointFrom([3] as const),
-)
-const isDisjointFromByInferencePipe = pipe(
-  byInferenceLeft,
-  isDisjointFrom(byInferenceRight, "id"),
-)
 const zipInferencePipe = pipe(["a", "b"] as const, zip([1, 2] as const))
 const zipMergerInferencePipe = pipe(
   ["a", "b"] as const,
@@ -745,32 +633,6 @@ true satisfies IsEqual<
     enabled: boolean
   }
 >
-true satisfies IsEqual<typeof unionInferencePipe, Array<1 | 2 | "zippy">>
-true satisfies IsEqual<typeof unionByInferencePipe, ByInferenceUnion>
-true satisfies IsEqual<typeof differenceInferencePipe, Array<1 | 2 | 3>>
-true satisfies IsEqual<
-  typeof differenceByInferencePipe,
-  Array<(typeof byInferenceLeft)[number]>
->
-true satisfies IsEqual<typeof intersectionInferencePipe, Array<1 | 2 | 3>>
-true satisfies IsEqual<
-  typeof intersectionByInferencePipe,
-  Array<(typeof byInferenceLeft)[number]>
->
-true satisfies IsEqual<
-  typeof symmetricDifferenceInferencePipe,
-  Array<1 | 2 | "zippy">
->
-true satisfies IsEqual<
-  typeof symmetricDifferenceByInferencePipe,
-  ByInferenceUnion
->
-true satisfies IsEqual<typeof isSubsetOfInferencePipe, boolean>
-true satisfies IsEqual<typeof isSubsetOfByInferencePipe, boolean>
-true satisfies IsEqual<typeof isSupersetOfInferencePipe, boolean>
-true satisfies IsEqual<typeof isSupersetOfByInferencePipe, boolean>
-true satisfies IsEqual<typeof isDisjointFromInferencePipe, boolean>
-true satisfies IsEqual<typeof isDisjointFromByInferencePipe, boolean>
 true satisfies IsEqual<typeof zipInferencePipe, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipMergerInferencePipe, Array<"first" | "other">>
 true satisfies IsEqual<

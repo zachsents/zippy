@@ -16,6 +16,10 @@
   `selector: SelectorFunction<T, number> -> <U extends T>(values: readonly U[]) => number`;
   the first overload improves callback autocomplete from the eventual values
   type, while the second preserves extra properties on later inline values.
+- Do not introduce one-use helper functions or type aliases for trivial runtime
+  checks, simple union aliases, or direct selector dispatch. Inline those
+  expressions unless the helper is reused, represents a real domain invariant,
+  or removes meaningful complexity.
 
 ## Type tests
 
