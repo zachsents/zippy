@@ -38,8 +38,7 @@
     "build": "zshy",
     "pack:dry": "npm pack --dry-run --json",
     "check": "bun run typecheck && bun run fix && bun run test && bun run build && bun run pack:dry",
-    "prepublishOnly": "bun run check",
-    "publish:public": "npm publish --access public"
+    "prepublishOnly": "bun run check"
   },
   "files": [
     "dist",
