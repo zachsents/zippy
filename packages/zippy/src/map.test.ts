@@ -24,6 +24,16 @@ describe("map", () => {
     expect(map((value: number) => value * 2)([1, 2, 3])).toEqual([2, 4, 6])
   })
 
+  test("maps array values with string paths", () => {
+    const values = [
+      { id: 1, profile: { name: "Ada" } },
+      { id: 2, profile: { name: "Linus" } },
+    ]
+
+    expect(map(values, "profile.name")).toEqual(["Ada", "Linus"])
+    expect(map("id")(values)).toEqual([1, 2])
+  })
+
   test("passes index and source array to the mapper", () => {
     const values = ["z", "i", "p"]
 
@@ -44,6 +54,16 @@ describe("mapAsync", () => {
     expect(
       mapAsync(async (value: number) => value * 2)([1, 2, 3]),
     ).resolves.toEqual([2, 4, 6])
+  })
+
+  test("maps array values with string paths", async () => {
+    const values = [
+      { id: 1, profile: { name: "Ada" } },
+      { id: 2, profile: { name: "Linus" } },
+    ]
+
+    expect(mapAsync(values, "profile.name")).resolves.toEqual(["Ada", "Linus"])
+    expect(mapAsync("id")(values)).resolves.toEqual([1, 2])
   })
 
   test("preserves input order", async () => {
@@ -126,6 +146,22 @@ describe("mapValues", () => {
     })
   })
 
+  test("maps object values with string paths", () => {
+    const values = {
+      first: { id: 1, profile: { name: "Ada" } },
+      second: { id: 2, profile: { name: "Linus" } },
+    }
+
+    expect(mapValues(values, "profile.name")).toEqual({
+      first: "Ada",
+      second: "Linus",
+    })
+    expect(mapValues("id")(values)).toEqual({
+      first: 1,
+      second: 2,
+    })
+  })
+
   test("passes key and source object to the mapper", () => {
     const values = { a: 1, b: 2 }
     const sourceMatches: boolean[] = []
@@ -160,6 +196,22 @@ describe("mapValuesAsync", () => {
     ).resolves.toEqual({
       a: 10,
       b: 20,
+    })
+  })
+
+  test("maps object values with string paths", async () => {
+    const values = {
+      first: { id: 1, profile: { name: "Ada" } },
+      second: { id: 2, profile: { name: "Linus" } },
+    }
+
+    expect(mapValuesAsync(values, "profile.name")).resolves.toEqual({
+      first: "Ada",
+      second: "Linus",
+    })
+    expect(mapValuesAsync("id")(values)).resolves.toEqual({
+      first: 1,
+      second: 2,
     })
   })
 
@@ -255,6 +307,22 @@ describe("mapKeys", () => {
     })
   })
 
+  test("maps object keys with string paths", () => {
+    const values = {
+      first: { id: "user-1", name: "Ada" },
+      second: { id: "user-2", name: "Linus" },
+    }
+
+    expect(mapKeys(values, "id")).toEqual({
+      "user-1": values.first,
+      "user-2": values.second,
+    })
+    expect(mapKeys("name")(values)).toEqual({
+      Ada: values.first,
+      Linus: values.second,
+    })
+  })
+
   test("uses the last value when mapped keys collide", () => {
     expect(mapKeys({ first: 1, second: 2 }, () => "same")).toEqual({
       same: 2,
@@ -283,6 +351,22 @@ describe("mapKeysAsync", () => {
     ).resolves.toEqual({
       FIRST: 1,
       SECOND: 2,
+    })
+  })
+
+  test("maps object keys with string paths", async () => {
+    const values = {
+      first: { id: "user-1", name: "Ada" },
+      second: { id: "user-2", name: "Linus" },
+    }
+
+    expect(mapKeysAsync(values, "id")).resolves.toEqual({
+      "user-1": values.first,
+      "user-2": values.second,
+    })
+    expect(mapKeysAsync("name")(values)).resolves.toEqual({
+      Ada: values.first,
+      Linus: values.second,
     })
   })
 

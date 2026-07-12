@@ -2,8 +2,9 @@ import { describe, expect, test } from "bun:test"
 
 import {
   isFalsy,
-  isNull,
+  isDefined,
   isNullish,
+  isNonNullish,
   isPlainObject,
   isTruthy,
   isUndefined,
@@ -16,6 +17,14 @@ describe("type guards", () => {
     expect(isNullish(false)).toBe(false)
     expect(isNullish(0)).toBe(false)
     expect(isNullish("")).toBe(false)
+  })
+
+  test("detects non-nullish values", () => {
+    expect(isNonNullish(false)).toBe(true)
+    expect(isNonNullish(0)).toBe(true)
+    expect(isNonNullish("")).toBe(true)
+    expect(isNonNullish(null)).toBe(false)
+    expect(isNonNullish(undefined)).toBe(false)
   })
 
   test("detects truthy values", () => {
@@ -45,10 +54,12 @@ describe("type guards", () => {
     expect(isUndefined(0)).toBe(false)
   })
 
-  test("detects null", () => {
-    expect(isNull(null)).toBe(true)
-    expect(isNull(undefined)).toBe(false)
-    expect(isNull(0)).toBe(false)
+  test("detects defined values", () => {
+    expect(isDefined(null)).toBe(true)
+    expect(isDefined(0)).toBe(true)
+    expect(isDefined("")).toBe(true)
+    expect(isDefined(undefined)).toBe(false)
+    expect(isDefined(void 0)).toBe(false)
   })
 
   test("detects plain objects", () => {

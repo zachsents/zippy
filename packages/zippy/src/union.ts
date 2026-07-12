@@ -1,60 +1,59 @@
+import { isReadonlyArray } from "./is-readonly-array"
 import {
-  selectValue,
-  type PropertyPath,
+  getPropertyPathValue,
+  type PathSatisfier,
   type SelectorFunction,
-  type ValidPropertyPath,
+  type SelectorPath,
 } from "./selector"
 
 type ArrayValue<T> = T extends readonly (infer Value)[] ? Value : never
+type RuntimeSelector = string | SelectorFunction<unknown>
 
-function toSet<T>(arrays: Iterable<readonly T[]>): Set<T> {
-  const result = new Set<T>()
+function isRuntimeSelector(value: unknown): value is RuntimeSelector {
+  return typeof value === "string" || typeof value === "function"
+}
+
+function invalidArguments(): unknown {
+  throw new TypeError("Invalid arguments")
+}
+
+function selectKey(
+  selector: RuntimeSelector,
+  value: unknown,
+  index: number,
+  values: readonly unknown[],
+) {
+  return typeof selector === "string"
+    ? getPropertyPathValue(value, selector)
+    : selector(value, index, values)
+}
+
+function unionImpl(arrays: Iterable<readonly unknown[]>) {
+  const seenValues = new Set<unknown>()
+  const result: unknown[] = []
 
   for (const values of arrays) {
     for (const value of values) {
-      result.add(value)
+      if (!seenValues.has(value)) {
+        seenValues.add(value)
+        result.push(value)
+      }
     }
   }
 
   return result
 }
 
-export function union<T, U, Rest extends Array<readonly unknown[]>>(
-  values: readonly T[],
-  otherValues: readonly U[],
-  ...otherArrays: Rest
-): Array<T | U | ArrayValue<Rest[number]>>
-export function union<U>(
-  otherValues: readonly U[],
-): <T>(values: readonly T[]) => Array<T | U>
-export function union(
-  ...arrays:
-    | [
-        values: readonly unknown[],
-        otherValues: readonly unknown[],
-        ...otherArrays: Array<readonly unknown[]>,
-      ]
-    | [otherValues: readonly unknown[]]
-) {
-  if (arrays.length === 1) {
-    const [otherValues] = arrays
-
-    return (values: readonly unknown[]) => union(values, otherValues)
-  }
-
-  return Array.from(toSet(arrays))
-}
-
-function unionByValues<Left, Right>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  selector: SelectorFunction<Left | Right> | string,
+function unionByImpl(
+  leftValues: readonly unknown[],
+  rightValues: readonly unknown[],
+  selector: RuntimeSelector,
 ) {
   const seenKeys = new Set<unknown>()
-  const result: Array<Left | Right> = []
+  const result: unknown[] = []
 
   for (const [index, value] of leftValues.entries()) {
-    const key = selectValue(selector, value, index, leftValues)
+    const key = selectKey(selector, value, index, leftValues)
 
     if (!seenKeys.has(key)) {
       seenKeys.add(key)
@@ -63,7 +62,7 @@ function unionByValues<Left, Right>(
   }
 
   for (const [index, value] of rightValues.entries()) {
-    const key = selectValue(selector, value, index, rightValues)
+    const key = selectKey(selector, value, index, rightValues)
 
     if (!seenKeys.has(key)) {
       seenKeys.add(key)
@@ -74,41 +73,106 @@ function unionByValues<Left, Right>(
   return result
 }
 
-export function unionBy<Left, Right>(
+// authoritative pipe curry; path
+export function union<Left, Right>(
+  rightValues: readonly Right[],
+  selector: SelectorPath<Left | Right>,
+): (leftValues: readonly Left[]) => Array<Left | Right>
+
+// generic curry; path
+export function union<Path extends string, Right extends PathSatisfier<Path>>(
+  rightValues: readonly Right[],
+  selector: Path,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<Left extends PathSatisfier<Path>>(
+  leftValues: readonly Left[],
+) => Array<Left | Right>
+
+// authoritative pipe curry; selector fn
+export function union<Left, Right>(
+  rightValues: readonly Right[],
+  selector: SelectorFunction<NoInfer<Left | Right>>,
+): (leftValues: readonly Left[]) => Array<Left | Right>
+
+// generic curry; selector fn
+export function union<Shape, Right extends Shape>(
+  rightValues: readonly Right[],
+  selector: SelectorFunction<Shape>,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<Left extends Shape>(leftValues: readonly Left[]) => Array<Left | Right>
+
+// normal; path
+export function union<Left, Right>(
   leftValues: readonly Left[],
   rightValues: readonly Right[],
-  selector: SelectorFunction<Left | Right> | PropertyPath<Left | Right>,
+  selector: SelectorPath<Left | Right>,
 ): Array<Left | Right>
-export function unionBy<Right>(
+
+// normal; selector fn
+export function union<Left, Right>(
+  leftValues: readonly Left[],
   rightValues: readonly Right[],
-  selector: SelectorFunction<Right> | PropertyPath<Right>,
-): <Left extends Right>(leftValues: readonly Left[]) => Array<Left | Right>
-export function unionBy<const Path extends string, Right>(
-  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
-  selector: Path,
-): <Left extends Right>(
-  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
-) => Array<Left | Right>
-export function unionBy<Left, Right>(
+  selector: SelectorFunction<Left | Right>,
+): Array<Left | Right>
+
+// normal values
+export function union<T, U, Rest extends Array<readonly unknown[]>>(
+  values: readonly T[],
+  otherValues: readonly U[],
+  ...otherArrays: Rest
+): Array<T | U | ArrayValue<Rest[number]>>
+
+// curried values
+export function union<U>(
+  otherValues: readonly U[],
+): <T>(values: readonly T[]) => Array<T | U>
+
+export function union(
   ...args:
+    | [readonly unknown[]]
+    | [rightValues: readonly unknown[], selector: RuntimeSelector]
     | [
-        leftValues: readonly Left[],
-        rightValues: readonly Right[],
-        selector: SelectorFunction<Left | Right> | string,
-      ]
-    | [
-        rightValues: readonly Right[],
-        selector: SelectorFunction<Right> | string,
+        leftValues: readonly unknown[],
+        rightValues: readonly unknown[],
+        selectorOrOtherValues?: RuntimeSelector | readonly unknown[],
+        ...otherArrays: Array<readonly unknown[]>,
       ]
 ) {
+  if (args.length === 1) {
+    const [rightValues] = args
+
+    return (leftValues: readonly unknown[]) =>
+      unionImpl([leftValues, rightValues])
+  }
+
   if (args.length === 2) {
     const [rightValues, selector] = args
 
-    return <InputLeft extends Right>(leftValues: readonly InputLeft[]) =>
-      unionByValues(leftValues, rightValues, selector)
+    if (isRuntimeSelector(selector)) {
+      return (leftValues: readonly unknown[]) =>
+        unionByImpl(leftValues, rightValues, selector)
+    }
   }
 
-  const [leftValues, rightValues, selector] = args
+  const [leftValues, rightValues, selectorOrOtherValues, ...otherArrays] = args
 
-  return unionByValues(leftValues, rightValues, selector)
+  if (
+    selectorOrOtherValues !== undefined &&
+    isRuntimeSelector(selectorOrOtherValues)
+  ) {
+    return unionByImpl(leftValues, rightValues, selectorOrOtherValues)
+  }
+
+  if (
+    selectorOrOtherValues === undefined ||
+    isReadonlyArray(selectorOrOtherValues)
+  ) {
+    return unionImpl(
+      selectorOrOtherValues === undefined
+        ? [leftValues, rightValues]
+        : [leftValues, rightValues, selectorOrOtherValues, ...otherArrays],
+    )
+  }
+
+  return invalidArguments()
 }

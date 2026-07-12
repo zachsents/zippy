@@ -1,36 +1,32 @@
 import {
-  selectValue,
-  type PropertyPath,
+  getPropertyPathValue,
+  type PathSatisfier,
   type SelectorFunction,
-  type ValidPropertyPath,
+  type SelectorPath,
 } from "./selector"
 import { unique } from "./unique"
 
-export function intersection<T>(
-  values: readonly T[],
-  otherValues: readonly unknown[],
-  ...otherArrays: Array<readonly unknown[]>
-): T[]
-export function intersection(
-  otherValues: readonly unknown[],
-): <T>(values: readonly T[]) => T[]
-export function intersection<T>(
-  ...args:
-    | [
-        values: readonly T[],
-        otherValues: readonly unknown[],
-        ...otherArrays: Array<readonly unknown[]>,
-      ]
-    | [otherValues: readonly unknown[]]
+type RuntimeSelector = string | SelectorFunction<unknown>
+
+function isRuntimeSelector(value: unknown): value is RuntimeSelector {
+  return typeof value === "string" || typeof value === "function"
+}
+
+function selectKey(
+  selector: RuntimeSelector,
+  value: unknown,
+  index: number,
+  values: readonly unknown[],
 ) {
-  if (args.length === 1) {
-    const [otherValues] = args
+  return typeof selector === "string"
+    ? getPropertyPathValue(value, selector)
+    : selector(value, index, values)
+}
 
-    return <InputValue>(values: readonly InputValue[]) =>
-      intersection(values, otherValues)
-  }
-
-  const [values, ...otherArrays] = args
+function intersectionImpl(
+  values: readonly unknown[],
+  otherArrays: Array<readonly unknown[]>,
+) {
   const otherSets = otherArrays.map((otherValues) => new Set(otherValues))
 
   return unique(values).filter((value) =>
@@ -38,21 +34,21 @@ export function intersection<T>(
   )
 }
 
-function intersectionByValues<Value, Compared>(
-  values: readonly Value[],
-  comparedValues: readonly Compared[],
-  selector: SelectorFunction<Value | Compared> | string,
+function intersectionByImpl(
+  values: readonly unknown[],
+  comparedValues: readonly unknown[],
+  selector: RuntimeSelector,
 ) {
   const comparedKeys = new Set<unknown>()
   const seenKeys = new Set<unknown>()
-  const result: Value[] = []
+  const result: unknown[] = []
 
   for (const [index, value] of comparedValues.entries()) {
-    comparedKeys.add(selectValue(selector, value, index, comparedValues))
+    comparedKeys.add(selectKey(selector, value, index, comparedValues))
   }
 
   for (const [index, value] of values.entries()) {
-    const key = selectValue(selector, value, index, values)
+    const key = selectKey(selector, value, index, values)
 
     if (comparedKeys.has(key) && !seenKeys.has(key)) {
       seenKeys.add(key)
@@ -63,42 +59,80 @@ function intersectionByValues<Value, Compared>(
   return result
 }
 
-export function intersectionBy<Value, Compared>(
+// authoritative pipe curry; path
+export function intersection<Value, Compared>(
+  comparedValues: readonly Compared[],
+  selector: SelectorPath<Value | Compared>,
+): (values: readonly Value[]) => Value[]
+
+// generic curry; path
+export function intersection<
+  Path extends string,
+  Compared extends PathSatisfier<Path>,
+>(
+  comparedValues: readonly Compared[],
+  selector: Path,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<Value extends PathSatisfier<Path>>(values: readonly Value[]) => Value[]
+
+// authoritative pipe curry; selector fn
+export function intersection<Value, Compared>(
+  comparedValues: readonly Compared[],
+  selector: SelectorFunction<NoInfer<Value | Compared>>,
+): (values: readonly Value[]) => Value[]
+
+// generic curry; selector fn
+export function intersection<Shape, Compared extends Shape>(
+  comparedValues: readonly Compared[],
+  selector: SelectorFunction<Shape>,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<Value extends Shape>(values: readonly Value[]) => Value[]
+
+// normal; path
+export function intersection<Value, Compared>(
   values: readonly Value[],
   comparedValues: readonly Compared[],
-  selector: SelectorFunction<Value | Compared> | PropertyPath<Value | Compared>,
+  selector: SelectorPath<Value | Compared>,
 ): Value[]
-export function intersectionBy<Compared>(
-  comparedValues: readonly Compared[],
-  selector: SelectorFunction<Compared> | PropertyPath<Compared>,
-): <Value extends Compared>(values: readonly Value[]) => Value[]
-export function intersectionBy<const Path extends string, Compared>(
-  comparedValues: readonly Compared[] &
-    ValidPropertyPath<Compared, Path, unknown>,
-  selector: Path,
-): <Value extends Compared>(
-  values: readonly Value[] & ValidPropertyPath<Value, Path, unknown>,
-) => Value[]
-export function intersectionBy<Value, Compared>(
-  ...args:
-    | [
-        values: readonly Value[],
-        comparedValues: readonly Compared[],
-        selector: SelectorFunction<Value | Compared> | string,
-      ]
-    | [
-        comparedValues: readonly Compared[],
-        selector: SelectorFunction<Compared> | string,
-      ]
-) {
-  if (args.length === 2) {
-    const [comparedValues, selector] = args
 
-    return <InputValue extends Compared>(values: readonly InputValue[]) =>
-      intersectionByValues(values, comparedValues, selector)
+// normal; selector fn
+export function intersection<Value, Compared>(
+  values: readonly Value[],
+  comparedValues: readonly Compared[],
+  selector: SelectorFunction<Value | Compared>,
+): Value[]
+
+// normal values
+export function intersection<T>(
+  values: readonly T[],
+  otherValues: readonly unknown[],
+  ...otherArrays: Array<readonly unknown[]>
+): T[]
+
+// curried values
+export function intersection(
+  otherValues: readonly unknown[],
+): <T>(values: readonly T[]) => T[]
+
+export function intersection(
+  a: readonly unknown[],
+  b?: readonly unknown[] | RuntimeSelector,
+  c?: readonly unknown[] | RuntimeSelector,
+  ...rest: Array<readonly unknown[]>
+) {
+  if (b === undefined) {
+    return (values: readonly unknown[]) => intersectionImpl(values, [a])
   }
 
-  const [values, comparedValues, selector] = args
+  if (isRuntimeSelector(b)) {
+    return (values: readonly unknown[]) => intersectionByImpl(values, a, b)
+  }
 
-  return intersectionByValues(values, comparedValues, selector)
+  if (c === undefined) {
+    return intersectionImpl(a, [b])
+  }
+
+  return isRuntimeSelector(c)
+    ? intersectionByImpl(a, b, c)
+    : intersectionImpl(a, [b, c, ...rest])
 }

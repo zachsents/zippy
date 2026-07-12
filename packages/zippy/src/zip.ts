@@ -1,6 +1,7 @@
+import { isReadonlyArray } from "./is-readonly-array"
 import { tuple } from "./tuple"
 
-type ZipMerger<Left, Right, Merged> = (
+type ZipMerger<Left = unknown, Right = unknown, Merged = unknown> = (
   leftValue: Left,
   rightValue: Right,
   index: number,
@@ -8,52 +9,19 @@ type ZipMerger<Left, Right, Merged> = (
   rightValues: readonly Right[],
 ) => Merged
 
-type ZipDataFirstArgs<Left, Right, Merged> = [
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  merger?: ZipMerger<Left, Right, Merged>,
-]
+const zipTuple = (leftValue: unknown, rightValue: unknown) =>
+  tuple(leftValue, rightValue)
 
-type ZipDataLastArgs<Left, Right, Merged> = [
-  rightValues: readonly Right[],
-  merger?: ZipMerger<Left, Right, Merged>,
-]
-
-type ZipArgs<Left, Right, Merged> =
-  | ZipDataFirstArgs<Left, Right, Merged>
-  | ZipDataLastArgs<Left, Right, Merged>
-
-function zipValues<Left, Right, Merged>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  merger?: ZipMerger<Left, Right, Merged>,
+function impl(
+  leftValues: readonly unknown[],
+  rightValues: readonly unknown[],
+  merger: ZipMerger = zipTuple,
 ) {
-  const result: Array<Merged | [Left, Right]> = []
-  const rightIterator = rightValues[Symbol.iterator]()
-  let index = 0
-
-  for (const leftValue of leftValues) {
-    const rightResult = rightIterator.next()
-
-    if (rightResult.done === true) {
-      break
-    }
-
-    result.push(
-      merger === undefined
-        ? tuple(leftValue, rightResult.value)
-        : merger(leftValue, rightResult.value, index, leftValues, rightValues),
-    )
-    index += 1
-  }
-
-  return result
-}
-
-function hasZipRightValues<Left, Right, Merged>(
-  args: ZipArgs<Left, Right, Merged>,
-): args is ZipDataFirstArgs<Left, Right, Merged> {
-  return Array.isArray(args[1])
+  const smaller =
+    leftValues.length < rightValues.length ? leftValues : rightValues
+  return smaller.map((_, i) =>
+    merger(leftValues[i], rightValues[i], i, leftValues, rightValues),
+  )
 }
 
 export function zip<Left, Right, Merged>(
@@ -72,24 +40,22 @@ export function zip<Left, Right, Merged>(
 export function zip<Right>(
   rightValues: readonly Right[],
 ): <Left>(leftValues: readonly Left[]) => Array<[Left, Right]>
-export function zip<Left, Right, Merged>(
-  ...args: ZipArgs<Left, Right, Merged>
+export function zip(
+  ...args:
+    | [a: readonly unknown[]]
+    | [a: readonly unknown[], b: readonly unknown[] | ZipMerger]
+    | [a: readonly unknown[], b: readonly unknown[], c: ZipMerger]
 ) {
   if (args.length === 1) {
-    const [rightValues] = args
-
-    return (leftValues: readonly unknown[]) =>
-      zipValues(leftValues, rightValues)
+    return (leftValues: []) => impl(leftValues, args[0])
   }
 
-  if (hasZipRightValues(args)) {
-    const [leftValues, rightValues, merger] = args
-
-    return zipValues(leftValues, rightValues, merger)
+  if (args.length === 2) {
+    const [a, b] = args
+    return isReadonlyArray(b)
+      ? impl(a, b)
+      : (leftValues: []) => impl(leftValues, a, b)
   }
 
-  const [rightValues, merger] = args
-
-  return (leftValues: readonly Left[]) =>
-    zipValues(leftValues, rightValues, merger)
+  return impl(...args)
 }

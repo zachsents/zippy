@@ -1,68 +1,186 @@
+import { isReadonlyArray } from "./is-readonly-array"
 import {
-  selectValue,
-  type PropertyPath,
+  getPropertyPathValue,
+  type PathSatisfier,
   type SelectorFunction,
-  type ValidPropertyPath,
+  type SelectorPath,
 } from "./selector"
-import { unique } from "./unique"
 
-function toSet<T>(arrays: Iterable<readonly T[]>): Set<T> {
-  const result = new Set<T>()
+type SelectorInput<TSelector> = TSelector extends (
+  value: infer Value,
+  ...args: unknown[]
+) => unknown
+  ? Value
+  : never
 
-  for (const values of arrays) {
-    for (const value of values) {
-      result.add(value)
-    }
-  }
+// authoritative pipe curry; path
+/**
+ * Returns a function that finds values from the passed array that do not appear
+ * in the compared array by accessing the property denoted by the path
+ * selector.
+ *
+ * @example
+ *   const data = [{ id: 1 }, { id: 2 }]
+ *   difference([{ id: 2 }], "id")(data) // [{ id: 1 }]
+ */
+export function difference<Value, Compared>(
+  comparedValues: readonly Compared[],
+  selector: SelectorPath<Value | Compared>,
+): (values: readonly Value[]) => Value[]
 
-  return result
-}
+// generic curry; path
+/**
+ * Returns a function that finds values from the passed array that do not appear
+ * in the compared array by accessing the property denoted by the path
+ * selector.
+ *
+ * @example
+ *   const data = [{ id: 1 }, { id: 2 }]
+ *   difference([{ id: 2 }], "id")(data) // [{ id: 1 }]
+ */
+export function difference<Path extends string>(
+  comparedValues: readonly PathSatisfier<Path>[],
+  selector: Path,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<Value extends PathSatisfier<Path>>(values: readonly Value[]) => Value[]
 
-export function difference<T>(
-  values: readonly T[],
-  excludedValues: readonly unknown[],
-  ...excludedArrays: Array<readonly unknown[]>
-): T[]
-export function difference(
-  excludedValues: readonly unknown[],
-): <T>(values: readonly T[]) => T[]
-export function difference<T>(
-  ...args:
-    | [
-        values: readonly T[],
-        excludedValues: readonly unknown[],
-        ...excludedArrays: Array<readonly unknown[]>,
-      ]
-    | [excludedValues: readonly unknown[]]
-) {
-  if (args.length === 1) {
-    const [excludedValues] = args
+// authoritative pipe curry; selector fn
+/**
+ * Returns a function that finds values from the passed array that do not appear
+ * in the compared array by accessing the property returned by the selector
+ * function.
+ *
+ * @example
+ *   const data = [{ id: 1 }, { id: 2 }]
+ *   difference([{ id: 2 }], (x) => x.id)(data) // [{ id: 1 }]
+ */
+export function difference<Value, Compared>(
+  comparedValues: readonly Compared[],
+  selector: SelectorFunction<NoInfer<Value | Compared>>,
+): (values: readonly Value[]) => Value[]
 
-    return <InputValue>(values: readonly InputValue[]) =>
-      difference(values, excludedValues)
-  }
+// generic curry; selector fn
+/**
+ * Returns a function that finds values from the passed array that do not appear
+ * in the compared array by accessing the property returned by the selector
+ * function.
+ *
+ * @example
+ *   const data = [{ id: 1 }, { id: 2 }]
+ *   difference([{ id: 2 }], (x) => x.id)(data) // [{ id: 1 }]
+ */
+export function difference<
+  TSelector extends (value: never, ...args: unknown[]) => unknown,
+>(
+  comparedValues: readonly NoInfer<SelectorInput<TSelector>>[],
+  selector: TSelector,
+): <Value extends SelectorInput<TSelector>>(values: readonly Value[]) => Value[]
 
-  const [values, ...excludedArrays] = args
-  const excluded = toSet(excludedArrays)
-
-  return unique(values).filter((value) => !excluded.has(value))
-}
-
-function differenceByValues<Value, Compared>(
+// normal; path
+/**
+ * Finds values that do not appear in the compared array by accessing the
+ * property denoted by the path selector.
+ *
+ * @example
+ *   difference([{ id: 1 }, { id: 2 }], [{ id: 2 }], "id") // [{ id: 1 }]
+ */
+export function difference<Value, Compared>(
   values: readonly Value[],
   comparedValues: readonly Compared[],
-  selector: SelectorFunction<Value | Compared> | string,
+  selector: SelectorPath<Value | Compared>,
+): Value[]
+
+// normal; selector fn
+/**
+ * Finds values that do not appear in the compared array by accessing the
+ * property returned by the selector function.
+ *
+ * @example
+ *   difference([{ id: 1 }, { id: 2 }], [{ id: 2 }], (x) => x.id) // [{ id: 1 }]
+ */
+export function difference<Value, Compared>(
+  values: readonly Value[],
+  comparedValues: readonly Compared[],
+  selector: SelectorFunction<Value | Compared>,
+): Value[]
+
+// normal values
+/**
+ * Finds the unique values from the passed array that do not appear in any of
+ * the excluded arrays.
+ *
+ * @example
+ *   difference([1, 2, 2, 3], [2]) // [1, 3]
+ */
+export function difference<T>(
+  values: readonly T[],
+  excludedValues: readonly NoInfer<T>[],
+  ...excludedArrays: Array<readonly NoInfer<T>[]>
+): T[]
+
+// curried values
+/**
+ * Returns a function that finds the unique values from the passed array that do
+ * not appear in the excluded array.
+ *
+ * @example
+ *   difference([2])([1, 2, 2, 3]) // [1, 3]
+ */
+export function difference<Excluded>(
+  excludedValues: readonly Excluded[],
+): <T>(values: readonly T[] & (Excluded extends T ? unknown : never)) => T[]
+
+export function difference(
+  a: readonly unknown[],
+  b?: readonly unknown[] | string | SelectorFunction<unknown>,
+  c?: readonly unknown[] | string | SelectorFunction<unknown>,
+  ...rest: Array<readonly unknown[]>
+) {
+  if (b === undefined) {
+    return (values: []) => differenceImpl<unknown>(values, [a])
+  }
+
+  if (!isReadonlyArray(b)) {
+    return (values: []) => differenceImpl<unknown>(values, [a], b)
+  }
+
+  if (c === undefined) {
+    return differenceImpl(a, [b])
+  }
+
+  return isReadonlyArray(c)
+    ? differenceImpl(a, [b, c, ...rest])
+    : differenceImpl(a, [b], c)
+}
+
+function differenceImpl<T>(
+  values: readonly T[],
+  comparedArrays: Array<readonly unknown[]>,
+  selector?: string | SelectorFunction<unknown>,
 ) {
   const comparedKeys = new Set<unknown>()
   const seenKeys = new Set<unknown>()
-  const result: Value[] = []
+  const result: T[] = []
 
-  for (const [index, value] of comparedValues.entries()) {
-    comparedKeys.add(selectValue(selector, value, index, comparedValues))
+  for (const comparedValues of comparedArrays) {
+    for (const [index, value] of comparedValues.entries()) {
+      comparedKeys.add(
+        selector === undefined
+          ? value
+          : typeof selector === "string"
+            ? getPropertyPathValue(value, selector)
+            : selector(value, index, comparedValues),
+      )
+    }
   }
 
   for (const [index, value] of values.entries()) {
-    const key = selectValue(selector, value, index, values)
+    const key =
+      selector === undefined
+        ? value
+        : typeof selector === "string"
+          ? getPropertyPathValue(value, selector)
+          : selector(value, index, values)
 
     if (!comparedKeys.has(key) && !seenKeys.has(key)) {
       seenKeys.add(key)
@@ -71,44 +189,4 @@ function differenceByValues<Value, Compared>(
   }
 
   return result
-}
-
-export function differenceBy<Value, Compared>(
-  values: readonly Value[],
-  comparedValues: readonly Compared[],
-  selector: SelectorFunction<Value | Compared> | PropertyPath<Value | Compared>,
-): Value[]
-export function differenceBy<Compared>(
-  comparedValues: readonly Compared[],
-  selector: SelectorFunction<Compared> | PropertyPath<Compared>,
-): <Value extends Compared>(values: readonly Value[]) => Value[]
-export function differenceBy<const Path extends string, Compared>(
-  comparedValues: readonly Compared[] &
-    ValidPropertyPath<Compared, Path, unknown>,
-  selector: Path,
-): <Value extends Compared>(
-  values: readonly Value[] & ValidPropertyPath<Value, Path, unknown>,
-) => Value[]
-export function differenceBy<Value, Compared>(
-  ...args:
-    | [
-        values: readonly Value[],
-        comparedValues: readonly Compared[],
-        selector: SelectorFunction<Value | Compared> | string,
-      ]
-    | [
-        comparedValues: readonly Compared[],
-        selector: SelectorFunction<Compared> | string,
-      ]
-) {
-  if (args.length === 2) {
-    const [comparedValues, selector] = args
-
-    return <InputValue extends Compared>(values: readonly InputValue[]) =>
-      differenceByValues(values, comparedValues, selector)
-  }
-
-  const [values, comparedValues, selector] = args
-
-  return differenceByValues(values, comparedValues, selector)
 }

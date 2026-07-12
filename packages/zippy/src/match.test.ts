@@ -43,21 +43,36 @@ describe("match", () => {
     ])
   })
 
-  test("matches values with a dot path matcher data-last", () => {
+  test("matches values data-last with a dot path matcher", () => {
+    const leftFirst = { user: { id: "first" }, label: "A" }
+    const leftSecond = { user: { id: "second" }, label: "B" }
+    const rightSecond = { user: { id: "second" }, count: 2 }
+    const rightFirst = { user: { id: "first" }, count: 1 }
+
+    expect(
+      match([rightSecond, rightFirst], "user.id")([leftFirst, leftSecond]),
+    ).toEqual([
+      [leftFirst, rightFirst],
+      [leftSecond, rightSecond],
+    ])
+  })
+
+  test("matches values data-last with a custom matcher", () => {
+    const leftA = { id: "a", label: "A" }
+    const leftB = { id: "b", label: "B" }
+    const rightB = { id: "b", count: 2 }
+    const rightA = { id: "a", count: 1 }
+
     expect(
       match(
-        [
-          { user: { id: "second" }, count: 2 },
-          { user: { id: "first" }, count: 1 },
-        ],
-        "user.id",
-        (leftValue: { user: { id: string }; label: string }, rightValue) =>
-          `${leftValue.label}:${rightValue.count}`,
-      )([
-        { user: { id: "first" }, label: "A" },
-        { user: { id: "second" }, label: "B" },
-      ]),
-    ).toEqual(["A:1", "B:2"])
+        [rightB, rightA],
+        (leftValue: { id: string; label: string }, rightValue) =>
+          leftValue.id === rightValue.id,
+      )([leftA, leftB]),
+    ).toEqual([
+      [leftA, rightA],
+      [leftB, rightB],
+    ])
   })
 
   test("uses SameValueZero equality for property path matchers", () => {
@@ -67,62 +82,67 @@ describe("match", () => {
     expect(match([leftNaN], [rightNaN], "id")).toEqual([[leftNaN, rightNaN]])
   })
 
-  test("merges matched values with a custom merger", () => {
-    expect(
-      match(
-        ["a", "b"],
-        [
-          { key: "b", count: 2 },
-          { key: "a", count: 1 },
-        ],
-        (leftValue, rightValue) => leftValue === rightValue.key,
-        (leftValue, rightValue) => `${leftValue}:${rightValue.count}`,
-      ),
-    ).toEqual(["a:1", "b:2"])
-  })
-
-  test("uses matcher and merger data-last", () => {
-    expect(
-      match(
-        [
-          { id: "second", count: 2 },
-          { id: "first", count: 1 },
-        ],
-        (leftValue: { id: string; label: string }, rightValue) =>
-          leftValue.id === rightValue.id,
-        (leftValue: { id: string; label: string }, rightValue) =>
-          `${leftValue.label}:${rightValue.count}`,
-      )([
-        { id: "first", label: "A" },
-        { id: "second", label: "B" },
-      ]),
-    ).toEqual(["A:1", "B:2"])
-  })
-
-  test("passes indexes and source arrays to matcher and merger", () => {
-    const leftValues = ["z", "i"]
-    const rightValues = ["skip", "z", "i"]
-    const matcherSourcesMatch: boolean[] = []
-    const mergerSourcesMatch: boolean[] = []
+  test("passes indexes and source arrays to the matcher", () => {
+    const leftValues = ["z", "i"] as const
+    const rightValues = ["skip", "z", "i"] as const
+    const calls: Array<{
+      leftIndex: number
+      rightIndex: number
+      leftValue: string
+      rightValue: string
+      sameSources: boolean
+    }> = []
 
     expect(
       match(
         leftValues,
         rightValues,
         (leftValue, rightValue, leftIndex, rightIndex, left, right) => {
-          matcherSourcesMatch.push(left === leftValues && right === rightValues)
+          calls.push({
+            leftIndex,
+            rightIndex,
+            leftValue,
+            rightValue,
+            sameSources: left === leftValues && right === rightValues,
+          })
 
           return leftValue === rightValue && leftIndex + 1 === rightIndex
         },
-        (leftValue, rightValue, leftIndex, rightIndex, left, right) => {
-          mergerSourcesMatch.push(left === leftValues && right === rightValues)
-
-          return `${leftIndex}:${rightIndex}:${leftValue}:${rightValue}`
-        },
       ),
-    ).toEqual(["0:1:z:z", "1:2:i:i"])
-    expect(matcherSourcesMatch).toEqual([true, true, true, true])
-    expect(mergerSourcesMatch).toEqual([true, true])
+    ).toEqual([
+      ["z", "z"],
+      ["i", "i"],
+    ])
+    expect(calls).toEqual([
+      {
+        leftIndex: 0,
+        rightIndex: 0,
+        leftValue: "z",
+        rightValue: "skip",
+        sameSources: true,
+      },
+      {
+        leftIndex: 0,
+        rightIndex: 1,
+        leftValue: "z",
+        rightValue: "z",
+        sameSources: true,
+      },
+      {
+        leftIndex: 1,
+        rightIndex: 0,
+        leftValue: "i",
+        rightValue: "skip",
+        sameSources: true,
+      },
+      {
+        leftIndex: 1,
+        rightIndex: 2,
+        leftValue: "i",
+        rightValue: "i",
+        sameSources: true,
+      },
+    ])
   })
 })
 
@@ -167,7 +187,25 @@ describe("matchMerge", () => {
     ])
   })
 
-  test("matches and shallow merges objects data-last", () => {
+  test("matches and shallow merges objects data-last with a path matcher", () => {
+    expect(
+      matchMerge(
+        [
+          { id: "second", count: 2 },
+          { id: "first", count: 1 },
+        ],
+        "id",
+      )([
+        { id: "first", label: "A" },
+        { id: "second", label: "B" },
+      ]),
+    ).toEqual([
+      { id: "first", label: "A", count: 1 },
+      { id: "second", label: "B", count: 2 },
+    ])
+  })
+
+  test("matches and shallow merges objects data-last with a matcher", () => {
     expect(
       matchMerge(
         [

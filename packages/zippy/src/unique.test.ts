@@ -1,6 +1,6 @@
 import { describe, expect, test } from "bun:test"
 
-import { unique, uniqueBy } from "./unique"
+import { unique } from "./unique"
 
 describe("unique", () => {
   test("returns values without duplicates", () => {
@@ -30,10 +30,10 @@ describe("unique", () => {
   })
 })
 
-describe("uniqueBy", () => {
+describe("unique selectors", () => {
   test("returns values with unique selected keys", () => {
     expect(
-      uniqueBy(
+      unique(
         [
           { id: 1, name: "first" },
           { id: 2, name: "second" },
@@ -49,7 +49,7 @@ describe("uniqueBy", () => {
 
   test("accepts a property path selector", () => {
     expect(
-      uniqueBy(
+      unique(
         [
           { user: { id: 1 }, name: "first" },
           { user: { id: 2 }, name: "second" },
@@ -65,7 +65,7 @@ describe("uniqueBy", () => {
 
   test("returns a pipeable function", () => {
     expect(
-      uniqueBy("id")([
+      unique("id")([
         { id: 1, name: "first" },
         { id: 2, name: "second" },
         { id: 1, name: "duplicate" },

@@ -11,6 +11,11 @@ const matchMatcherDataLast = match(
   [1, 2] as const,
   (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
 )(["a", "b"] as const)
+const matchMatcherDataLastWithExtraProperties = match(
+  [{ id: 1, count: 1 }] as const,
+  (leftValue: { id: number }, rightValue) => leftValue.id === rightValue.id,
+)([{ id: 1, label: "A" }] as const)
+
 const matchPathMatcherDataFirst = match(
   [{ id: "a" }, { id: "b" }] as const,
   [{ id: "b" }, { id: "a" }] as const,
@@ -25,29 +30,14 @@ const matchPathMatcherDataLast = match(
   [{ id: "b" }, { id: "a" }] as const,
   "id",
 )([{ id: "a" }, { id: "b" }] as const)
-const matchMergerDataFirst = match(
-  ["a", "b"] as const,
-  [1, 2] as const,
-  (leftValue, rightValue) => leftValue === "a" && rightValue === 1,
-  (leftValue, rightValue) =>
-    leftValue === "a" && rightValue === 1 ? "first" : "other",
-)
-const matchMergerDataLast = match(
-  [1, 2] as const,
-  (leftValue: "a" | "b", rightValue) => leftValue === "a" && rightValue === 1,
-  (leftValue: "a" | "b", rightValue) =>
-    leftValue === "a" && rightValue === 1 ? "first" : "other",
-)(["a", "b"] as const)
-const matchPathMatcherMergerDataFirst = match(
-  [{ id: "a" }, { id: "b" }] as const,
-  [
-    { id: "b", count: 2 },
-    { id: "a", count: 1 },
-  ] as const,
+const matchDotPathMatcherDataLast = match(
+  [{ user: { id: "b" } }, { user: { id: "a" } }] as const,
+  "user.id",
+)([{ user: { id: "a" } }, { user: { id: "b" } }] as const)
+const matchPathMatcherDataLastWithExtraProperties = match(
+  [{ id: 1, rightOnly: "right" }] as const,
   "id",
-  (leftValue, rightValue) =>
-    leftValue.id === "a" && rightValue.count === 1 ? "first" : "other",
-)
+)([{ id: 1, leftOnly: "left" }] as const)
 
 const matchMergeDataFirst = matchMerge(
   [{ id: "a", label: "A" }],
@@ -71,6 +61,15 @@ const matchMergeMatcherDataLast = matchMerge(
 
 true satisfies IsEqual<typeof matchMatcherDataFirst, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof matchMatcherDataLast, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<
+  typeof matchMatcherDataLastWithExtraProperties,
+  Array<
+    [
+      { readonly id: 1; readonly label: "A" },
+      { readonly id: 1; readonly count: 1 },
+    ]
+  >
+>
 true satisfies IsEqual<
   typeof matchPathMatcherDataFirst,
   Array<
@@ -104,11 +103,29 @@ true satisfies IsEqual<
     ]
   >
 >
-true satisfies IsEqual<typeof matchMergerDataFirst, Array<"first" | "other">>
-true satisfies IsEqual<typeof matchMergerDataLast, Array<"first" | "other">>
 true satisfies IsEqual<
-  typeof matchPathMatcherMergerDataFirst,
-  Array<"first" | "other">
+  typeof matchDotPathMatcherDataLast,
+  Array<
+    [
+      (
+        | { readonly user: { readonly id: "a" } }
+        | { readonly user: { readonly id: "b" } }
+      ),
+      (
+        | { readonly user: { readonly id: "b" } }
+        | { readonly user: { readonly id: "a" } }
+      ),
+    ]
+  >
+>
+true satisfies IsEqual<
+  typeof matchPathMatcherDataLastWithExtraProperties,
+  Array<
+    [
+      { readonly id: 1; readonly leftOnly: "left" },
+      { readonly id: 1; readonly rightOnly: "right" },
+    ]
+  >
 >
 true satisfies IsEqual<
   typeof matchMergeDataFirst,
@@ -134,18 +151,25 @@ match(["a", "b"] as const, [1, 2] as const)
 match([1, 2] as const)
 
 // @ts-expect-error match accepts a positional matcher, not an options object.
-match(["a", "b"] as const, [1, 2] as const, {
-  matcher: () => true,
-})
+match(["a", "b"] as const, [1, 2] as const, { matcher: () => true })
 
 // @ts-expect-error string matchers must exist on both sides.
 match([{ id: 1 }] as const, [{ name: "one" }] as const, "id")
+
+// @ts-expect-error string matcher values must have the same type on both sides.
+match([{ id: 1 }] as const, [{ id: "one" }] as const, "id")
 
 // @ts-expect-error data-last string matchers must exist on the bound right side.
 match([{ name: "one" }] as const, "id")
 
 // @ts-expect-error data-last string matchers are checked once left values are provided.
 match([{ id: 1 }] as const, "id")([{ name: "one" }] as const)
+
+const wrongMatcherLeftValues = [{ id: 1 }] as const
+const nameMatcher = (leftValue: { name: string }) => !!leftValue.name
+
+// @ts-expect-error data-last matcher callbacks constrain accepted left values.
+match([{ id: 1 }] as const, nameMatcher)(wrongMatcherLeftValues)
 
 // @ts-expect-error matchMerge requires a matcher.
 matchMerge([{ id: "a" }], [{ id: "a" }])

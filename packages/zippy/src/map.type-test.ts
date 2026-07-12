@@ -17,9 +17,28 @@ const mapDataFirst = map([1, 2, 3] as const, (value) =>
 const mapDataLast = map((value: 1 | 2 | 3) => (value === 1 ? "one" : "other"))([
   1, 2, 3,
 ] as const)
+const mapPathDataFirst = map(
+  [
+    { id: 1, profile: { name: "Ada" } },
+    { id: 2, profile: { name: "Linus" } },
+  ] as const,
+  "profile.name",
+)
+const mapPathDataLast = map("id")([
+  { id: 1, profile: { name: "Ada" } },
+  { id: 2, profile: { name: "Linus" } },
+] as const)
 
 true satisfies IsEqual<typeof mapDataFirst, Array<"one" | "other">>
 true satisfies IsEqual<typeof mapDataLast, Array<"one" | "other">>
+true satisfies IsEqual<typeof mapPathDataFirst, Array<"Ada" | "Linus">>
+true satisfies IsEqual<typeof mapPathDataLast, Array<1 | 2>>
+
+// @ts-expect-error string selectors must exist on the value type.
+map([{ id: 1 }] as const, "missing")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+map("missing")([{ id: 1 }] as const)
 
 const mapAsyncDataFirst = mapAsync([1, 2, 3] as const, async (value) =>
   value === 1 ? "one" : "other",
@@ -36,6 +55,17 @@ const mapAsyncOptionsDataLast = mapAsync(
   async (value: 1 | 2 | 3) => (value === 1 ? "one" : "other"),
   { concurrency: 2 },
 )([1, 2, 3] as const)
+const mapAsyncPathDataFirst = mapAsync(
+  [
+    { id: 1, profile: { name: "Ada" } },
+    { id: 2, profile: { name: "Linus" } },
+  ] as const,
+  "profile.name",
+)
+const mapAsyncPathDataLast = mapAsync("id")([
+  { id: 1, profile: { name: "Ada" } },
+  { id: 2, profile: { name: "Linus" } },
+] as const)
 
 true satisfies IsEqual<
   typeof mapAsyncDataFirst,
@@ -50,6 +80,17 @@ true satisfies IsEqual<
   typeof mapAsyncOptionsDataLast,
   Promise<Array<"one" | "other">>
 >
+true satisfies IsEqual<
+  typeof mapAsyncPathDataFirst,
+  Promise<Array<"Ada" | "Linus">>
+>
+true satisfies IsEqual<typeof mapAsyncPathDataLast, Promise<Array<1 | 2>>>
+
+// @ts-expect-error string selectors must exist on the value type.
+void mapAsync([{ id: 1 }] as const, "missing")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+void mapAsync("missing")([{ id: 1 }] as const)
 
 const mapValuesDataFirst = mapValues({ a: 1, b: 2 } as const, (value) =>
   value === 1 ? "one" : "other",
@@ -57,6 +98,17 @@ const mapValuesDataFirst = mapValues({ a: 1, b: 2 } as const, (value) =>
 const mapValuesDataLast = mapValues((value: 1 | 2) =>
   value === 1 ? "one" : "other",
 )({ a: 1, b: 2 } as const)
+const mapValuesPathDataFirst = mapValues(
+  {
+    first: { id: 1, profile: { name: "Ada" } },
+    second: { id: 2, profile: { name: "Linus" } },
+  } as const,
+  "profile.name",
+)
+const mapValuesPathDataLast = mapValues("id")({
+  first: { id: 1, profile: { name: "Ada" } },
+  second: { id: 2, profile: { name: "Linus" } },
+} as const)
 
 true satisfies IsEqual<
   typeof mapValuesDataFirst,
@@ -66,6 +118,17 @@ true satisfies IsEqual<
   typeof mapValuesDataLast,
   Record<string, "one" | "other">
 >
+true satisfies IsEqual<
+  typeof mapValuesPathDataFirst,
+  Record<string, "Ada" | "Linus">
+>
+true satisfies IsEqual<typeof mapValuesPathDataLast, Record<string, 1 | 2>>
+
+// @ts-expect-error string selectors must exist on the value type.
+mapValues({ first: { id: 1 } } as const, "missing")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+mapValues("missing")({ first: { id: 1 } } as const)
 
 const mapValuesAsyncDataFirst = mapValuesAsync(
   { a: 1, b: 2 } as const,
@@ -83,6 +146,17 @@ const mapValuesAsyncOptionsDataLast = mapValuesAsync(
   async (value: 1 | 2) => (value === 1 ? "one" : "other"),
   { concurrency: 2 },
 )({ a: 1, b: 2 } as const)
+const mapValuesAsyncPathDataFirst = mapValuesAsync(
+  {
+    first: { id: 1, profile: { name: "Ada" } },
+    second: { id: 2, profile: { name: "Linus" } },
+  } as const,
+  "profile.name",
+)
+const mapValuesAsyncPathDataLast = mapValuesAsync("id")({
+  first: { id: 1, profile: { name: "Ada" } },
+  second: { id: 2, profile: { name: "Linus" } },
+} as const)
 
 true satisfies IsEqual<
   typeof mapValuesAsyncDataFirst,
@@ -100,6 +174,20 @@ true satisfies IsEqual<
   typeof mapValuesAsyncOptionsDataLast,
   Promise<Record<string, "one" | "other">>
 >
+true satisfies IsEqual<
+  typeof mapValuesAsyncPathDataFirst,
+  Promise<Record<string, "Ada" | "Linus">>
+>
+true satisfies IsEqual<
+  typeof mapValuesAsyncPathDataLast,
+  Promise<Record<string, 1 | 2>>
+>
+
+// @ts-expect-error string selectors must exist on the value type.
+void mapValuesAsync({ first: { id: 1 } } as const, "missing")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+void mapValuesAsync("missing")({ first: { id: 1 } } as const)
 
 const mapKeysDataFirst = mapKeys({ a: 1, b: 2 } as const, (_value, key) =>
   key === "a" ? "first" : "other",
@@ -107,12 +195,45 @@ const mapKeysDataFirst = mapKeys({ a: 1, b: 2 } as const, (_value, key) =>
 const mapKeysDataLast = mapKeys((_value: 1 | 2, key) =>
   key === "a" ? "first" : "other",
 )({ a: 1, b: 2 } as const)
+const mapKeysPathDataFirst = mapKeys(
+  {
+    first: { id: "user-1", profile: { name: "Ada" } },
+    second: { id: "user-2", profile: { name: "Linus" } },
+  } as const,
+  "id",
+)
+const mapKeysPathDataLast = mapKeys("profile.name")({
+  first: { id: "user-1", profile: { name: "Ada" } },
+  second: { id: "user-2", profile: { name: "Linus" } },
+} as const)
 
 true satisfies IsEqual<
   typeof mapKeysDataFirst,
   Record<"first" | "other", 1 | 2>
 >
 true satisfies IsEqual<typeof mapKeysDataLast, Record<"first" | "other", 1 | 2>>
+true satisfies IsEqual<
+  typeof mapKeysPathDataFirst,
+  Record<
+    "user-1" | "user-2",
+    | { readonly id: "user-1"; readonly profile: { readonly name: "Ada" } }
+    | { readonly id: "user-2"; readonly profile: { readonly name: "Linus" } }
+  >
+>
+true satisfies IsEqual<
+  typeof mapKeysPathDataLast,
+  Record<
+    "Ada" | "Linus",
+    | { readonly id: "user-1"; readonly profile: { readonly name: "Ada" } }
+    | { readonly id: "user-2"; readonly profile: { readonly name: "Linus" } }
+  >
+>
+
+// @ts-expect-error string selectors used as keys must point to property keys.
+mapKeys({ first: { profile: { name: "Ada" } } } as const, "profile")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+mapKeys("missing")({ first: { id: "user-1" } } as const)
 
 const mapKeysAsyncDataFirst = mapKeysAsync(
   { a: 1, b: 2 } as const,
@@ -130,6 +251,17 @@ const mapKeysAsyncOptionsDataLast = mapKeysAsync(
   async (_value: 1 | 2, key) => (key === "a" ? "first" : "other"),
   { concurrency: 2 },
 )({ a: 1, b: 2 } as const)
+const mapKeysAsyncPathDataFirst = mapKeysAsync(
+  {
+    first: { id: "user-1", profile: { name: "Ada" } },
+    second: { id: "user-2", profile: { name: "Linus" } },
+  } as const,
+  "id",
+)
+const mapKeysAsyncPathDataLast = mapKeysAsync("profile.name")({
+  first: { id: "user-1", profile: { name: "Ada" } },
+  second: { id: "user-2", profile: { name: "Linus" } },
+} as const)
 
 true satisfies IsEqual<
   typeof mapKeysAsyncDataFirst,
@@ -147,6 +279,32 @@ true satisfies IsEqual<
   typeof mapKeysAsyncOptionsDataLast,
   Promise<Record<"first" | "other", 1 | 2>>
 >
+true satisfies IsEqual<
+  typeof mapKeysAsyncPathDataFirst,
+  Promise<
+    Record<
+      "user-1" | "user-2",
+      | { readonly id: "user-1"; readonly profile: { readonly name: "Ada" } }
+      | { readonly id: "user-2"; readonly profile: { readonly name: "Linus" } }
+    >
+  >
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncPathDataLast,
+  Promise<
+    Record<
+      "Ada" | "Linus",
+      | { readonly id: "user-1"; readonly profile: { readonly name: "Ada" } }
+      | { readonly id: "user-2"; readonly profile: { readonly name: "Linus" } }
+    >
+  >
+>
+
+// @ts-expect-error string selectors used as keys must point to property keys.
+void mapKeysAsync({ first: { profile: { name: "Ada" } } } as const, "profile")
+
+// @ts-expect-error data-last string selectors are checked once values are provided.
+void mapKeysAsync("missing")({ first: { id: "user-1" } } as const)
 
 const mapEntriesDataFirst = mapEntries(
   { a: 1, b: 2 } as const,

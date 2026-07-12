@@ -1,66 +1,109 @@
+import { isReadonlyArray } from "./is-readonly-array"
 import {
-  selectValue,
-  type PropertyPath,
+  getPropertyPathValue,
+  type PathSatisfier,
   type SelectorFunction,
-  type ValidPropertyPath,
+  type SelectorPath,
 } from "./selector"
 
-const impl = <T>(values: readonly T[]) => Array.from(new Set(values))
+type RuntimeSelector = string | SelectorFunction<unknown>
 
-function uniqueByValues<T>(
-  values: readonly T[],
-  selector: SelectorFunction<T> | string,
-) {
+function isRuntimeSelector(value: unknown): value is RuntimeSelector {
+  return typeof value === "string" || typeof value === "function"
+}
+
+function invalidArguments(): unknown {
+  throw new TypeError("Invalid arguments")
+}
+
+function uniqueImpl<T>(values: readonly T[]) {
+  return Array.from(new Set(values))
+}
+
+function uniqueByImpl(values: readonly unknown[], selector: RuntimeSelector) {
   const seenKeys = new Set<unknown>()
-  const result: T[] = []
-  let index = 0
+  const result: unknown[] = []
 
-  for (const value of values) {
-    const key = selectValue(selector, value, index, values)
+  for (const [index, value] of values.entries()) {
+    const key =
+      typeof selector === "string"
+        ? getPropertyPathValue(value, selector)
+        : selector(value, index, values)
 
     if (!seenKeys.has(key)) {
       seenKeys.add(key)
       result.push(value)
     }
-
-    index += 1
   }
 
   return result
 }
 
+// authoritative pipe curry; path
+export function unique<T>(
+  selector: SelectorPath<T>,
+): (values: readonly T[]) => T[]
+
+// generic curry; path
+export function unique<Path extends string>(
+  selector: Path,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<T extends PathSatisfier<Path>>(values: readonly T[]) => T[]
+
+// authoritative pipe curry; selector fn
+export function unique<T>(
+  selector: SelectorFunction<NoInfer<T>>,
+): (values: readonly T[]) => T[]
+
+// generic curry; selector fn
+export function unique<T>(
+  selector: SelectorFunction<T>,
+): // oxlint-disable eslint/no-unnecessary-type-parameters
+<U extends T>(values: readonly U[]) => U[]
+
+// normal; path
+export function unique<T>(values: readonly T[], selector: SelectorPath<T>): T[]
+
+// normal; selector fn
+export function unique<T>(
+  values: readonly T[],
+  selector: SelectorFunction<T>,
+): T[]
+
+// normal values
 export function unique<T>(values: readonly T[]): T[]
+
+// curried values
 export function unique(): <T>(values: readonly T[]) => T[]
-export function unique<T>(values?: readonly T[]) {
-  if (values === undefined) {
-    return impl
+
+export function unique(
+  ...args:
+    | []
+    | [readonly unknown[]]
+    | [RuntimeSelector]
+    | [values: readonly unknown[], selector: RuntimeSelector]
+) {
+  if (args.length === 0) {
+    return uniqueImpl
   }
 
-  return impl(values)
-}
-
-export function uniqueBy<T>(
-  values: readonly T[],
-  selector: SelectorFunction<T> | PropertyPath<T>,
-): T[]
-export function uniqueBy<T>(
-  selector: SelectorFunction<T> | PropertyPath<T>,
-): (values: readonly T[]) => T[]
-export function uniqueBy<const Path extends string>(
-  selector: Path,
-): <T>(values: readonly T[] & ValidPropertyPath<T, Path, unknown>) => T[]
-export function uniqueBy<T>(
-  ...args:
-    | [values: readonly T[], selector: SelectorFunction<T> | string]
-    | [selector: SelectorFunction<T> | string]
-) {
   if (args.length === 1) {
-    const [selector] = args
+    const [a] = args
 
-    return (values: readonly T[]) => uniqueByValues(values, selector)
+    if (isReadonlyArray(a)) {
+      return uniqueImpl(a)
+    }
+
+    if (isRuntimeSelector(a)) {
+      return (values: readonly unknown[]) => uniqueByImpl(values, a)
+    }
   }
 
   const [values, selector] = args
 
-  return uniqueByValues(values, selector)
+  if (isReadonlyArray(values) && isRuntimeSelector(selector)) {
+    return uniqueByImpl(values, selector)
+  }
+
+  return invalidArguments()
 }
