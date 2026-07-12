@@ -2,7 +2,7 @@
 set -eu
 
 usage() {
-  echo "Usage: bun run check:fn <file-pattern>" >&2
+  echo "Usage: bun run check:fn <helper-name>" >&2
   echo "Example: bun run check:fn sum" >&2
 }
 
@@ -14,14 +14,49 @@ fi
 script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
 repo_root=$(CDPATH= cd -- "$script_dir/.." && pwd)
 package_dir="$repo_root/packages/zippy"
-pattern=$1
+helper_name=$1
 
 cd "$package_dir"
 
-target_files=$(find src -maxdepth 1 -type f -name "*$pattern*.ts" | sort)
+case "$helper_name" in
+  src/*)
+    helper_name=${helper_name#src/}
+    ;;
+esac
+
+case "$helper_name" in
+  *.type-test.ts)
+    helper_name=${helper_name%.type-test.ts}
+    ;;
+  *.test.ts)
+    helper_name=${helper_name%.test.ts}
+    ;;
+  *.ts)
+    helper_name=${helper_name%.ts}
+    ;;
+esac
+
+case "$helper_name" in
+  "" | */* | *\"* | *\\*)
+    echo "Invalid helper name: $1" >&2
+    exit 2
+    ;;
+esac
+
+target_files=""
+for file in \
+  "src/$helper_name.ts" \
+  "src/$helper_name.test.ts" \
+  "src/$helper_name.type-test.ts"
+do
+  if [ -f "$file" ]; then
+    target_files="${target_files}${target_files:+
+}$file"
+  fi
+done
 
 if [ -z "$target_files" ]; then
-  echo "No matching files found for pattern: $pattern" >&2
+  echo "No matching files found for helper: $helper_name" >&2
   exit 2
 fi
 
