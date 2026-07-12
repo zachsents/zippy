@@ -23,21 +23,21 @@ examples below use the data-first form.
   `values.filter((value) => value !== undefined)`.
 - `map` - Map array values. Like `values.map(mapper)`.
 - `mapAsync` - Map array values with async support. Like
-  `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit
-  parallel mapper calls.
+  `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit parallel
+  mapper calls.
 - `unique` - Remove duplicate values. Like `[...new Set(values)]`.
-- `uniqueBy` - Remove duplicate values by a mapped key or type-safe
-  property/dot path selector.
+- `uniqueBy` - Remove duplicate values by a mapped key or type-safe property/dot
+  path selector.
 
 ### Math
 
-The `*By` math helpers accept a mapper function or a type-safe property/dot
-path selector.
+The `*By` math helpers accept a mapper function or a type-safe property/dot path
+selector.
 
-- `mean` - Return the arithmetic average of numbers, or `undefined` for an
-  empty array.
-- `meanBy` - Return the arithmetic average of mapped numbers, or `undefined`
-  for an empty array.
+- `mean` - Return the arithmetic average of numbers, or `undefined` for an empty
+  array.
+- `meanBy` - Return the arithmetic average of mapped numbers, or `undefined` for
+  an empty array.
 - `median` - Return the median of numbers, or `undefined` for an empty array.
 - `medianBy` - Return the median of mapped numbers, or `undefined` for an empty
   array.
@@ -58,8 +58,8 @@ path selector.
   or pass `{ concurrency }` to limit parallel mapper calls.
 - `mapKeys` - Transform object keys. Like
   `Object.fromEntries(Object.entries(values).map(([key, value]) => [mapper(value, key, values), value]))`.
-- `mapKeysAsync` - Transform object keys with async support. Like `mapKeys`
-  with awaited keys, or pass `{ concurrency }` to limit parallel mapper calls.
+- `mapKeysAsync` - Transform object keys with async support. Like `mapKeys` with
+  awaited keys, or pass `{ concurrency }` to limit parallel mapper calls.
 - `mapValues` - Transform object values. Like
   `Object.fromEntries(Object.entries(values).map(([key, value]) => [key, mapper(value, key, values)]))`.
 - `mapValuesAsync` - Transform object values with async support. Like
