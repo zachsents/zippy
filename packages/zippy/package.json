@@ -34,6 +34,7 @@
     "lint:fix": "oxlint --type-aware --fix --fix-suggestions",
     "format": "prettier . --write",
     "fix": "bun run lint:fix && bun run format",
+    "check:fn": "../../scripts/check-function.sh",
     "test": "bun test",
     "build": "zshy",
     "pack:dry": "npm pack --dry-run --json",
