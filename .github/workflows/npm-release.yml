@@ -171,10 +171,10 @@ jobs:
 
       - name: Publish to npm
         if: steps.release.outputs.should_publish == 'true'
-        run: bun run publish:zippy
+        working-directory: packages/zippy
+        run: npm publish --access public --provenance
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
-          NPM_CONFIG_PROVENANCE: true
 
       - name: Verify npm release
         if: steps.release.outputs.should_publish == 'true'
