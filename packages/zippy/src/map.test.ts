@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test"
 
 import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
+import {
   map,
   mapAsync,
   mapEntries,
@@ -24,12 +28,82 @@ describe("map", () => {
     expect(map((value: number) => value * 2)([1, 2, 3])).toEqual([2, 4, 6])
   })
 
+  test("maps array values with string paths", () => {
+    const values = [
+      { id: 1, profile: { name: "Ada" } },
+      { id: 2, profile: { name: "Linus" } },
+    ]
+
+    expect(map(values, "profile.name")).toEqual(["Ada", "Linus"])
+    expect(map("id")(values)).toEqual([1, 2])
+  })
+
   test("passes index and source array to the mapper", () => {
     const values = ["z", "i", "p"]
 
     expect(
       map(values, (value, index, source) => value + index + source.length),
     ).toEqual(["z03", "i13", "p23"])
+  })
+})
+
+describe("map autocomplete", () => {
+  test("completes path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { map } from "./map"
+
+        const values = [
+          { id: 1, label: "one", profile: { name: "Ada", age: 36 } },
+        ]
+
+        map(values, "${completionMarker}")
+      `),
+    ).toEqual(["id", "label", "profile", "profile.age", "profile.name"])
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { map } from "./map"
+
+        map("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { map } from "./map"
+
+        type Value = {
+          id: number
+          label: string
+          profile: {
+            name: string
+            age: number
+          }
+        }
+
+        map<Value>("${completionMarker}")
+      `),
+    ).toEqual(["id", "label", "profile", "profile.age", "profile.name"])
+  })
+
+  test("completes path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { map } from "./map"
+
+        const values = [
+          { id: 1, label: "one", profile: { name: "Ada", age: 36 } },
+        ]
+
+        pipe(values, map("${completionMarker}"))
+      `),
+    ).toEqual(["id", "label", "profile", "profile.age", "profile.name"])
   })
 })
 
@@ -44,6 +118,16 @@ describe("mapAsync", () => {
     expect(
       mapAsync(async (value: number) => value * 2)([1, 2, 3]),
     ).resolves.toEqual([2, 4, 6])
+  })
+
+  test("maps array values with string paths", async () => {
+    const values = [
+      { id: 1, profile: { name: "Ada" } },
+      { id: 2, profile: { name: "Linus" } },
+    ]
+
+    expect(mapAsync(values, "profile.name")).resolves.toEqual(["Ada", "Linus"])
+    expect(mapAsync("id")(values)).resolves.toEqual([1, 2])
   })
 
   test("preserves input order", async () => {
@@ -126,6 +210,22 @@ describe("mapValues", () => {
     })
   })
 
+  test("maps object values with string paths", () => {
+    const values = {
+      first: { id: 1, profile: { name: "Ada" } },
+      second: { id: 2, profile: { name: "Linus" } },
+    }
+
+    expect(mapValues(values, "profile.name")).toEqual({
+      first: "Ada",
+      second: "Linus",
+    })
+    expect(mapValues("id")(values)).toEqual({
+      first: 1,
+      second: 2,
+    })
+  })
+
   test("passes key and source object to the mapper", () => {
     const values = { a: 1, b: 2 }
     const sourceMatches: boolean[] = []
@@ -160,6 +260,22 @@ describe("mapValuesAsync", () => {
     ).resolves.toEqual({
       a: 10,
       b: 20,
+    })
+  })
+
+  test("maps object values with string paths", async () => {
+    const values = {
+      first: { id: 1, profile: { name: "Ada" } },
+      second: { id: 2, profile: { name: "Linus" } },
+    }
+
+    expect(mapValuesAsync(values, "profile.name")).resolves.toEqual({
+      first: "Ada",
+      second: "Linus",
+    })
+    expect(mapValuesAsync("id")(values)).resolves.toEqual({
+      first: 1,
+      second: 2,
     })
   })
 
@@ -255,10 +371,96 @@ describe("mapKeys", () => {
     })
   })
 
+  test("maps object keys with string paths", () => {
+    const values = {
+      first: { id: "user-1", name: "Ada" },
+      second: { id: "user-2", name: "Linus" },
+    }
+
+    expect(mapKeys(values, "id")).toEqual({
+      "user-1": values.first,
+      "user-2": values.second,
+    })
+    expect(mapKeys("name")(values)).toEqual({
+      Ada: values.first,
+      Linus: values.second,
+    })
+  })
+
   test("uses the last value when mapped keys collide", () => {
     expect(mapKeys({ first: 1, second: 2 }, () => "same")).toEqual({
       same: 2,
     })
+  })
+})
+
+describe("mapKeys autocomplete", () => {
+  test("completes property-key path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mapKeys } from "./map"
+
+        const values = {
+          first: {
+            id: "user-1",
+            profile: { name: "Ada" },
+            metadata: { active: true },
+          },
+        }
+
+        mapKeys(values, "${completionMarker}")
+      `),
+    ).toEqual(["id", "profile.name"])
+  })
+
+  test("does not complete data-last key path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mapKeys } from "./map"
+
+        mapKeys("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes property-key path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mapKeys } from "./map"
+
+        type Value = {
+          id: string
+          count: number
+          profile: {
+            name: string
+          }
+          metadata: {
+            active: true
+          }
+        }
+
+        mapKeys<Value>("${completionMarker}")
+      `),
+    ).toEqual(["count", "id", "profile.name"])
+  })
+
+  test("completes property-key path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { mapKeys } from "./map"
+
+        const values = {
+          first: {
+            id: "user-1",
+            profile: { name: "Ada" },
+            metadata: { active: true },
+          },
+        }
+
+        pipe(values, mapKeys("${completionMarker}"))
+      `),
+    ).toEqual(["id", "profile.name"])
   })
 })
 
@@ -283,6 +485,22 @@ describe("mapKeysAsync", () => {
     ).resolves.toEqual({
       FIRST: 1,
       SECOND: 2,
+    })
+  })
+
+  test("maps object keys with string paths", async () => {
+    const values = {
+      first: { id: "user-1", name: "Ada" },
+      second: { id: "user-2", name: "Linus" },
+    }
+
+    expect(mapKeysAsync(values, "id")).resolves.toEqual({
+      "user-1": values.first,
+      "user-2": values.second,
+    })
+    expect(mapKeysAsync("name")(values)).resolves.toEqual({
+      Ada: values.first,
+      Linus: values.second,
     })
   })
 

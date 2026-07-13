@@ -1,14 +1,10 @@
 import { describe, expect, test } from "bun:test"
 
-import {
-  filter,
-  filterOut,
-  filterOutFalsy,
-  filterOutNullish,
-  filterOutUndefined,
-} from "./filter"
+import { filter, filterOut } from "./filter"
+import { isDefined, isNonNullish, isTruthy, propIsTruthy } from "./guards"
 
 type AEntry = { kind: "a"; value: number }
+type User = { name: string; email?: string | null }
 
 function isAEntry(value: unknown): value is AEntry {
   return (
@@ -49,6 +45,33 @@ describe("filter", () => {
       onlyAValues([{ kind: "a", value: 1 }, { kind: "b", value: "two" }, null]),
     ).toEqual([{ kind: "a", value: 1 }])
   })
+
+  test("keeps values matched by a value guard", () => {
+    const values = [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n]
+    const truthy = filter(values, isTruthy)
+
+    expect(truthy).toEqual([1, "zippy", true, 2n])
+  })
+
+  test("keeps values matched by a data-last value guard", () => {
+    const keepPresent: (
+      values: readonly (number | null | undefined)[],
+    ) => number[] = filter(isNonNullish)
+
+    expect(keepPresent([1, null, 2, undefined])).toEqual([1, 2])
+  })
+
+  test("keeps values matched by a property guard", () => {
+    const users: User[] = [
+      { name: "Ada", email: "ada@example.com" },
+      { name: "Linus", email: null },
+      { name: "Grace" },
+    ]
+
+    expect(filter(users, propIsTruthy("email"))).toEqual([
+      { name: "Ada", email: "ada@example.com" },
+    ])
+  })
 })
 
 describe("filterOut", () => {
@@ -77,55 +100,35 @@ describe("filterOut", () => {
 
     expect(withoutAValues([{ kind: "a", value: 1 }, null])).toEqual([null])
   })
-})
 
-describe("filter exclusion helpers", () => {
-  test("removes falsy values", () => {
-    const values = [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n]
-    const truthy = filterOutFalsy(values)
+  test("removes values matched by a value guard", () => {
+    const values = [1, null, undefined, void 0]
+    const undefinedValues = filterOut(values, isDefined)
 
-    expect(truthy).toEqual([1, "zippy", true, 2n])
+    expect(undefinedValues).toEqual([undefined, undefined])
   })
 
-  test("removes falsy values data-last", () => {
-    const keepTruthy: (
-      values: readonly (0 | 1 | "" | "zippy" | false | true | null)[],
-    ) => Array<1 | "zippy" | true> = filterOutFalsy()
+  test("removes values matched by a data-last value guard", () => {
+    const removeDefined: (
+      values: readonly (number | null | undefined | void)[],
+    ) => Array<undefined | void> = filterOut(isDefined)
 
-    expect(keepTruthy([0, 1, "", "zippy", false, true, null])).toEqual([
-      1,
-      "zippy",
-      true,
+    expect(removeDefined([1, null, undefined, void 0])).toEqual([
+      undefined,
+      undefined,
     ])
   })
 
-  test("removes nullish values", () => {
-    const values = [1, null, 2, undefined]
-    const present = filterOutNullish(values)
+  test("removes values matched by a property guard", () => {
+    const users: User[] = [
+      { name: "Ada", email: "ada@example.com" },
+      { name: "Linus", email: null },
+      { name: "Grace" },
+    ]
 
-    expect(present).toEqual([1, 2])
-  })
-
-  test("removes nullish values data-last", () => {
-    const keepPresent: (
-      values: readonly (number | null | undefined)[],
-    ) => number[] = filterOutNullish()
-
-    expect(keepPresent([1, null, 2, undefined])).toEqual([1, 2])
-  })
-
-  test("removes undefined values", () => {
-    const values = [1, null, undefined, void 0]
-    const defined = filterOutUndefined(values)
-
-    expect(defined).toEqual([1, null])
-  })
-
-  test("removes undefined values data-last", () => {
-    const keepDefined: (
-      values: readonly (number | null | undefined | void)[],
-    ) => Array<number | null> = filterOutUndefined()
-
-    expect(keepDefined([1, null, undefined, void 0])).toEqual([1, null])
+    expect(filterOut(users, propIsTruthy("email"))).toEqual([
+      { name: "Linus", email: null },
+      { name: "Grace" },
+    ])
   })
 })

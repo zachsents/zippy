@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test"
 
-import { unique, uniqueBy } from "./unique"
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
+import { unique } from "./unique"
 
 describe("unique", () => {
   test("returns values without duplicates", () => {
@@ -30,10 +34,10 @@ describe("unique", () => {
   })
 })
 
-describe("uniqueBy", () => {
+describe("unique selectors", () => {
   test("returns values with unique selected keys", () => {
     expect(
-      uniqueBy(
+      unique(
         [
           { id: 1, name: "first" },
           { id: 2, name: "second" },
@@ -49,7 +53,7 @@ describe("uniqueBy", () => {
 
   test("accepts a property path selector", () => {
     expect(
-      uniqueBy(
+      unique(
         [
           { user: { id: 1 }, name: "first" },
           { user: { id: 2 }, name: "second" },
@@ -63,9 +67,23 @@ describe("uniqueBy", () => {
     ])
   })
 
+  test("passes index and source array to the selector", () => {
+    const values = [{ id: 1 }, { id: 1 }]
+    const sourcesMatch: boolean[] = []
+
+    expect(
+      unique(values, (value, index, source) => {
+        sourcesMatch.push(source === values)
+
+        return value.id + index
+      }),
+    ).toEqual(values)
+    expect(sourcesMatch).toEqual([true, true])
+  })
+
   test("returns a pipeable function", () => {
     expect(
-      uniqueBy("id")([
+      unique("id")([
         { id: 1, name: "first" },
         { id: 2, name: "second" },
         { id: 1, name: "duplicate" },
@@ -74,5 +92,65 @@ describe("uniqueBy", () => {
       { id: 1, name: "first" },
       { id: 2, name: "second" },
     ])
+  })
+})
+
+describe("unique autocomplete", () => {
+  test("completes path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { unique } from "./unique"
+
+        const values = [
+          { id: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        unique(values, "${completionMarker}")
+      `),
+    ).toEqual(["id", "label", "stats", "stats.name", "stats.score"])
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { unique } from "./unique"
+
+        unique("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { unique } from "./unique"
+
+        type Value = {
+          id: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        unique<Value>("${completionMarker}")
+      `),
+    ).toEqual(["id", "label", "stats", "stats.name", "stats.score"])
+  })
+
+  test("completes path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { unique } from "./unique"
+
+        const values = [
+          { id: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, unique("${completionMarker}"))
+      `),
+    ).toEqual(["id", "label", "stats", "stats.name", "stats.score"])
   })
 })

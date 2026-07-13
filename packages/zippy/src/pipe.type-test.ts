@@ -4,12 +4,10 @@ import type { IsEqual } from "type-fest"
 import { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
 
 const pipeMatchesRemeda: typeof remedaPipe = pipe
-const remedaMatchesPipe: typeof pipe = remedaPipe
 const pipedMatchesRemeda: typeof remedaPiped = piped
 const remedaMatchesPiped: typeof piped = remedaPiped
 
 void pipeMatchesRemeda
-void remedaMatchesPipe
 void pipedMatchesRemeda
 void remedaMatchesPiped
 

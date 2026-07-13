@@ -1,20 +1,22 @@
 export { castArray } from "./cast-array"
+export { filter, filterOut } from "./filter"
 export {
-  filter,
-  filterOut,
-  filterOutFalsy,
-  filterOutNullish,
-  filterOutUndefined,
-} from "./filter"
-export {
+  isDefined,
   isFalsy,
-  isNull,
   isNullish,
+  isNonNullish,
   isPlainObject,
+  isReadonlyArray,
   isTruthy,
   isUndefined,
+  propIsDefined,
+  propIsFalsy,
+  propIsNullish,
+  propIsNonNullish,
+  propIsPlainObject,
+  propIsTruthy,
+  propIsUndefined,
   type Falsy,
-  type PlainObject,
   type Truthy,
 } from "./guards"
 export { identity } from "./identity"
@@ -29,27 +31,12 @@ export {
   mapValuesAsync,
 } from "./map"
 export { match, matchMerge } from "./match"
-export { mean, meanBy } from "./mean"
-export { median, medianBy } from "./median"
+export { mean } from "./mean"
+export { median } from "./median"
 export { deepMerge, merge } from "./merge"
-export { mode, modeBy } from "./mode"
+export { mode } from "./mode"
 export { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
-export { difference, differenceBy } from "./difference"
-export { intersection, intersectionBy } from "./intersection"
-export {
-  isDisjointFrom,
-  isDisjointFromBy,
-  isSubsetOf,
-  isSubsetOfBy,
-  isSupersetOf,
-  isSupersetOfBy,
-} from "./set-predicates"
-export {
-  symmetricDifference,
-  symmetricDifferenceBy,
-} from "./symmetric-difference"
-export { sum, sumBy } from "./sum"
+export { sum } from "./sum"
 export { tuple } from "./tuple"
-export { union, unionBy } from "./union"
-export { unique, uniqueBy } from "./unique"
+export { unique } from "./unique"
 export { zip } from "./zip"

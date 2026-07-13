@@ -1,5 +1,7 @@
+import type { Promisable } from "type-fest"
+
 type PipeFunction<Input, Output> = (input: Input) => Output
-type MaybePromise<T> = T | PromiseLike<T>
+type PipeGuard<Input, Output extends Input> = (input: Input) => input is Output
 type PipeImplementationFunction = (input: never) => unknown
 
 function callPipeFunction(func: PipeImplementationFunction, input: unknown) {
@@ -33,6 +35,7 @@ async function pipeValueAsync(
 }
 
 export function pipe<A>(data: A): A
+export function pipe<A, B extends A>(data: A, funcA: PipeGuard<A, B>): data is B
 export function pipe<A, B>(data: A, funcA: PipeFunction<A, B>): B
 export function pipe<A, B, C>(
   data: A,
@@ -529,34 +532,34 @@ export function pipeAsync(
 }
 
 export function pipedAsync<A>(): PipeFunction<
-  MaybePromise<A>,
+  Promisable<A>,
   Promise<Awaited<A>>
 >
 export function pipedAsync<A, B>(
   funcA: PipeFunction<A, B>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<B>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<B>>>
 export function pipedAsync<A, B, C>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<C>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<C>>>
 export function pipedAsync<A, B, C, D>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
   funcC: PipeFunction<Awaited<C>, D>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<D>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<D>>>
 export function pipedAsync<A, B, C, D, E>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
   funcC: PipeFunction<Awaited<C>, D>,
   funcD: PipeFunction<Awaited<D>, E>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<E>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<E>>>
 export function pipedAsync<A, B, C, D, E, F>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
   funcC: PipeFunction<Awaited<C>, D>,
   funcD: PipeFunction<Awaited<D>, E>,
   funcE: PipeFunction<Awaited<E>, F>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<F>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<F>>>
 export function pipedAsync<A, B, C, D, E, F, G>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -564,7 +567,7 @@ export function pipedAsync<A, B, C, D, E, F, G>(
   funcD: PipeFunction<Awaited<D>, E>,
   funcE: PipeFunction<Awaited<E>, F>,
   funcF: PipeFunction<Awaited<F>, G>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<G>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<G>>>
 export function pipedAsync<A, B, C, D, E, F, G, H>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -573,7 +576,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H>(
   funcE: PipeFunction<Awaited<E>, F>,
   funcF: PipeFunction<Awaited<F>, G>,
   funcG: PipeFunction<Awaited<G>, H>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<H>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<H>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -583,7 +586,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I>(
   funcF: PipeFunction<Awaited<F>, G>,
   funcG: PipeFunction<Awaited<G>, H>,
   funcH: PipeFunction<Awaited<H>, I>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<I>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<I>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -594,7 +597,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J>(
   funcG: PipeFunction<Awaited<G>, H>,
   funcH: PipeFunction<Awaited<H>, I>,
   funcI: PipeFunction<Awaited<I>, J>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<J>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<J>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -606,7 +609,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K>(
   funcH: PipeFunction<Awaited<H>, I>,
   funcI: PipeFunction<Awaited<I>, J>,
   funcJ: PipeFunction<Awaited<J>, K>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<K>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<K>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -619,7 +622,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
   funcI: PipeFunction<Awaited<I>, J>,
   funcJ: PipeFunction<Awaited<J>, K>,
   funcK: PipeFunction<Awaited<K>, L>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<L>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<L>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -633,7 +636,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   funcJ: PipeFunction<Awaited<J>, K>,
   funcK: PipeFunction<Awaited<K>, L>,
   funcL: PipeFunction<Awaited<L>, M>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<M>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<M>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -648,7 +651,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   funcK: PipeFunction<Awaited<K>, L>,
   funcL: PipeFunction<Awaited<L>, M>,
   funcM: PipeFunction<Awaited<M>, N>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<N>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<N>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -664,7 +667,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   funcL: PipeFunction<Awaited<L>, M>,
   funcM: PipeFunction<Awaited<M>, N>,
   funcN: PipeFunction<Awaited<N>, O>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<O>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<O>>>
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   funcA: PipeFunction<A, B>,
   funcB: PipeFunction<Awaited<B>, C>,
@@ -681,7 +684,7 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   funcM: PipeFunction<Awaited<M>, N>,
   funcN: PipeFunction<Awaited<N>, O>,
   funcO: PipeFunction<Awaited<O>, P>,
-): PipeFunction<MaybePromise<A>, Promise<Awaited<P>>>
+): PipeFunction<Promisable<A>, Promise<Awaited<P>>>
 export function pipedAsync(
   ...functions: readonly PipeImplementationFunction[]
 ) {

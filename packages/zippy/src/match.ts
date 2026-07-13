@@ -1,253 +1,164 @@
 import type { Merge } from "type-fest"
-
 import { merge } from "./merge"
 import {
   getPropertyPathValue,
-  type PropertyPath,
-  type ValidPropertyPath,
+  type MatchingPath,
+  type MatchingPathValue,
+  type PathSatisfier,
+  type SelectorPath,
 } from "./selector"
+import { tuple } from "./tuple"
 
-type MatchMatcher<Left, Right> = (
+type Cb<Left, Right, Out = unknown> = (
   leftValue: Left,
   rightValue: Right,
   leftIndex: number,
   rightIndex: number,
   leftValues: readonly Left[],
   rightValues: readonly Right[],
-) => unknown
-
-type MatchMatcherInput<Left, Right> =
-  | MatchMatcher<Left, Right>
-  | Extract<PropertyPath<Left>, PropertyPath<Right>>
-
-type MatchRuntimeMatcher<Left, Right> = MatchMatcher<Left, Right> | string
-
-type MatchMerger<Left, Right, Merged> = (
-  leftValue: Left,
-  rightValue: Right,
-  leftIndex: number,
-  rightIndex: number,
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-) => Merged
-
-type MatchDataFirstArgs<Left, Right, Merged> = [
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-  merger?: MatchMerger<Left, Right, Merged>,
-]
-
-type MatchDataLastArgs<Left, Right, Merged> = [
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-  merger?: MatchMerger<Left, Right, Merged>,
-]
-
-type MatchArgs<Left, Right, Merged> =
-  | MatchDataFirstArgs<Left, Right, Merged>
-  | MatchDataLastArgs<Left, Right, Merged>
-
-type MatchMergeDataFirstArgs<Left extends object, Right extends object> = [
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-]
-
-type MatchMergeDataLastArgs<Left extends object, Right extends object> = [
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-]
-
-type MatchMergeArgs<Left extends object, Right extends object> =
-  | MatchMergeDataFirstArgs<Left, Right>
-  | MatchMergeDataLastArgs<Left, Right>
+) => Out
 
 function isSameValueZero(left: unknown, right: unknown) {
   return left === right || (left !== left && right !== right)
 }
 
-function matchesValue<Left, Right>(
-  matcher: MatchRuntimeMatcher<Left, Right>,
-  leftValue: Left,
-  rightValue: Right,
-  leftIndex: number,
-  rightIndex: number,
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
+function impl(
+  leftValues: readonly unknown[],
+  rightValues: readonly unknown[],
+  matcher: Cb<unknown, unknown> | string,
+  merger: (left: unknown, right: unknown) => unknown,
 ) {
-  if (typeof matcher === "function") {
-    return matcher(
-      leftValue,
-      rightValue,
-      leftIndex,
-      rightIndex,
-      leftValues,
-      rightValues,
-    )
-  }
-
-  return isSameValueZero(
-    getPropertyPathValue(leftValue, matcher),
-    getPropertyPathValue(rightValue, matcher),
-  )
-}
-
-function defaultMatchMerger<Left, Right>(
-  leftValue: Left,
-  rightValue: Right,
-): [Left, Right] {
-  return [leftValue, rightValue]
-}
-
-function matchValues<Left, Right, Merged>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-  merger?: MatchMerger<Left, Right, Merged>,
-) {
-  const mergeValues: MatchMerger<Left, Right, Merged | [Left, Right]> =
-    merger ?? defaultMatchMerger
-  const result: Array<Merged | [Left, Right]> = []
   const matchedRightIndexes = new Set<number>()
 
-  for (const [leftIndex, leftValue] of leftValues.entries()) {
+  return leftValues.flatMap((leftValue, leftIndex) => {
     for (const [rightIndex, rightValue] of rightValues.entries()) {
       if (matchedRightIndexes.has(rightIndex)) {
         continue
       }
 
       if (
-        !matchesValue(
-          matcher,
-          leftValue,
-          rightValue,
-          leftIndex,
-          rightIndex,
-          leftValues,
-          rightValues,
-        )
+        !(typeof matcher === "string"
+          ? isSameValueZero(
+              getPropertyPathValue(leftValue, matcher),
+              getPropertyPathValue(rightValue, matcher),
+            )
+          : matcher(
+              leftValue,
+              rightValue,
+              leftIndex,
+              rightIndex,
+              leftValues,
+              rightValues,
+            ))
       ) {
         continue
       }
 
-      result.push(
-        mergeValues(
-          leftValue,
-          rightValue,
-          leftIndex,
-          rightIndex,
-          leftValues,
-          rightValues,
-        ),
-      )
       matchedRightIndexes.add(rightIndex)
-      break
+
+      return [merger(leftValue, rightValue)]
     }
-  }
 
-  return result
+    return []
+  })
 }
 
-function matchMergedValues<Left extends object, Right extends object>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchRuntimeMatcher<Left, Right>,
-) {
-  return matchValues(
-    leftValues,
-    rightValues,
-    matcher,
-    (leftValue, rightValue) => merge(leftValue, rightValue),
-  )
-}
-
-function hasMatchRightValues<Left, Right, Merged>(
-  args: MatchArgs<Left, Right, Merged>,
-): args is MatchDataFirstArgs<Left, Right, Merged> {
-  return Array.isArray(args[1])
-}
-
-function hasMatchMergeRightValues<Left extends object, Right extends object>(
-  args: MatchMergeArgs<Left, Right>,
-): args is MatchMergeDataFirstArgs<Left, Right> {
-  return Array.isArray(args[1])
-}
-
-export function match<Left, Right, Merged>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchMatcherInput<Left, Right>,
-  merger: MatchMerger<Left, Right, Merged>,
-): Merged[]
-export function match<Left, Right>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
-  matcher: MatchMatcherInput<Left, Right>,
-): Array<[Left, Right]>
-export function match<Left, Right, const Path extends string, Merged>(
-  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
-  matcher: Path,
-  merger: MatchMerger<Left, Right, Merged>,
-): (
-  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
-) => Merged[]
-export function match<Left, Right, Merged>(
-  rightValues: readonly Right[],
-  matcher: MatchMatcher<Left, Right>,
-  merger: MatchMerger<Left, Right, Merged>,
-): (leftValues: readonly Left[]) => Merged[]
-export function match<Right, const Path extends string>(
-  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
-  matcher: Path,
-): <Left>(
-  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
-) => Array<[Left, Right]>
+// authoritative pipe curry; path
 export function match<Left, Right>(
   rightValues: readonly Right[],
-  matcher: MatchMatcher<Left, Right>,
+  matcher: MatchingPath<NoInfer<Left>, Right>,
 ): (leftValues: readonly Left[]) => Array<[Left, Right]>
-export function match<Left, Right, Merged>(
-  ...args: MatchArgs<Left, Right, Merged>
-) {
-  if (hasMatchRightValues(args)) {
-    const [leftValues, rightValues, matcher, merger] = args
 
-    return matchValues(leftValues, rightValues, matcher, merger)
+// generic curry; path
+export function match<Right, Path extends SelectorPath<Right>>(
+  rightValues: readonly Right[],
+  matcher: Path,
+): <T extends PathSatisfier<Path, MatchingPathValue<Right, Path>>>(
+  leftValues: readonly T[],
+) => Array<[T, Right]>
+
+// authoritative pipe curry; selector fn
+export function match<Left, Right>(
+  rightValues: readonly Right[],
+  matcher: Cb<NoInfer<Left>, Right>,
+): (leftValues: readonly Left[]) => Array<[Left, Right]>
+
+// generic curry; selector fn
+export function match<Right, TMatcher extends Cb<never, Right>>(
+  rightValues: readonly Right[],
+  matcher: TMatcher,
+): <T extends TMatcher extends Cb<infer L, never> ? L : never>(
+  leftValues: readonly T[],
+) => Array<[T, Right]>
+
+// normal
+export function match<Left, Right>(
+  leftValues: readonly Left[],
+  rightValues: readonly Right[],
+  matcher: Cb<Left, Right> | MatchingPath<Left, Right>,
+): Array<[Left, Right]>
+
+export function match(
+  ...args:
+    | [readonly unknown[], Cb<unknown, unknown> | string]
+    | [readonly unknown[], readonly unknown[], Cb<unknown, unknown> | string]
+) {
+  if (args.length === 2) {
+    return (leftValues: []) => impl(leftValues, args[0], args[1], tuple)
   }
 
-  const [rightValues, matcher, merger] = args
-
-  return (leftValues: readonly Left[]) =>
-    matchValues(leftValues, rightValues, matcher, merger)
+  return impl(...args, tuple)
 }
 
+// authoritative pipe curry; path
+export function matchMerge<Left extends object, Right extends object>(
+  rightValues: readonly Right[],
+  matcher: MatchingPath<NoInfer<Left>, Right>,
+): (leftValues: readonly Left[]) => Merge<Left, Right>[]
+
+// generic curry; path
+export function matchMerge<
+  Right extends object,
+  Path extends SelectorPath<Right>,
+>(
+  rightValues: readonly Right[],
+  matcher: Path,
+): <T extends PathSatisfier<Path, MatchingPathValue<Right, Path>>>(
+  leftValues: readonly T[],
+) => Merge<T, Right>[]
+
+// authoritative pipe curry; selector fn
+export function matchMerge<Left extends object, Right extends object>(
+  rightValues: readonly Right[],
+  matcher: Cb<NoInfer<Left>, Right>,
+): (leftValues: readonly Left[]) => Merge<Left, Right>[]
+
+// generic curry; selector fn
+export function matchMerge<
+  Right extends object,
+  TMatcher extends Cb<never, Right>,
+>(
+  rightValues: readonly Right[],
+  matcher: TMatcher,
+): <T extends TMatcher extends Cb<infer L, never> ? L : never>(
+  leftValues: readonly T[],
+) => Merge<T, Right>[]
+
+// normal
 export function matchMerge<Left extends object, Right extends object>(
   leftValues: readonly Left[],
   rightValues: readonly Right[],
-  matcher: MatchMatcherInput<Left, Right>,
-): Array<Merge<Left, Right>>
-export function matchMerge<Right extends object, const Path extends string>(
-  rightValues: readonly Right[] & ValidPropertyPath<Right, Path, unknown>,
-  matcher: Path,
-): <Left extends object>(
-  leftValues: readonly Left[] & ValidPropertyPath<Left, Path, unknown>,
-) => Array<Merge<Left, Right>>
-export function matchMerge<Left extends object, Right extends object>(
-  rightValues: readonly Right[],
-  matcher: MatchMatcher<Left, Right>,
-): (leftValues: readonly Left[]) => Array<Merge<Left, Right>>
-export function matchMerge<Left extends object, Right extends object>(
-  ...args: MatchMergeArgs<Left, Right>
-) {
-  if (hasMatchMergeRightValues(args)) {
-    const [leftValues, rightValues, matcher] = args
+  matcher: Cb<Left, Right> | MatchingPath<Left, Right>,
+): Merge<Left, Right>[]
 
-    return matchMergedValues(leftValues, rightValues, matcher)
+export function matchMerge(
+  ...args:
+    | [readonly unknown[], Cb<unknown, unknown> | string]
+    | [readonly unknown[], readonly unknown[], Cb<unknown, unknown> | string]
+) {
+  if (args.length === 2) {
+    return (leftValues: []) => impl(leftValues, args[0], args[1], merge)
   }
 
-  const [rightValues, matcher] = args
-
-  return (leftValues: readonly Left[]) =>
-    matchMergedValues(leftValues, rightValues, matcher)
+  return impl(...args, merge)
 }

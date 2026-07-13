@@ -1,6 +1,10 @@
 import { describe, expect, test } from "bun:test"
 
-import { mode, modeBy } from "./mode"
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
+import { mode } from "./mode"
 
 describe("mode", () => {
   test("returns the most common value", () => {
@@ -31,13 +35,13 @@ describe("mode", () => {
   })
 })
 
-describe("modeBy", () => {
+describe("mode selectors", () => {
   test("returns the first value with the most common mapped key", () => {
     const firstA = { kind: "a", label: "first-a" }
     const b = { kind: "b", label: "b" }
     const secondA = { kind: "a", label: "second-a" }
 
-    expect(modeBy([firstA, b, secondA], (value) => value.kind)).toBe(firstA)
+    expect(mode([firstA, b, secondA], (value) => value.kind)).toBe(firstA)
   })
 
   test("returns the first value with the most common property path key", () => {
@@ -45,7 +49,7 @@ describe("modeBy", () => {
     const b = { kind: "b", label: "b" }
     const secondA = { kind: "a", label: "second-a" }
 
-    expect(modeBy([firstA, b, secondA], "kind")).toBe(firstA)
+    expect(mode([firstA, b, secondA], "kind")).toBe(firstA)
   })
 
   test("returns the first value with the most common dot path key", () => {
@@ -53,7 +57,7 @@ describe("modeBy", () => {
     const b = { meta: { kind: "b" }, label: "b" }
     const secondA = { meta: { kind: "a" }, label: "second-a" }
 
-    expect(modeBy([firstA, b, secondA], "meta.kind")).toBe(firstA)
+    expect(mode([firstA, b, secondA], "meta.kind")).toBe(firstA)
   })
 
   test("returns the first value whose mapped key is first in a tie", () => {
@@ -63,12 +67,12 @@ describe("modeBy", () => {
     const secondA = { kind: "a", label: "second-a" }
 
     expect(
-      modeBy([firstA, firstB, secondB, secondA], (value) => value.kind),
+      mode([firstA, firstB, secondB, secondA], (value) => value.kind),
     ).toBe(firstA)
   })
 
   test("returns undefined for an empty array", () => {
-    expect(modeBy([], () => "key")).toBeUndefined()
+    expect(mode([], () => "key")).toBeUndefined()
   })
 
   test("returns the first value with the most common mapped key data-last", () => {
@@ -77,8 +81,25 @@ describe("modeBy", () => {
     const secondA = { kind: "a", label: "second-a" }
 
     expect(
-      modeBy((value: { kind: string }) => value.kind)([firstA, b, secondA]),
+      mode((value: { kind: string }) => value.kind)([firstA, b, secondA]),
     ).toBe(firstA)
+  })
+
+  test("passes index and source array to the mapper data-last", () => {
+    const firstA = { kind: "a", label: "first-a" }
+    const b = { kind: "b", label: "b" }
+    const secondA = { kind: "a", label: "second-a" }
+    const values = [firstA, b, secondA]
+    const sourcesMatch: boolean[] = []
+
+    expect(
+      mode((value: { kind: string }, index, source) => {
+        sourcesMatch.push(source === values)
+
+        return index === 1 ? value.kind : "a"
+      })(values),
+    ).toBe(firstA)
+    expect(sourcesMatch).toEqual([true, true, true])
   })
 
   test("returns the first value with the most common property path key data-last", () => {
@@ -86,6 +107,84 @@ describe("modeBy", () => {
     const b = { kind: "b", label: "b" }
     const secondA = { kind: "a", label: "second-a" }
 
-    expect(modeBy("kind")([firstA, b, secondA])).toBe(firstA)
+    expect(mode("kind")([firstA, b, secondA])).toBe(firstA)
+  })
+
+  test("returns the first value with the most common dot path key data-last", () => {
+    const firstA = { meta: { kind: "a" }, label: "first-a" }
+    const b = { meta: { kind: "b" }, label: "b" }
+    const secondA = { meta: { kind: "a" }, label: "second-a" }
+
+    expect(mode("meta.kind")([firstA, b, secondA])).toBe(firstA)
+  })
+})
+
+describe("mode autocomplete", () => {
+  const allPathCompletions = [
+    "count",
+    "kind",
+    "label",
+    "stats",
+    "stats.name",
+    "stats.score",
+  ]
+
+  test("completes path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        const values = [
+          { kind: "a", count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        mode(values, "${completionMarker}")
+      `),
+    ).toEqual(allPathCompletions)
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        mode("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        type Value = {
+          kind: string
+          count: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        mode<Value>("${completionMarker}")
+      `),
+    ).toEqual(allPathCompletions)
+  })
+
+  test("completes path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { mode } from "./mode"
+
+        const values = [
+          { kind: "a", count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, mode("${completionMarker}"))
+      `),
+    ).toEqual(allPathCompletions)
   })
 })

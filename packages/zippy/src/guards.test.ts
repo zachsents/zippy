@@ -1,12 +1,25 @@
 import { describe, expect, test } from "bun:test"
 
 import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
+import {
+  isDefined,
   isFalsy,
-  isNull,
   isNullish,
+  isNonNullish,
   isPlainObject,
+  isReadonlyArray,
   isTruthy,
   isUndefined,
+  propIsDefined,
+  propIsFalsy,
+  propIsNullish,
+  propIsNonNullish,
+  propIsPlainObject,
+  propIsTruthy,
+  propIsUndefined,
 } from "./guards"
 
 describe("type guards", () => {
@@ -16,6 +29,14 @@ describe("type guards", () => {
     expect(isNullish(false)).toBe(false)
     expect(isNullish(0)).toBe(false)
     expect(isNullish("")).toBe(false)
+  })
+
+  test("detects non-nullish values", () => {
+    expect(isNonNullish(false)).toBe(true)
+    expect(isNonNullish(0)).toBe(true)
+    expect(isNonNullish("")).toBe(true)
+    expect(isNonNullish(null)).toBe(false)
+    expect(isNonNullish(undefined)).toBe(false)
   })
 
   test("detects truthy values", () => {
@@ -45,10 +66,12 @@ describe("type guards", () => {
     expect(isUndefined(0)).toBe(false)
   })
 
-  test("detects null", () => {
-    expect(isNull(null)).toBe(true)
-    expect(isNull(undefined)).toBe(false)
-    expect(isNull(0)).toBe(false)
+  test("detects defined values", () => {
+    expect(isDefined(null)).toBe(true)
+    expect(isDefined(0)).toBe(true)
+    expect(isDefined("")).toBe(true)
+    expect(isDefined(undefined)).toBe(false)
+    expect(isDefined(void 0)).toBe(false)
   })
 
   test("detects plain objects", () => {
@@ -59,5 +82,133 @@ describe("type guards", () => {
     expect(isPlainObject(Object.create({ inherited: true }))).toBe(false)
     expect(isPlainObject(null)).toBe(false)
     expect(isPlainObject("zippy")).toBe(false)
+  })
+
+  test("detects array values", () => {
+    const readonlyTuple = [1, 2] as const
+
+    expect(isReadonlyArray([])).toBe(true)
+    expect(isReadonlyArray(["zippy"])).toBe(true)
+    expect(isReadonlyArray(readonlyTuple)).toBe(true)
+  })
+
+  test("rejects non-array values", () => {
+    expect(isReadonlyArray(null)).toBe(false)
+    expect(isReadonlyArray(undefined)).toBe(false)
+    expect(isReadonlyArray("zippy")).toBe(false)
+    expect(isReadonlyArray({ length: 1, 0: "zippy" })).toBe(false)
+    expect(isReadonlyArray(new Set(["zippy"]))).toBe(false)
+    expect(isReadonlyArray(new Uint8Array([1, 2]))).toBe(false)
+  })
+
+  test("detects property path values", () => {
+    const value = {
+      enabled: true,
+      disabled: false,
+      missing: undefined,
+      contact: { email: "zippy@example.com" },
+      profile: null,
+      meta: { source: "test" },
+    }
+
+    expect(propIsTruthy("enabled")(value)).toBe(true)
+    expect(propIsTruthy("disabled")(value)).toBe(false)
+    expect(propIsFalsy("disabled")(value)).toBe(true)
+    expect(propIsNullish("profile")(value)).toBe(true)
+    expect(propIsNonNullish("contact.email")(value)).toBe(true)
+    expect(propIsUndefined("missing")(value)).toBe(true)
+    expect(propIsDefined("contact.email")(value)).toBe(true)
+    expect(propIsPlainObject("meta")(value)).toBe(true)
+    expect(propIsTruthy("profile.name")(value)).toBe(false)
+  })
+})
+
+describe("property guard autocomplete", () => {
+  test("completes path selectors from filter value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { propIsTruthy } from "./guards"
+
+        const values = [
+          { enabled: true, label: "one", count: 0, stats: { score: 2, name: "Ada" } },
+        ]
+
+        values.filter(propIsTruthy("${completionMarker}"))
+      `),
+    ).toEqual([
+      "count",
+      "enabled",
+      "label",
+      "stats",
+      "stats.name",
+      "stats.score",
+    ])
+  })
+
+  test("completes path selectors from pipe value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { propIsTruthy } from "./guards"
+        import { pipe } from "./pipe"
+
+        const value = {
+          enabled: true,
+          label: "one",
+          count: 0,
+          stats: { score: 2, name: "Ada" },
+        }
+
+        pipe(value, propIsTruthy("${completionMarker}"))
+      `),
+    ).toEqual([
+      "count",
+      "enabled",
+      "label",
+      "stats",
+      "stats.name",
+      "stats.score",
+    ])
+  })
+
+  test("does not complete path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { propIsTruthy } from "./guards"
+
+        propIsTruthy("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes path selectors from an explicit value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { propIsTruthy } from "./guards"
+
+        type Value = {
+          enabled: boolean
+          label: string
+          count: 0 | 1
+          profile?: {
+            name?: string | null
+          }
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        propIsTruthy<Value>("${completionMarker}")
+      `),
+    ).toEqual([
+      "count",
+      "enabled",
+      "label",
+      "profile",
+      "profile.name",
+      "stats",
+      "stats.name",
+      "stats.score",
+    ])
   })
 })

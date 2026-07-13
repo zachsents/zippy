@@ -34,16 +34,17 @@
     "lint:fix": "oxlint --type-aware --fix --fix-suggestions",
     "format": "prettier . --write",
     "fix": "bun run lint:fix && bun run format",
-    "test": "bun test",
+    "check:fn": "../../scripts/check-function.sh",
+    "test": "bun test --concurrent",
     "build": "zshy",
     "pack:dry": "npm pack --dry-run --json",
     "check": "bun run typecheck && bun run fix && bun run test && bun run build && bun run pack:dry",
-    "prepublishOnly": "bun run check",
-    "publish:public": "npm publish --access public"
+    "prepublishOnly": "bun run check"
   },
   "files": [
     "dist",
     "src/**/*.ts",
+    "!src/lib/autocomplete-test-utils.ts",
     "!src/**/*.test.ts",
     "!src/**/*.type-test.ts",
     "README.md",
