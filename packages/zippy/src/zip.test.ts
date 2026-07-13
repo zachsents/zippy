@@ -17,6 +17,26 @@ describe("zip", () => {
     ])
   })
 
+  test("pairs iterable values by index", () => {
+    expect(zip(new Set(["a", "b"]), new Uint8Array([1, 2]))).toEqual([
+      ["a", 1],
+      ["b", 2],
+    ])
+  })
+
+  test("materializes data-last right iterables once", () => {
+    const zipWithRightValues = zip([1, 2].values())
+
+    expect(zipWithRightValues(["a", "b"])).toEqual([
+      ["a", 1],
+      ["b", 2],
+    ])
+    expect(zipWithRightValues(["c", "d"])).toEqual([
+      ["c", 1],
+      ["d", 2],
+    ])
+  })
+
   test("merges paired values by index", () => {
     expect(
       zip(["a", "b"], [1, 2], (leftValue, rightValue) => {
@@ -99,5 +119,34 @@ describe("zip", () => {
       })(leftValues),
     ).toEqual(["0:z:1", "1:i:2"])
     expect(sourcesMatch).toEqual([true, true])
+  })
+
+  test("passes materialized source arrays to iterable mergers", () => {
+    const leftValues = new Set(["z", "i"])
+    const rightValues = new Set([1, 2])
+    const sources: Array<{
+      left: readonly string[]
+      right: readonly number[]
+    }> = []
+
+    expect(
+      zip(
+        leftValues,
+        rightValues,
+        (leftValue, rightValue, index, left, right) => {
+          sources.push({ left, right })
+
+          return `${index}:${leftValue}:${rightValue}`
+        },
+      ),
+    ).toEqual(["0:z:1", "1:i:2"])
+    expect(sources).toHaveLength(2)
+    expect(sources.every((source) => source.left === sources[0]!.left)).toBe(
+      true,
+    )
+    expect(sources.every((source) => source.right === sources[0]!.right)).toBe(
+      true,
+    )
+    expect(sources[0]).toEqual({ left: ["z", "i"], right: [1, 2] })
   })
 })

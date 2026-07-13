@@ -43,6 +43,20 @@ describe("match", () => {
     ])
   })
 
+  test("matches iterable values with a property path matcher", () => {
+    const leftA = { id: "a", label: "A" }
+    const leftB = { id: "b", label: "B" }
+    const rightA = { id: "a", count: 1 }
+    const rightB = { id: "b", count: 2 }
+
+    expect(
+      match(new Set([leftB, leftA]), new Set([rightA, rightB]), "id"),
+    ).toEqual([
+      [leftB, rightB],
+      [leftA, rightA],
+    ])
+  })
+
   test("matches values data-last with a dot path matcher", () => {
     const leftFirst = { user: { id: "first" }, label: "A" }
     const leftSecond = { user: { id: "second" }, label: "B" }
@@ -55,6 +69,26 @@ describe("match", () => {
       [leftFirst, rightFirst],
       [leftSecond, rightSecond],
     ])
+  })
+
+  test("materializes data-last right iterables once", () => {
+    const leftA = { id: "a", label: "A" }
+    const leftB = { id: "b", label: "B" }
+    const rightA = { id: "a", count: 1 }
+    const rightB = { id: "b", count: 2 }
+
+    function* rightValues() {
+      yield rightB
+      yield rightA
+    }
+
+    const matchRightValues = match(rightValues(), "id")
+
+    expect(matchRightValues([leftA, leftB])).toEqual([
+      [leftA, rightA],
+      [leftB, rightB],
+    ])
+    expect(matchRightValues([leftB])).toEqual([[leftB, rightB]])
   })
 
   test("matches values data-last with a custom matcher", () => {
@@ -144,6 +178,38 @@ describe("match", () => {
       },
     ])
   })
+
+  test("passes materialized source arrays to iterable matchers", () => {
+    const leftValues = new Set(["z", "i"])
+    const rightValues = new Set(["skip", "z", "i"])
+    const sources: Array<{
+      left: readonly string[]
+      right: readonly string[]
+    }> = []
+
+    expect(
+      match(
+        leftValues,
+        rightValues,
+        (leftValue, rightValue, _leftIndex, _rightIndex, left, right) => {
+          sources.push({ left, right })
+
+          return leftValue === rightValue
+        },
+      ),
+    ).toEqual([
+      ["z", "z"],
+      ["i", "i"],
+    ])
+    expect(sources).toHaveLength(4)
+    expect(sources.every((source) => source.left === sources[0]!.left)).toBe(
+      true,
+    )
+    expect(sources.every((source) => source.right === sources[0]!.right)).toBe(
+      true,
+    )
+    expect(sources[0]).toEqual({ left: ["z", "i"], right: ["skip", "z", "i"] })
+  })
 })
 
 describe("matchMerge", () => {
@@ -202,6 +268,25 @@ describe("matchMerge", () => {
     ).toEqual([
       { id: "first", label: "A", count: 1 },
       { id: "second", label: "B", count: 2 },
+    ])
+  })
+
+  test("matches and shallow merges iterable objects", () => {
+    expect(
+      matchMerge(
+        new Set([
+          { id: "a", label: "A" },
+          { id: "b", label: "B" },
+        ]),
+        new Set([
+          { id: "a", count: 1 },
+          { id: "b", count: 2 },
+        ]),
+        "id",
+      ),
+    ).toEqual([
+      { id: "a", label: "A", count: 1 },
+      { id: "b", label: "B", count: 2 },
     ])
   })
 

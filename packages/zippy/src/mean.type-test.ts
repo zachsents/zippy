@@ -4,9 +4,13 @@ import { mean } from "./mean"
 
 const meanDataFirst = mean([1, 2, 3] as const)
 const meanDataLast = mean()([1, 2, 3] as const)
+const meanIterableDataFirst = mean(new Set([1, 2, 3] as const))
+const meanIterableDataLast = mean()(new Set([1, 2, 3] as const))
 
 true satisfies IsEqual<typeof meanDataFirst, number | undefined>
 true satisfies IsEqual<typeof meanDataLast, number | undefined>
+true satisfies IsEqual<typeof meanIterableDataFirst, number | undefined>
+true satisfies IsEqual<typeof meanIterableDataLast, number | undefined>
 
 const meanByDataFirst = mean(
   [{ score: 1 }, { score: 2 }] as const,
@@ -33,6 +37,9 @@ const meanByPathDataLast = mean("score")([{ score: 1 }, { score: 2 }])
 const meanByPathDataLastWithExtraProperties = mean("a")([
   { a: 5, b: "djwjdkw" },
 ])
+const meanByPathIterableDataLastWithExtraProperties = mean("a")(
+  new Set([{ a: 5, b: "djwjdkw" }]),
+)
 const meanByDotPathDataLast = mean("stats.score")([
   { stats: { score: 1 } },
   { stats: { score: 2 } },
@@ -58,6 +65,10 @@ true satisfies IsEqual<
   typeof meanByPathDataLastWithExtraProperties,
   number | undefined
 >
+true satisfies IsEqual<
+  typeof meanByPathIterableDataLastWithExtraProperties,
+  number | undefined
+>
 true satisfies IsEqual<typeof meanByDotPathDataLast, number | undefined>
 true satisfies IsEqual<typeof meanByTypedPathDataLast, number | undefined>
 
@@ -75,6 +86,9 @@ mean([{ score: 1 }] as const, "missing")
 
 // @ts-expect-error data-last string selectors are checked once values are provided.
 mean("label")([{ score: 1, label: "one" }])
+
+// @ts-expect-error primitive strings are selectors, not numeric iterable inputs.
+const _primitiveStringMean: number | undefined = mean("score")
 
 // @ts-expect-error explicit data-last string selectors must point to a number.
 mean<{ readonly score: number; readonly label: string }>("label")

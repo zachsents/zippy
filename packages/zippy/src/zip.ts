@@ -1,4 +1,8 @@
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import { tuple } from "./tuple"
 
 type ZipMerger<Left = unknown, Right = unknown, Mapped = unknown> = (
@@ -10,21 +14,23 @@ type ZipMerger<Left = unknown, Right = unknown, Mapped = unknown> = (
 ) => Mapped
 
 function zipImpl(
-  leftValues: readonly unknown[],
-  rightValues: readonly unknown[],
+  leftValues: IterableInput<unknown>,
+  rightValues: IterableInput<unknown>,
   merger: ZipMerger = (leftValue, rightValue) => tuple(leftValue, rightValue),
 ) {
+  const leftSource = toReadonlyArray(leftValues)
+  const rightSource = toReadonlyArray(rightValues)
   const result: unknown[] = []
-  const length = Math.min(leftValues.length, rightValues.length)
+  const length = Math.min(leftSource.length, rightSource.length)
 
   for (let index = 0; index < length; index += 1) {
     result.push(
       merger(
-        leftValues[index],
-        rightValues[index],
+        leftSource[index],
+        rightSource[index],
         index,
-        leftValues,
-        rightValues,
+        leftSource,
+        rightSource,
       ),
     )
   }
@@ -42,10 +48,10 @@ function zipImpl(
  *   zip([1, 2], (l, r) => `${l}:${r}`)(left) // ["a:1", "b:2"]
  */
 export function zip<Left, Right, Mapped>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   merger: ZipMerger<NoInfer<Left>, Right, Mapped> &
     (unknown extends Left ? never : unknown),
-): (leftValues: readonly Left[]) => Mapped[]
+): (leftValues: IterableInput<Left>) => Mapped[]
 
 // generic curry; merger
 /**
@@ -57,10 +63,10 @@ export function zip<Left, Right, Mapped>(
  *   zip([1, 2], (l: string, r) => `${l}:${r}`)(left) // ["a:1", "b:2"]
  */
 export function zip<Left, Right, Mapped>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   merger: ZipMerger<Left, Right, Mapped>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<InputLeft extends Left>(leftValues: readonly InputLeft[]) => Mapped[]
+<InputLeft extends Left>(leftValues: IterableInput<InputLeft>) => Mapped[]
 
 // curried pairs
 /**
@@ -71,8 +77,8 @@ export function zip<Left, Right, Mapped>(
  *   zip([1, 2])(left) // [["a", 1], ["b", 2]]
  */
 export function zip<Right>(
-  rightValues: readonly Right[],
-): <Left>(leftValues: readonly Left[]) => Array<[Left, Right]>
+  rightValues: IterableInput<Right>,
+): <Left>(leftValues: IterableInput<Left>) => Array<[Left, Right]>
 
 // normal; merger
 /**
@@ -82,8 +88,8 @@ export function zip<Right>(
  *   zip(["a", "b"], [1, 2], (l, r) => `${l}:${r}`) // ["a:1", "b:2"]
  */
 export function zip<Left, Right, Mapped>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
+  leftValues: IterableInput<Left>,
+  rightValues: IterableInput<Right>,
   merger: ZipMerger<Left, Right, Mapped>,
 ): Mapped[]
 
@@ -95,34 +101,40 @@ export function zip<Left, Right, Mapped>(
  *   zip(["a", "b"], [1, 2]) // [["a", 1], ["b", 2]]
  */
 export function zip<Left, Right>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
+  leftValues: IterableInput<Left>,
+  rightValues: IterableInput<Right>,
 ): Array<[Left, Right]>
 
 export function zip(
   ...args:
-    | [rightValues: readonly unknown[]]
-    | [rightValues: readonly unknown[], merger: ZipMerger]
-    | [leftValues: readonly unknown[], rightValues: readonly unknown[]]
+    | [rightValues: IterableInput<unknown>]
+    | [rightValues: IterableInput<unknown>, merger: ZipMerger]
+    | [leftValues: IterableInput<unknown>, rightValues: IterableInput<unknown>]
     | [
-        leftValues: readonly unknown[],
-        rightValues: readonly unknown[],
+        leftValues: IterableInput<unknown>,
+        rightValues: IterableInput<unknown>,
         merger: ZipMerger,
       ]
 ) {
   if (args.length === 1) {
     const [rightValues] = args
+    const rightSource = toReadonlyArray(rightValues)
 
-    return (leftValues: readonly unknown[]) => zipImpl(leftValues, rightValues)
+    return (leftValues: IterableInput<unknown>) =>
+      zipImpl(leftValues, rightSource)
   }
 
   if (args.length === 2) {
     const [leftOrRightValues, rightValuesOrMerger] = args
 
-    return isReadonlyArray(rightValuesOrMerger)
-      ? zipImpl(leftOrRightValues, rightValuesOrMerger)
-      : (leftValues: readonly unknown[]) =>
-          zipImpl(leftValues, leftOrRightValues, rightValuesOrMerger)
+    if (isIterableInput(rightValuesOrMerger)) {
+      return zipImpl(leftOrRightValues, rightValuesOrMerger)
+    }
+
+    const rightSource = toReadonlyArray(leftOrRightValues)
+
+    return (leftValues: IterableInput<unknown>) =>
+      zipImpl(leftValues, rightSource, rightValuesOrMerger)
   }
 
   return zipImpl(...args)

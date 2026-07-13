@@ -4,9 +4,13 @@ import { median } from "./median"
 
 const medianDataFirst = median([1, 2, 3] as const)
 const medianDataLast = median()([1, 2, 3] as const)
+const medianIterableDataFirst = median(new Set([1, 2, 3] as const))
+const medianIterableDataLast = median()(new Set([1, 2, 3] as const))
 
 true satisfies IsEqual<typeof medianDataFirst, number | undefined>
 true satisfies IsEqual<typeof medianDataLast, number | undefined>
+true satisfies IsEqual<typeof medianIterableDataFirst, number | undefined>
+true satisfies IsEqual<typeof medianIterableDataLast, number | undefined>
 
 const medianByDataFirst = median(
   [{ score: 1 }, { score: 2 }] as const,
@@ -36,6 +40,9 @@ const medianByPathDataLast = median("score")([{ score: 1 }, { score: 2 }])
 const medianByPathDataLastWithExtraProperties = median("a")([
   { a: 5, b: "djwjdkw" },
 ])
+const medianByPathIterableDataLastWithExtraProperties = median("a")(
+  new Set([{ a: 5, b: "djwjdkw" }]),
+)
 const medianByDotPathDataLast = median("stats.score")([
   { stats: { score: 1 } },
   { stats: { score: 2 } },
@@ -61,6 +68,10 @@ true satisfies IsEqual<
   typeof medianByPathDataLastWithExtraProperties,
   number | undefined
 >
+true satisfies IsEqual<
+  typeof medianByPathIterableDataLastWithExtraProperties,
+  number | undefined
+>
 true satisfies IsEqual<typeof medianByDotPathDataLast, number | undefined>
 true satisfies IsEqual<typeof medianByTypedPathDataLast, number | undefined>
 
@@ -80,6 +91,9 @@ median([{ score: 1 }] as const, "missing")
 
 // @ts-expect-error data-last string selectors are checked once values are provided.
 median("label")([{ score: 1, label: "one" }])
+
+// @ts-expect-error primitive strings are selectors, not numeric iterable inputs.
+const _primitiveStringMedian: number | undefined = median("score")
 
 // @ts-expect-error explicit data-last string selectors must point to a number.
 median<{ readonly score: number; readonly label: string }>("label")

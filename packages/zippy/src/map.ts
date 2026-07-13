@@ -1,6 +1,10 @@
 import type { Get, Promisable } from "type-fest"
 
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import {
   getPropertyPathValue,
   type PathSatisfier,
@@ -67,7 +71,7 @@ type RuntimeEntryMapper = AsyncEntryMapper
 type MapAsyncArgs =
   | [mapper: RuntimeArrayMapper, options?: MapAsyncOptions]
   | [
-      values: readonly unknown[],
+      values: IterableInput<unknown>,
       mapper: RuntimeArrayMapper,
       options?: MapAsyncOptions,
     ]
@@ -91,11 +95,11 @@ type MapEntriesAsyncArgs =
 function isMapAsyncDataFirstArgs(
   args: MapAsyncArgs,
 ): args is [
-  values: readonly unknown[],
+  values: IterableInput<unknown>,
   mapper: RuntimeArrayMapper,
   options?: MapAsyncOptions,
 ] {
-  return isReadonlyArray(args[0])
+  return isIterableInput(args[0])
 }
 
 function isDictionaryAsyncDataFirstArgs<Mapped>(
@@ -180,7 +184,7 @@ async function mapAsyncItems<Item, Mapped>(
  */
 export function map<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   selector: Path,
-): (values: readonly T[]) => Array<Get<T, Path>>
+): (values: IterableInput<T>) => Array<Get<T, Path>>
 
 // generic curry; path
 /**
@@ -193,7 +197,9 @@ export function map<T, Path extends SelectorPath<T> = SelectorPath<T>>(
  */
 export function map<Path extends string>(
   selector: Path,
-): <T extends PathSatisfier<Path>>(values: readonly T[]) => Array<Get<T, Path>>
+): <T extends PathSatisfier<Path>>(
+  values: IterableInput<T>,
+) => Array<Get<T, Path>>
 
 // authoritative pipe curry; selector fn
 /**
@@ -206,7 +212,7 @@ export function map<Path extends string>(
 export function map<T, Mapped>(
   selector: SelectorFunction<NoInfer<T>, Mapped> &
     (unknown extends T ? never : unknown),
-): (values: readonly T[]) => Mapped[]
+): (values: IterableInput<T>) => Mapped[]
 
 // generic curry; selector fn
 /**
@@ -219,7 +225,7 @@ export function map<T, Mapped>(
 export function map<T, Mapped>(
   selector: SelectorFunction<T, Mapped>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => Mapped[]
+<U extends T>(values: IterableInput<U>) => Mapped[]
 
 // normal; path
 /**
@@ -230,7 +236,7 @@ export function map<T, Mapped>(
  *   map(values, "profile.name") // ["Ada"]
  */
 export function map<T, Path extends SelectorPath<T>>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: Path,
 ): Array<Get<T, Path>>
 
@@ -243,32 +249,36 @@ export function map<T, Path extends SelectorPath<T>>(
  *   map(values, (value) => value.count) // [1]
  */
 export function map<T, Mapped>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorFunction<T, Mapped>,
 ): Mapped[]
 
 export function map(
   ...args:
     | [selector: ArrayMapper | string]
-    | [values: readonly unknown[], selector: ArrayMapper | string]
+    | [values: IterableInput<unknown>, selector: ArrayMapper | string]
 ) {
   if (args.length === 1) {
     const [selector] = args
 
-    return ((values: readonly unknown[]) =>
-      values.map((value, index) =>
+    return ((values: IterableInput<unknown>) => {
+      const source = toReadonlyArray(values)
+
+      return source.map((value, index) =>
         typeof selector === "string"
           ? getPropertyPathValue(value, selector)
-          : selector(value, index, values),
-      )) as unknown
+          : selector(value, index, source),
+      )
+    }) as unknown
   }
 
   const [values, selector] = args
+  const source = toReadonlyArray(values)
 
-  return values.map((value, index) =>
+  return source.map((value, index) =>
     typeof selector === "string"
       ? getPropertyPathValue(value, selector)
-      : selector(value, index, values),
+      : selector(value, index, source),
   ) as unknown
 }
 
@@ -284,7 +294,7 @@ export function map(
 export function mapAsync<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   selector: Path,
   options?: MapAsyncOptions,
-): (values: readonly T[]) => Promise<Array<Awaited<Get<T, Path>>>>
+): (values: IterableInput<T>) => Promise<Array<Awaited<Get<T, Path>>>>
 
 // generic curry; path
 /**
@@ -299,7 +309,7 @@ export function mapAsync<Path extends string>(
   selector: Path,
   options?: MapAsyncOptions,
 ): <T extends PathSatisfier<Path>>(
-  values: readonly T[],
+  values: IterableInput<T>,
 ) => Promise<Array<Awaited<Get<T, Path>>>>
 
 // authoritative pipe curry; selector fn
@@ -315,7 +325,7 @@ export function mapAsync<T, Mapped>(
   mapper: AsyncArrayMapper<NoInfer<T>, Mapped> &
     (unknown extends T ? never : unknown),
   options?: MapAsyncOptions,
-): (values: readonly T[]) => Promise<Array<Awaited<Mapped>>>
+): (values: IterableInput<T>) => Promise<Array<Awaited<Mapped>>>
 
 // generic curry; selector fn
 /**
@@ -330,7 +340,7 @@ export function mapAsync<T, Mapped>(
   mapper: AsyncArrayMapper<T, Mapped>,
   options?: MapAsyncOptions,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => Promise<Array<Awaited<Mapped>>>
+<U extends T>(values: IterableInput<U>) => Promise<Array<Awaited<Mapped>>>
 
 // normal; path
 /**
@@ -342,7 +352,7 @@ export function mapAsync<T, Mapped>(
  *   await mapAsync(values, "profile.name") // ["Ada"]
  */
 export function mapAsync<T, Path extends SelectorPath<T>>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: Path,
   options?: MapAsyncOptions,
 ): Promise<Array<Awaited<Get<T, Path>>>>
@@ -356,7 +366,7 @@ export function mapAsync<T, Path extends SelectorPath<T>>(
  *   await mapAsync(values, async (value) => value * 2) // [2, 4]
  */
 export function mapAsync<T, Mapped>(
-  values: readonly T[],
+  values: IterableInput<T>,
   mapper: AsyncArrayMapper<T, Mapped>,
   options?: MapAsyncOptions,
 ): Promise<Array<Awaited<Mapped>>>
@@ -364,28 +374,32 @@ export function mapAsync<T, Mapped>(
 export function mapAsync(...args: MapAsyncArgs) {
   if (isMapAsyncDataFirstArgs(args)) {
     const [values, mapper, options] = args
+    const source = toReadonlyArray(values)
 
     return mapAsyncItems(
-      values,
+      source,
       (value, index) =>
         typeof mapper === "string"
           ? getPropertyPathValue(value, mapper)
-          : mapper(value, index, values),
+          : mapper(value, index, source),
       options,
     ) as unknown
   }
 
   const [mapper, options] = args
 
-  return ((values: readonly unknown[]) =>
-    mapAsyncItems(
-      values,
+  return ((values: IterableInput<unknown>) => {
+    const source = toReadonlyArray(values)
+
+    return mapAsyncItems(
+      source,
       (value, index) =>
         typeof mapper === "string"
           ? getPropertyPathValue(value, mapper)
-          : mapper(value, index, values),
+          : mapper(value, index, source),
       options,
-    )) as unknown
+    )
+  }) as unknown
 }
 
 // authoritative pipe curry; path

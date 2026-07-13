@@ -2,6 +2,7 @@ import { describe, expect, test } from "bun:test"
 
 import { filter, filterOut } from "./filter"
 import { isDefined, isNonNullish, isTruthy, propIsTruthy } from "./guards"
+import type { IterableInput } from "./iterable"
 
 type AEntry = { kind: "a"; value: number }
 type User = { name: string; email?: string | null }
@@ -23,7 +24,7 @@ describe("filter", () => {
   })
 
   test("keeps values matching a data-last predicate", () => {
-    const keepEven: (values: readonly number[]) => number[] = filter(
+    const keepEven: (values: IterableInput<number>) => number[] = filter(
       (value: number) => value % 2 === 0,
     )
 
@@ -38,7 +39,7 @@ describe("filter", () => {
   })
 
   test("keeps values matched by a data-last type guard", () => {
-    const onlyAValues: (values: readonly unknown[]) => AEntry[] =
+    const onlyAValues: (values: IterableInput<unknown>) => AEntry[] =
       filter(isAEntry)
 
     expect(
@@ -55,10 +56,33 @@ describe("filter", () => {
 
   test("keeps values matched by a data-last value guard", () => {
     const keepPresent: (
-      values: readonly (number | null | undefined)[],
+      values: IterableInput<number | null | undefined>,
     ) => number[] = filter(isNonNullish)
 
     expect(keepPresent([1, null, 2, undefined])).toEqual([1, 2])
+  })
+
+  test("keeps values from iterable inputs", () => {
+    expect(filter(new Set([1, 2, 3, 4]), (value) => value % 2 === 0)).toEqual([
+      2, 4,
+    ])
+  })
+
+  test("passes a materialized source array for iterable inputs", () => {
+    const values = new Set([1, 2, 3])
+    const sources: Array<readonly number[]> = []
+
+    expect(
+      filter(values, (value, _index, source) => {
+        sources.push(source)
+
+        return value > 1
+      }),
+    ).toEqual([2, 3])
+    expect(sources).toHaveLength(3)
+    expect(sources.every((source) => source === sources[0])).toBe(true)
+    expect(sources[0]).toEqual([1, 2, 3])
+    expect(sources[0]).not.toBe(values)
   })
 
   test("keeps values matched by a property guard", () => {
@@ -80,7 +104,7 @@ describe("filterOut", () => {
   })
 
   test("removes values matching a data-last predicate", () => {
-    const removeEven: (values: readonly number[]) => number[] = filterOut(
+    const removeEven: (values: IterableInput<number>) => number[] = filterOut(
       (value: number) => value % 2 === 0,
     )
 
@@ -95,7 +119,7 @@ describe("filterOut", () => {
   })
 
   test("removes values matched by a data-last type guard", () => {
-    const withoutAValues: (values: readonly (AEntry | null)[]) => null[] =
+    const withoutAValues: (values: IterableInput<AEntry | null>) => null[] =
       filterOut(isAEntry)
 
     expect(withoutAValues([{ kind: "a", value: 1 }, null])).toEqual([null])
@@ -110,7 +134,7 @@ describe("filterOut", () => {
 
   test("removes values matched by a data-last value guard", () => {
     const removeDefined: (
-      values: readonly (number | null | undefined | void)[],
+      values: IterableInput<number | null | undefined | void>,
     ) => Array<undefined | void> = filterOut(isDefined)
 
     expect(removeDefined([1, null, undefined, void 0])).toEqual([
@@ -130,5 +154,11 @@ describe("filterOut", () => {
       { name: "Linus", email: null },
       { name: "Grace" },
     ])
+  })
+
+  test("removes values from iterable inputs", () => {
+    expect(
+      filterOut(new Set([1, 2, 3, 4]), (value) => value % 2 === 0),
+    ).toEqual([1, 3])
   })
 })

@@ -28,6 +28,10 @@ describe("map", () => {
     expect(map((value: number) => value * 2)([1, 2, 3])).toEqual([2, 4, 6])
   })
 
+  test("maps iterable values", () => {
+    expect(map(new Set([1, 2, 3]), (value) => value * 2)).toEqual([2, 4, 6])
+  })
+
   test("maps array values with string paths", () => {
     const values = [
       { id: 1, profile: { name: "Ada" } },
@@ -44,6 +48,21 @@ describe("map", () => {
     expect(
       map(values, (value, index, source) => value + index + source.length),
     ).toEqual(["z03", "i13", "p23"])
+  })
+
+  test("passes a materialized source array for data-last iterable values", () => {
+    const sources: Array<readonly string[]> = []
+
+    expect(
+      map((value: string, index, source) => {
+        sources.push(source)
+
+        return value + index + source.length
+      })(["z", "i", "p"].values()),
+    ).toEqual(["z03", "i13", "p23"])
+    expect(sources).toHaveLength(3)
+    expect(sources.every((source) => source === sources[0])).toBe(true)
+    expect(sources[0]).toEqual(["z", "i", "p"])
   })
 })
 
@@ -117,6 +136,12 @@ describe("mapAsync", () => {
   test("maps array values with async mappers data-last", async () => {
     expect(
       mapAsync(async (value: number) => value * 2)([1, 2, 3]),
+    ).resolves.toEqual([2, 4, 6])
+  })
+
+  test("maps iterable values with async mappers", async () => {
+    expect(
+      mapAsync(new Uint8Array([1, 2, 3]), async (value) => value * 2),
     ).resolves.toEqual([2, 4, 6])
   })
 

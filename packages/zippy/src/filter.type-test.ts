@@ -38,6 +38,13 @@ const filterDataLastWithAnnotatedPredicateInline = filter(
 )([{ count: 1, label: "one" }] as const)
 const filterGuardDataFirst = filter(entries, isAEntry)
 const filterGuardDataLast = filter(isAEntry)(entries)
+const filterIterableDataFirst = filter(
+  new Set([1, 2, 3, 4] as const),
+  (value) => value > 1,
+)
+const filterIterableDataLast = filter((value: 1 | 2 | 3 | 4) => value > 1)(
+  new Set([1, 2, 3, 4] as const),
+)
 
 true satisfies IsEqual<typeof filterDataFirst, Array<1 | 2 | 3 | 4>>
 true satisfies IsEqual<typeof filterDataLast, Array<1 | 2 | 3 | 4>>
@@ -55,9 +62,11 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<typeof filterGuardDataFirst, AEntry[]>
 true satisfies IsEqual<typeof filterGuardDataLast, AEntry[]>
+true satisfies IsEqual<typeof filterIterableDataFirst, Array<1 | 2 | 3 | 4>>
+true satisfies IsEqual<typeof filterIterableDataLast, Array<1 | 2 | 3 | 4>>
 
+// @ts-expect-error data-last predicate values must satisfy the predicate parameter.
 filter((value: { readonly count: number }) => value.count > 1)([
-  // @ts-expect-error data-last predicate values must satisfy the predicate parameter.
   { label: "one" },
 ] as const)
 
@@ -155,6 +164,13 @@ const filterOutDataLastWithAnnotatedPredicateInline = filterOut(
 )([{ count: 1, label: "one" }] as const)
 const filterOutGuardDataFirst = filterOut(entries, isAEntry)
 const filterOutGuardDataLast = filterOut(isAEntry)(entries)
+const filterOutIterableDataFirst = filterOut(
+  new Set([1, 2, 3, 4] as const),
+  (value) => value > 1,
+)
+const filterOutIterableDataLast = filterOut(
+  (value: 1 | 2 | 3 | 4) => value > 1,
+)(new Set([1, 2, 3, 4] as const))
 
 true satisfies IsEqual<typeof filterOutDataFirst, Array<1 | 2 | 3 | 4>>
 true satisfies IsEqual<typeof filterOutDataLast, Array<1 | 2 | 3 | 4>>
@@ -172,9 +188,11 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<typeof filterOutGuardDataFirst, Array<BEntry | null>>
 true satisfies IsEqual<typeof filterOutGuardDataLast, Array<BEntry | null>>
+true satisfies IsEqual<typeof filterOutIterableDataFirst, Array<1 | 2 | 3 | 4>>
+true satisfies IsEqual<typeof filterOutIterableDataLast, Array<1 | 2 | 3 | 4>>
 
+// @ts-expect-error data-last predicate values must satisfy the predicate parameter.
 filterOut((value: { readonly count: number }) => value.count > 1)([
-  // @ts-expect-error data-last predicate values must satisfy the predicate parameter.
   { label: "one" },
 ] as const)
 

@@ -18,6 +18,14 @@ describe("sum", () => {
   test("adds numbers data-last", () => {
     expect(sum()([1, 2, 3, 4])).toBe(10)
   })
+
+  test("adds iterable numbers", () => {
+    expect(sum(new Set([1, 2, 3, 4]))).toBe(10)
+  })
+
+  test("adds iterable numbers data-last", () => {
+    expect(sum()([1, 2, 3, 4].values())).toBe(10)
+  })
 })
 
 describe("sum selectors", () => {
@@ -67,6 +75,22 @@ describe("sum selectors", () => {
       })(values),
     ).toBe(6)
     expect(sourcesMatch).toEqual([true, true])
+  })
+
+  test("passes a materialized source array for iterable selectors", () => {
+    const values = new Set([{ count: 2 }, { count: 3 }])
+    const sources: Array<readonly { count: number }[]> = []
+
+    expect(
+      sum(values, (value, index, source) => {
+        sources.push(source)
+
+        return value.count + index
+      }),
+    ).toBe(6)
+    expect(sources).toHaveLength(2)
+    expect(sources.every((source) => source === sources[0])).toBe(true)
+    expect(sources[0]).toEqual([{ count: 2 }, { count: 3 }])
   })
 
   test("adds property path numbers data-last", () => {

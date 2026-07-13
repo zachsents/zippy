@@ -4,9 +4,13 @@ import { mode } from "./mode"
 
 const modeDataFirst = mode([1, 2, 2] as const)
 const modeDataLast = mode()([1, 2, 2] as const)
+const modeIterableDataFirst = mode(new Set([1, 2] as const))
+const modeIterableDataLast = mode()(new Set([1, 2] as const))
 
 true satisfies IsEqual<typeof modeDataFirst, 1 | 2 | undefined>
 true satisfies IsEqual<typeof modeDataLast, 1 | 2 | undefined>
+true satisfies IsEqual<typeof modeIterableDataFirst, 1 | 2 | undefined>
+true satisfies IsEqual<typeof modeIterableDataLast, 1 | 2 | undefined>
 
 const values = [
   { kind: "a", score: 1 },
@@ -39,6 +43,7 @@ const modeByDotPathDataFirst = mode(
   "meta.kind",
 )
 const modeByPathDataLast = mode("kind")(values)
+const modeByPathIterableDataLast = mode("kind")(new Set(values))
 const modeByDotPathDataLast = mode("meta.kind")([
   { meta: { kind: "a" }, score: 1 },
   { meta: { kind: "b" }, score: 2 },
@@ -81,6 +86,10 @@ true satisfies IsEqual<
   (typeof values)[number] | undefined
 >
 true satisfies IsEqual<
+  typeof modeByPathIterableDataLast,
+  (typeof values)[number] | undefined
+>
+true satisfies IsEqual<
   typeof modeByDotPathDataLast,
   | { readonly meta: { readonly kind: "a" }; readonly score: 1 }
   | { readonly meta: { readonly kind: "b" }; readonly score: 2 }
@@ -96,6 +105,9 @@ mode(values, "missing")
 
 // @ts-expect-error data-last string selectors are checked once values are provided.
 mode("missing")(values)
+
+// @ts-expect-error primitive strings are selectors, not iterable values.
+const _primitiveStringMode: string | undefined = mode("kind")
 
 // @ts-expect-error explicit data-last string selectors must exist on the value type.
 mode<{ readonly kind: string }>("missing")

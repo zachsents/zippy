@@ -18,6 +18,12 @@ const mapDataFirst = map([1, 2, 3] as const, (value) =>
 const mapDataLast = map((value: 1 | 2 | 3) => (value === 1 ? "one" : "other"))([
   1, 2, 3,
 ] as const)
+const mapIterableDataFirst = map(new Set([1, 2, 3] as const), (value) =>
+  value === 1 ? "one" : "other",
+)
+const mapIterableDataLast = map((value: 1 | 2 | 3) =>
+  value === 1 ? "one" : "other",
+)(new Set([1, 2, 3] as const))
 const annotatedMapValuesWithExtraProperties = [
   { count: 1, label: "one" },
 ] as const
@@ -41,6 +47,12 @@ const mapPathDataLast = map("id")([
   { id: 1, profile: { name: "Ada" } },
   { id: 2, profile: { name: "Linus" } },
 ] as const)
+const mapPathIterableDataLast = map("id")(
+  new Set([
+    { id: 1, profile: { name: "Ada" } },
+    { id: 2, profile: { name: "Linus" } },
+  ] as const),
+)
 const mapPipeContext = pipe(
   [1, 2, 3] as const,
   map((value) => (value === 1 ? "one" : "other")),
@@ -48,6 +60,8 @@ const mapPipeContext = pipe(
 
 true satisfies IsEqual<typeof mapDataFirst, Array<"one" | "other">>
 true satisfies IsEqual<typeof mapDataLast, Array<"one" | "other">>
+true satisfies IsEqual<typeof mapIterableDataFirst, Array<"one" | "other">>
+true satisfies IsEqual<typeof mapIterableDataLast, Array<"one" | "other">>
 true satisfies IsEqual<
   typeof mapDataLastWithAnnotatedSelectorVariable,
   number[]
@@ -55,6 +69,7 @@ true satisfies IsEqual<
 true satisfies IsEqual<typeof mapDataLastWithAnnotatedSelectorInline, number[]>
 true satisfies IsEqual<typeof mapPathDataFirst, Array<"Ada" | "Linus">>
 true satisfies IsEqual<typeof mapPathDataLast, Array<1 | 2>>
+true satisfies IsEqual<typeof mapPathIterableDataLast, Array<1 | 2>>
 true satisfies IsEqual<typeof mapPipeContext, Array<"one" | "other">>
 
 // @ts-expect-error string selectors must exist on the value type.
@@ -63,12 +78,22 @@ map([{ id: 1 }] as const, "missing")
 // @ts-expect-error data-last string selectors are checked once values are provided.
 map("missing")([{ id: 1 }] as const)
 
+// @ts-expect-error primitive strings are selectors, not iterable values.
+const _primitiveStringMap: string[] = map("id")
+
 const mapAsyncDataFirst = mapAsync([1, 2, 3] as const, async (value) =>
   value === 1 ? "one" : "other",
 )
 const mapAsyncDataLast = mapAsync(async (value: 1 | 2 | 3) =>
   value === 1 ? "one" : "other",
 )([1, 2, 3] as const)
+const mapAsyncIterableDataFirst = mapAsync(
+  new Set([1, 2, 3] as const),
+  async (value) => (value === 1 ? "one" : "other"),
+)
+const mapAsyncIterableDataLast = mapAsync(async (value: 1 | 2 | 3) =>
+  value === 1 ? "one" : "other",
+)(new Set([1, 2, 3] as const))
 const mapAsyncDataLastWithAnnotatedMapperVariable = mapAsync(
   async (value: { readonly count: number }) => value.count,
 )(annotatedMapValuesWithExtraProperties)
@@ -101,6 +126,14 @@ true satisfies IsEqual<
   Promise<Array<"one" | "other">>
 >
 true satisfies IsEqual<typeof mapAsyncDataLast, Promise<Array<"one" | "other">>>
+true satisfies IsEqual<
+  typeof mapAsyncIterableDataFirst,
+  Promise<Array<"one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapAsyncIterableDataLast,
+  Promise<Array<"one" | "other">>
+>
 true satisfies IsEqual<
   typeof mapAsyncDataLastWithAnnotatedMapperVariable,
   Promise<number[]>

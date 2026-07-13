@@ -1,8 +1,11 @@
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import {
   getPropertyPathValue,
   type PathSatisfier,
-  type Selector,
   type SelectorFunction,
   type SelectorPath,
 } from "./selector"
@@ -18,7 +21,7 @@ import {
  */
 export function sum<T>(
   selector: SelectorPath<T, number>,
-): (values: readonly T[]) => number
+): (values: IterableInput<T>) => number
 
 // generic curry; path
 /**
@@ -32,7 +35,7 @@ export function sum<T>(
 export function sum<Path extends string>(
   selector: Path,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<T extends PathSatisfier<Path, number>>(values: readonly T[]) => number
+<T extends PathSatisfier<Path, number>>(values: IterableInput<T>) => number
 
 // authoritative pipe curry; selector fn
 /**
@@ -45,7 +48,7 @@ export function sum<Path extends string>(
  */
 export function sum<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
-): (values: readonly T[]) => number
+): (values: IterableInput<T>) => number
 
 // generic curry; selector fn
 /**
@@ -59,7 +62,7 @@ export function sum<T>(
 export function sum<T>(
   selector: SelectorFunction<T, number>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => number
+<U extends T>(values: IterableInput<U>) => number
 
 // normal; path
 /**
@@ -71,7 +74,7 @@ export function sum<T>(
  *   sum(data, "a.num") // 17
  */
 export function sum<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorPath<T, number>,
 ): number
 
@@ -85,7 +88,7 @@ export function sum<T>(
  *   sum(data, (x) => x.a.num) // 17
  */
 export function sum<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorFunction<T, number>,
 ): number
 
@@ -97,7 +100,7 @@ export function sum<T>(
  *   const data = [5, 12]
  *   sum(data) // 17
  */
-export function sum(values: readonly number[]): number
+export function sum(values: IterableInput<number>): number
 
 // curried numbers
 /**
@@ -107,14 +110,17 @@ export function sum(values: readonly number[]): number
  *   const data = [5, 12]
  *   sum()(data) // 17
  */
-export function sum(): (values: readonly number[]) => number
+export function sum(): (values: IterableInput<number>) => number
 
 export function sum(
   ...args:
     | []
-    | [readonly number[]]
-    | [Selector<unknown, number>]
-    | [values: readonly unknown[], selector: Selector<unknown, number>]
+    | [IterableInput<number>]
+    | [string | SelectorFunction<unknown, number>]
+    | [
+        values: IterableInput<unknown>,
+        selector: string | SelectorFunction<unknown, number>,
+      ]
 ) {
   if (args.length === 0) {
     return (values: []) => sumImpl(values)
@@ -122,17 +128,19 @@ export function sum(
 
   if (args.length === 1) {
     const [a] = args
-    return isReadonlyArray(a) ? sumImpl(a) : (values: []) => sumImpl(values, a)
+    return isIterableInput(a) ? sumImpl(a) : (values: []) => sumImpl(values, a)
   }
 
   return sumImpl(...args)
 }
 
 function sumImpl(
-  values: readonly unknown[],
+  values: IterableInput<unknown>,
   selector: string | SelectorFunction<unknown, number> = Number,
 ) {
-  return values.reduce<number>(
+  const source = toReadonlyArray(values)
+
+  return source.reduce<number>(
     (sum, cur, i, arr) =>
       sum +
       (typeof selector === "string"

@@ -4,9 +4,13 @@ import { sum } from "./sum"
 
 const sumDataFirst = sum([1, 2, 3] as const)
 const sumDataLast = sum()([1, 2, 3] as const)
+const sumIterableDataFirst = sum(new Set([1, 2, 3] as const))
+const sumIterableDataLast = sum()(new Set([1, 2, 3] as const))
 
 true satisfies IsEqual<typeof sumDataFirst, number>
 true satisfies IsEqual<typeof sumDataLast, number>
+true satisfies IsEqual<typeof sumIterableDataFirst, number>
+true satisfies IsEqual<typeof sumIterableDataLast, number>
 
 const sumByDataFirst = sum(
   [{ count: 1 }, { count: 2 }] as const,
@@ -34,6 +38,9 @@ const sumByPathDataLast = sum("count")([{ count: 1 }, { count: 2 }] as const)
 const sumByPathDataLastWithExtraProperties = sum("a")([
   { a: 5, b: "djwjdkw" },
 ] as const)
+const sumByPathIterableDataLastWithExtraProperties = sum("a")(
+  new Set([{ a: 5, b: "djwjdkw" }] as const),
+)
 const sumByDotPathDataLast = sum("stats.score")([
   { stats: { score: 1 } },
   { stats: { score: 2 } },
@@ -53,6 +60,10 @@ true satisfies IsEqual<typeof sumByPathDataFirst, number>
 true satisfies IsEqual<typeof sumByDotPathDataFirst, number>
 true satisfies IsEqual<typeof sumByPathDataLast, number>
 true satisfies IsEqual<typeof sumByPathDataLastWithExtraProperties, number>
+true satisfies IsEqual<
+  typeof sumByPathIterableDataLastWithExtraProperties,
+  number
+>
 true satisfies IsEqual<typeof sumByDotPathDataLast, number>
 true satisfies IsEqual<typeof sumByTypedPathDataLast, number>
 
@@ -70,6 +81,9 @@ sum([{ count: 1 }] as const, "missing")
 
 // @ts-expect-error data-last string selectors are checked once values are provided.
 sum("label")([{ count: 1, label: "one" }] as const)
+
+// @ts-expect-error primitive strings are selectors, not numeric iterable inputs.
+const _primitiveStringSum: number = sum("count")
 
 // @ts-expect-error explicit data-last string selectors must point to a number.
 sum<{ readonly count: number; readonly label: string }>("label")

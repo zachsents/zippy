@@ -29,6 +29,10 @@ describe("median", () => {
   test("returns the median data-last", () => {
     expect(median()([10, 2, 4, 8])).toBe(6)
   })
+
+  test("returns the median for iterable numbers", () => {
+    expect(median([10, 2, 4, 8].values())).toBe(6)
+  })
 })
 
 describe("median selectors", () => {

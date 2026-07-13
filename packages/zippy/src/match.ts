@@ -1,4 +1,6 @@
 import type { Merge } from "type-fest"
+
+import { type IterableInput, toReadonlyArray } from "./iterable"
 import { merge } from "./merge"
 import {
   getPropertyPathValue,
@@ -23,15 +25,17 @@ function isSameValueZero(left: unknown, right: unknown) {
 }
 
 function impl(
-  leftValues: readonly unknown[],
-  rightValues: readonly unknown[],
+  leftValues: IterableInput<unknown>,
+  rightValues: IterableInput<unknown>,
   matcher: Cb<unknown, unknown> | string,
   merger: (left: unknown, right: unknown) => unknown,
 ) {
+  const leftSource = toReadonlyArray(leftValues)
+  const rightSource = toReadonlyArray(rightValues)
   const matchedRightIndexes = new Set<number>()
 
-  return leftValues.flatMap((leftValue, leftIndex) => {
-    for (const [rightIndex, rightValue] of rightValues.entries()) {
+  return leftSource.flatMap((leftValue, leftIndex) => {
+    for (const [rightIndex, rightValue] of rightSource.entries()) {
       if (matchedRightIndexes.has(rightIndex)) {
         continue
       }
@@ -47,8 +51,8 @@ function impl(
               rightValue,
               leftIndex,
               rightIndex,
-              leftValues,
-              rightValues,
+              leftSource,
+              rightSource,
             ))
       ) {
         continue
@@ -65,46 +69,54 @@ function impl(
 
 // authoritative pipe curry; path
 export function match<Left, Right>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: MatchingPath<NoInfer<Left>, Right>,
-): (leftValues: readonly Left[]) => Array<[Left, Right]>
+): (leftValues: IterableInput<Left>) => Array<[Left, Right]>
 
 // generic curry; path
 export function match<Right, Path extends SelectorPath<Right>>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: Path,
 ): <T extends PathSatisfier<Path, MatchingPathValue<Right, Path>>>(
-  leftValues: readonly T[],
+  leftValues: IterableInput<T>,
 ) => Array<[T, Right]>
 
 // authoritative pipe curry; selector fn
 export function match<Left, Right>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: Cb<NoInfer<Left>, Right>,
-): (leftValues: readonly Left[]) => Array<[Left, Right]>
+): (leftValues: IterableInput<Left>) => Array<[Left, Right]>
 
 // generic curry; selector fn
 export function match<Right, TMatcher extends Cb<never, Right>>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: TMatcher,
 ): <T extends TMatcher extends Cb<infer L, never> ? L : never>(
-  leftValues: readonly T[],
+  leftValues: IterableInput<T>,
 ) => Array<[T, Right]>
 
 // normal
 export function match<Left, Right>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
+  leftValues: IterableInput<Left>,
+  rightValues: IterableInput<Right>,
   matcher: Cb<Left, Right> | MatchingPath<Left, Right>,
 ): Array<[Left, Right]>
 
 export function match(
   ...args:
-    | [readonly unknown[], Cb<unknown, unknown> | string]
-    | [readonly unknown[], readonly unknown[], Cb<unknown, unknown> | string]
+    | [IterableInput<unknown>, Cb<unknown, unknown> | string]
+    | [
+        IterableInput<unknown>,
+        IterableInput<unknown>,
+        Cb<unknown, unknown> | string,
+      ]
 ) {
   if (args.length === 2) {
-    return (leftValues: []) => impl(leftValues, args[0], args[1], tuple)
+    const [rightValues, matcher] = args
+    const rightSource = toReadonlyArray(rightValues)
+
+    return (<T>(leftValues: IterableInput<T>) =>
+      impl(leftValues, rightSource, matcher, tuple)) as unknown
   }
 
   return impl(...args, tuple)
@@ -112,52 +124,60 @@ export function match(
 
 // authoritative pipe curry; path
 export function matchMerge<Left extends object, Right extends object>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: MatchingPath<NoInfer<Left>, Right>,
-): (leftValues: readonly Left[]) => Merge<Left, Right>[]
+): (leftValues: IterableInput<Left>) => Merge<Left, Right>[]
 
 // generic curry; path
 export function matchMerge<
   Right extends object,
   Path extends SelectorPath<Right>,
 >(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: Path,
 ): <T extends PathSatisfier<Path, MatchingPathValue<Right, Path>>>(
-  leftValues: readonly T[],
+  leftValues: IterableInput<T>,
 ) => Merge<T, Right>[]
 
 // authoritative pipe curry; selector fn
 export function matchMerge<Left extends object, Right extends object>(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: Cb<NoInfer<Left>, Right>,
-): (leftValues: readonly Left[]) => Merge<Left, Right>[]
+): (leftValues: IterableInput<Left>) => Merge<Left, Right>[]
 
 // generic curry; selector fn
 export function matchMerge<
   Right extends object,
   TMatcher extends Cb<never, Right>,
 >(
-  rightValues: readonly Right[],
+  rightValues: IterableInput<Right>,
   matcher: TMatcher,
 ): <T extends TMatcher extends Cb<infer L, never> ? L : never>(
-  leftValues: readonly T[],
+  leftValues: IterableInput<T>,
 ) => Merge<T, Right>[]
 
 // normal
 export function matchMerge<Left extends object, Right extends object>(
-  leftValues: readonly Left[],
-  rightValues: readonly Right[],
+  leftValues: IterableInput<Left>,
+  rightValues: IterableInput<Right>,
   matcher: Cb<Left, Right> | MatchingPath<Left, Right>,
 ): Merge<Left, Right>[]
 
 export function matchMerge(
   ...args:
-    | [readonly unknown[], Cb<unknown, unknown> | string]
-    | [readonly unknown[], readonly unknown[], Cb<unknown, unknown> | string]
+    | [IterableInput<unknown>, Cb<unknown, unknown> | string]
+    | [
+        IterableInput<unknown>,
+        IterableInput<unknown>,
+        Cb<unknown, unknown> | string,
+      ]
 ) {
   if (args.length === 2) {
-    return (leftValues: []) => impl(leftValues, args[0], args[1], merge)
+    const [rightValues, matcher] = args
+    const rightSource = toReadonlyArray(rightValues)
+
+    return (<T>(leftValues: IterableInput<T>) =>
+      impl(leftValues, rightSource, matcher, merge)) as unknown
   }
 
   return impl(...args, merge)

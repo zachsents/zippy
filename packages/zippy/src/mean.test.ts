@@ -18,6 +18,10 @@ describe("mean", () => {
   test("returns the arithmetic average data-last", () => {
     expect(mean()([2, 4, 9])).toBe(5)
   })
+
+  test("returns the arithmetic average for iterable numbers", () => {
+    expect(mean(new Uint8Array([2, 4, 9]))).toBe(5)
+  })
 })
 
 describe("mean selectors", () => {

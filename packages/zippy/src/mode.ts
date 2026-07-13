@@ -1,8 +1,11 @@
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import {
   getPropertyPathValue,
   type PathSatisfier,
-  type Selector,
   type SelectorFunction,
   type SelectorPath,
 } from "./selector"
@@ -18,7 +21,7 @@ import {
  */
 export function mode<T>(
   selector: SelectorPath<T>,
-): (values: readonly T[]) => T | undefined
+): (values: IterableInput<T>) => T | undefined
 
 // generic curry; path
 /**
@@ -32,7 +35,7 @@ export function mode<T>(
 export function mode<Path extends string>(
   selector: Path,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<T extends PathSatisfier<Path>>(values: readonly T[]) => T | undefined
+<T extends PathSatisfier<Path>>(values: IterableInput<T>) => T | undefined
 
 // authoritative pipe curry; selector fn
 /**
@@ -45,7 +48,7 @@ export function mode<Path extends string>(
  */
 export function mode<T>(
   selector: SelectorFunction<NoInfer<T>>,
-): (values: readonly T[]) => T | undefined
+): (values: IterableInput<T>) => T | undefined
 
 // generic curry; selector fn
 /**
@@ -59,7 +62,7 @@ export function mode<T>(
 export function mode<T>(
   selector: SelectorFunction<T>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => U | undefined
+<U extends T>(values: IterableInput<U>) => U | undefined
 
 // normal; path
 /**
@@ -70,7 +73,7 @@ export function mode<T>(
  *   mode(data, "kind") // { kind: "a" }
  */
 export function mode<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorPath<T>,
 ): T | undefined
 
@@ -84,7 +87,7 @@ export function mode<T>(
  *   mode(data, (x) => x.kind) // { kind: "a" }
  */
 export function mode<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorFunction<T>,
 ): T | undefined
 
@@ -96,7 +99,7 @@ export function mode<T>(
  *   const data = ["z", "i", "p", "p", "y"]
  *   mode(data) // "p"
  */
-export function mode<T>(values: readonly T[]): T | undefined
+export function mode<T>(values: IterableInput<T>): T | undefined
 
 // curried values
 /**
@@ -106,14 +109,17 @@ export function mode<T>(values: readonly T[]): T | undefined
  *   const data = ["z", "i", "p", "p", "y"]
  *   mode()(data) // "p"
  */
-export function mode(): <T>(values: readonly T[]) => T | undefined
+export function mode(): <T>(values: IterableInput<T>) => T | undefined
 
 export function mode(
   ...args:
     | []
-    | [readonly unknown[]]
-    | [Selector<unknown>]
-    | [values: readonly unknown[], selector: Selector<unknown>]
+    | [IterableInput<unknown>]
+    | [string | SelectorFunction<unknown>]
+    | [
+        values: IterableInput<unknown>,
+        selector: string | SelectorFunction<unknown>,
+      ]
 ) {
   if (args.length === 0) {
     return (values: []) => modeImpl(values)
@@ -121,7 +127,7 @@ export function mode(
 
   if (args.length === 1) {
     const [a] = args
-    return isReadonlyArray(a)
+    return isIterableInput(a)
       ? modeImpl(a)
       : (values: []) => modeImpl(values, a)
   }
@@ -129,21 +135,22 @@ export function mode(
   return modeImpl(...args)
 }
 
-function modeImpl(
-  values: readonly unknown[],
-  selector?: string | SelectorFunction<unknown>,
+function modeImpl<T>(
+  values: IterableInput<T>,
+  selector?: string | SelectorFunction<T>,
 ) {
+  const source = toReadonlyArray(values)
   const counts = new Map<unknown, number>()
-  const firstValues = new Map<unknown, unknown>()
+  const firstValues = new Map<unknown, T>()
   const orderedKeys: unknown[] = []
 
-  for (const [index, value] of values.entries()) {
+  for (const [index, value] of source.entries()) {
     const key =
       selector === undefined
         ? value
         : typeof selector === "string"
           ? getPropertyPathValue(value, selector)
-          : selector(value, index, values)
+          : selector(value, index, source)
     const count = counts.get(key)
 
     if (count === undefined) {
@@ -155,7 +162,7 @@ function modeImpl(
     }
   }
 
-  let bestValue: unknown
+  let bestValue: T | undefined
   let bestCount = 0
 
   for (const key of orderedKeys) {

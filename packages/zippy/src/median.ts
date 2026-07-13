@@ -1,8 +1,11 @@
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import {
   getPropertyPathValue,
   type PathSatisfier,
-  type Selector,
   type SelectorFunction,
   type SelectorPath,
 } from "./selector"
@@ -18,7 +21,7 @@ import {
  */
 export function median<T>(
   selector: SelectorPath<T, number>,
-): (values: readonly T[]) => number | undefined
+): (values: IterableInput<T>) => number | undefined
 
 // generic curry; path
 /**
@@ -33,7 +36,7 @@ export function median<Path extends string>(
   selector: Path,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
 <T extends PathSatisfier<Path, number>>(
-  values: readonly T[],
+  values: IterableInput<T>,
 ) => number | undefined
 
 // authoritative pipe curry; selector fn
@@ -47,7 +50,7 @@ export function median<Path extends string>(
  */
 export function median<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
-): (values: readonly T[]) => number | undefined
+): (values: IterableInput<T>) => number | undefined
 
 // generic curry; selector fn
 /**
@@ -61,7 +64,7 @@ export function median<T>(
 export function median<T>(
   selector: SelectorFunction<T, number>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => number | undefined
+<U extends T>(values: IterableInput<U>) => number | undefined
 
 // normal; path
 /**
@@ -73,7 +76,7 @@ export function median<T>(
  *   median(data, "a.num") // 8.5
  */
 export function median<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorPath<T, number>,
 ): number | undefined
 
@@ -87,7 +90,7 @@ export function median<T>(
  *   median(data, (x) => x.a.num) // 8.5
  */
 export function median<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorFunction<T, number>,
 ): number | undefined
 
@@ -99,7 +102,7 @@ export function median<T>(
  *   const data = [5, 12]
  *   median(data) // 8.5
  */
-export function median(values: readonly number[]): number | undefined
+export function median(values: IterableInput<number>): number | undefined
 
 // curried numbers
 /**
@@ -109,14 +112,17 @@ export function median(values: readonly number[]): number | undefined
  *   const data = [5, 12]
  *   median()(data) // 8.5
  */
-export function median(): (values: readonly number[]) => number | undefined
+export function median(): (values: IterableInput<number>) => number | undefined
 
 export function median(
   ...args:
     | []
-    | [readonly number[]]
-    | [Selector<unknown, number>]
-    | [values: readonly unknown[], selector: Selector<unknown, number>]
+    | [IterableInput<number>]
+    | [string | SelectorFunction<unknown, number>]
+    | [
+        values: IterableInput<unknown>,
+        selector: string | SelectorFunction<unknown, number>,
+      ]
 ) {
   if (args.length === 0) {
     return (values: []) => medianImpl(values)
@@ -124,7 +130,7 @@ export function median(
 
   if (args.length === 1) {
     const [a] = args
-    return isReadonlyArray(a)
+    return isIterableInput(a)
       ? medianImpl(a)
       : (values: []) => medianImpl(values, a)
   }
@@ -133,14 +139,16 @@ export function median(
 }
 
 function medianImpl(
-  values: readonly unknown[],
+  values: IterableInput<unknown>,
   selector: string | SelectorFunction<unknown, number> = Number,
 ) {
-  if (values.length === 0) {
+  const source = toReadonlyArray(values)
+
+  if (source.length === 0) {
     return undefined
   }
 
-  const sorted = values
+  const sorted = source
     .map((value, index, source) =>
       typeof selector === "string"
         ? Number(getPropertyPathValue(value, selector))

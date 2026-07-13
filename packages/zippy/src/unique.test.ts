@@ -32,6 +32,15 @@ describe("unique", () => {
 
     expect(unique([first, second, first])).toEqual([first, second])
   })
+
+  test("returns unique values from iterable inputs", () => {
+    expect(unique(["z", "i", "p", "p", "y"].values())).toEqual([
+      "z",
+      "i",
+      "p",
+      "y",
+    ])
+  })
 })
 
 describe("unique selectors", () => {

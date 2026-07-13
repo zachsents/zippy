@@ -33,6 +33,11 @@ describe("mode", () => {
   test("returns the most common value data-last", () => {
     expect(mode()(["z", "i", "p", "p", "y"])).toBe("p")
   })
+
+  test("returns the most common value from iterable inputs", () => {
+    expect(mode(new Set(["z", "i", "p", "p", "y"]))).toBe("z")
+    expect(mode()(["z", "i", "p", "p", "y"].values())).toBe("p")
+  })
 })
 
 describe("mode selectors", () => {

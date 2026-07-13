@@ -1,4 +1,8 @@
-import { isReadonlyArray } from "./guards"
+import {
+  isIterableInput,
+  type IterableInput,
+  toReadonlyArray,
+} from "./iterable"
 import {
   getPropertyPathValue,
   type PathSatisfier,
@@ -20,7 +24,7 @@ import {
  */
 export function unique<T>(
   selector: SelectorPath<T>,
-): (values: readonly T[]) => T[]
+): (values: IterableInput<T>) => T[]
 
 // generic curry; path
 /**
@@ -37,7 +41,7 @@ export function unique<T>(
 export function unique<Path extends string>(
   selector: Path,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<T extends PathSatisfier<Path>>(values: readonly T[]) => T[]
+<T extends PathSatisfier<Path>>(values: IterableInput<T>) => T[]
 
 // authoritative pipe curry; selector fn
 /**
@@ -53,7 +57,7 @@ export function unique<Path extends string>(
  */
 export function unique<T>(
   selector: SelectorFunction<NoInfer<T>>,
-): (values: readonly T[]) => T[]
+): (values: IterableInput<T>) => T[]
 
 // generic curry; selector fn
 /**
@@ -70,7 +74,7 @@ export function unique<T>(
 export function unique<T>(
   selector: SelectorFunction<T>,
 ): // oxlint-disable eslint/no-unnecessary-type-parameters
-<U extends T>(values: readonly U[]) => U[]
+<U extends T>(values: IterableInput<U>) => U[]
 
 // normal; path
 /**
@@ -83,7 +87,10 @@ export function unique<T>(
  *   ]
  *   unique(data, "id") // [{ id: 1, name: "first" }]
  */
-export function unique<T>(values: readonly T[], selector: SelectorPath<T>): T[]
+export function unique<T>(
+  values: IterableInput<T>,
+  selector: SelectorPath<T>,
+): T[]
 
 // normal; selector fn
 /**
@@ -97,7 +104,7 @@ export function unique<T>(values: readonly T[], selector: SelectorPath<T>): T[]
  *   unique(data, (x) => x.id) // [{ id: 1, name: "first" }]
  */
 export function unique<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: SelectorFunction<T>,
 ): T[]
 
@@ -108,7 +115,7 @@ export function unique<T>(
  * @example
  *   unique([1, 2, 1, 3]) // [1, 2, 3]
  */
-export function unique<T>(values: readonly T[]): T[]
+export function unique<T>(values: IterableInput<T>): T[]
 
 // curried values
 /**
@@ -118,14 +125,17 @@ export function unique<T>(values: readonly T[]): T[]
  * @example
  *   unique()([1, 2, 1, 3]) // [1, 2, 3]
  */
-export function unique(): <T>(values: readonly T[]) => T[]
+export function unique(): <T>(values: IterableInput<T>) => T[]
 
 export function unique(
   ...args:
     | []
-    | [readonly unknown[]]
+    | [IterableInput<unknown>]
     | [string | SelectorFunction<unknown>]
-    | [values: readonly unknown[], selector: string | SelectorFunction<unknown>]
+    | [
+        values: IterableInput<unknown>,
+        selector: string | SelectorFunction<unknown>,
+      ]
 ) {
   if (args.length === 0) {
     return (values: []) => uniqueImpl(values)
@@ -133,7 +143,7 @@ export function unique(
 
   if (args.length === 1) {
     const [a] = args
-    return isReadonlyArray(a)
+    return isIterableInput(a)
       ? uniqueImpl(a)
       : (values: []) => uniqueImpl(values, a)
   }
@@ -142,17 +152,18 @@ export function unique(
 }
 
 function uniqueImpl<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   selector: string | SelectorFunction<T> = (value) => value,
 ) {
+  const source = toReadonlyArray(values)
   const seenKeys = new Set<unknown>()
   const result: T[] = []
 
-  for (const [index, value] of values.entries()) {
+  for (const [index, value] of source.entries()) {
     const key =
       typeof selector === "string"
         ? getPropertyPathValue(value, selector)
-        : selector(value, index, values)
+        : selector(value, index, source)
 
     if (!seenKeys.has(key)) {
       seenKeys.add(key)

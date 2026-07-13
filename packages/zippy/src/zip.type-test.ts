@@ -5,6 +5,13 @@ import { zip } from "./zip"
 
 const zipDataFirst = zip(["a", "b"] as const, [1, 2] as const)
 const zipDataLast = zip([1, 2] as const)(["a", "b"] as const)
+const zipIterableDataFirst = zip(
+  new Set(["a", "b"] as const),
+  new Set([1, 2] as const),
+)
+const zipIterableDataLast = zip(new Set([1, 2] as const))(
+  new Set(["a", "b"] as const),
+)
 const zipMergerDataFirst = zip(
   ["a", "b"] as const,
   [1, 2] as const,
@@ -65,6 +72,8 @@ const zipMergerSourcesDataLast = zip(
 
 true satisfies IsEqual<typeof zipDataFirst, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipDataLast, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<typeof zipIterableDataFirst, Array<["a" | "b", 1 | 2]>>
+true satisfies IsEqual<typeof zipIterableDataLast, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof zipMergerDataFirst, Array<"first" | "other">>
 true satisfies IsEqual<typeof zipMergerDataLast, Array<"first" | "other">>
 true satisfies IsEqual<

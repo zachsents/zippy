@@ -15,6 +15,10 @@ const matchMatcherDataLastWithExtraProperties = match(
   [{ id: 1, count: 1 }] as const,
   (leftValue: { id: number }, rightValue) => leftValue.id === rightValue.id,
 )([{ id: 1, label: "A" }] as const)
+const matchMatcherIterableDataLast = match(
+  new Set([{ id: 1, count: 1 }] as const),
+  (leftValue: { id: number }, rightValue) => leftValue.id === rightValue.id,
+)(new Set([{ id: 1, label: "A" }] as const))
 
 const matchPathMatcherDataFirst = match(
   [{ id: "a" }, { id: "b" }] as const,
@@ -38,6 +42,10 @@ const matchPathMatcherDataLastWithExtraProperties = match(
   [{ id: 1, rightOnly: "right" }] as const,
   "id",
 )([{ id: 1, leftOnly: "left" }] as const)
+const matchPathMatcherIterableDataLastWithExtraProperties = match(
+  new Set([{ id: 1, rightOnly: "right" }] as const),
+  "id",
+)(new Set([{ id: 1, leftOnly: "left" }] as const))
 
 const matchMergeDataFirst = matchMerge(
   [{ id: "a", label: "A" }],
@@ -63,6 +71,15 @@ true satisfies IsEqual<typeof matchMatcherDataFirst, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<typeof matchMatcherDataLast, Array<["a" | "b", 1 | 2]>>
 true satisfies IsEqual<
   typeof matchMatcherDataLastWithExtraProperties,
+  Array<
+    [
+      { readonly id: 1; readonly label: "A" },
+      { readonly id: 1; readonly count: 1 },
+    ]
+  >
+>
+true satisfies IsEqual<
+  typeof matchMatcherIterableDataLast,
   Array<
     [
       { readonly id: 1; readonly label: "A" },
@@ -120,6 +137,15 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<
   typeof matchPathMatcherDataLastWithExtraProperties,
+  Array<
+    [
+      { readonly id: 1; readonly leftOnly: "left" },
+      { readonly id: 1; readonly rightOnly: "right" },
+    ]
+  >
+>
+true satisfies IsEqual<
+  typeof matchPathMatcherIterableDataLastWithExtraProperties,
   Array<
     [
       { readonly id: 1; readonly leftOnly: "left" },

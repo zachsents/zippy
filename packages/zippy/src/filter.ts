@@ -1,3 +1,5 @@
+import { type IterableInput, toReadonlyArray } from "./iterable"
+
 type FilterGuard<T, Narrowed extends T> = (
   value: T,
   index: number,
@@ -19,7 +21,7 @@ type FilterPredicate<T> = (
  *   filter(values, (value): value is 1 => value === 1) // [1]
  */
 export function filter<T, Narrowed extends T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   predicate: FilterGuard<T, Narrowed>,
 ): Narrowed[]
 
@@ -32,7 +34,7 @@ export function filter<T, Narrowed extends T>(
  *   filter(values, (value) => value % 2 === 0) // [2, 4]
  */
 export function filter<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   predicate: FilterPredicate<T>,
 ): T[]
 
@@ -51,7 +53,7 @@ export function filter<T>(
 export function filter<T, Narrowed extends T>(
   predicate: FilterGuard<NoInfer<T>, Narrowed> &
     (unknown extends T ? never : unknown),
-): (values: readonly T[]) => Narrowed[]
+): (values: IterableInput<T>) => Narrowed[]
 
 // generic curry; type guard
 /**
@@ -65,7 +67,7 @@ export function filter<T, Narrowed extends T>(
 export function filter<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
 ): <Value extends T>(
-  values: readonly Value[],
+  values: IterableInput<Value>,
 ) => Array<Narrowed extends Value ? Narrowed : Extract<Value, Narrowed>>
 
 // authoritative pipe curry; predicate
@@ -80,7 +82,7 @@ export function filter<T, Narrowed extends T>(
 export function filter<T>(
   predicate: FilterPredicate<NoInfer<T>> &
     (unknown extends T ? never : unknown),
-): (values: readonly T[]) => T[]
+): (values: IterableInput<T>) => T[]
 
 // generic curry; predicate
 /**
@@ -93,22 +95,26 @@ export function filter<T>(
  */
 export function filter<T>(
   predicate: FilterPredicate<T>,
-): <Value extends T>(values: readonly Value[]) => Value[]
+): <Value extends T>(values: IterableInput<Value>) => Value[]
 export function filter<T>(
   ...args:
-    | [values: readonly T[], predicate: FilterPredicate<T>]
+    | [values: IterableInput<T>, predicate: FilterPredicate<T>]
     | [predicate: FilterPredicate<T>]
 ) {
   if (args.length === 1) {
     const [predicate] = args
 
-    return <Value extends T>(values: readonly Value[]) =>
-      values.filter((value, index) => predicate(value, index, values))
+    return <Value extends T>(values: IterableInput<Value>) => {
+      const source = toReadonlyArray(values)
+
+      return source.filter((value, index) => predicate(value, index, source))
+    }
   }
 
   const [values, predicate] = args
+  const source = toReadonlyArray(values)
 
-  return values.filter((value, index) => predicate(value, index, values))
+  return source.filter((value, index) => predicate(value, index, source))
 }
 
 // normal; type guard
@@ -120,7 +126,7 @@ export function filter<T>(
  *   filterOut(values, (value): value is 1 => value === 1) // ["two"]
  */
 export function filterOut<T, Narrowed extends T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   predicate: FilterGuard<T, Narrowed>,
 ): Array<Exclude<T, Narrowed>>
 
@@ -133,7 +139,7 @@ export function filterOut<T, Narrowed extends T>(
  *   filterOut(values, (value) => value % 2 === 0) // [1, 3]
  */
 export function filterOut<T>(
-  values: readonly T[],
+  values: IterableInput<T>,
   predicate: FilterPredicate<T>,
 ): T[]
 
@@ -149,7 +155,7 @@ export function filterOut<T>(
 export function filterOut<T, Narrowed extends T>(
   predicate: FilterGuard<NoInfer<T>, Narrowed> &
     (unknown extends T ? never : unknown),
-): (values: readonly T[]) => Array<Exclude<T, Narrowed>>
+): (values: IterableInput<T>) => Array<Exclude<T, Narrowed>>
 
 // generic curry; type guard
 /**
@@ -163,7 +169,7 @@ export function filterOut<T, Narrowed extends T>(
 export function filterOut<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
 ): <Value extends T>(
-  values: readonly Value[],
+  values: IterableInput<Value>,
 ) => Array<Exclude<Value, Narrowed>>
 
 // authoritative pipe curry; predicate
@@ -178,7 +184,7 @@ export function filterOut<T, Narrowed extends T>(
 export function filterOut<T>(
   predicate: FilterPredicate<NoInfer<T>> &
     (unknown extends T ? never : unknown),
-): (values: readonly T[]) => T[]
+): (values: IterableInput<T>) => T[]
 
 // generic curry; predicate
 /**
@@ -191,20 +197,24 @@ export function filterOut<T>(
  */
 export function filterOut<T>(
   predicate: FilterPredicate<T>,
-): <Value extends T>(values: readonly Value[]) => Value[]
+): <Value extends T>(values: IterableInput<Value>) => Value[]
 export function filterOut<T>(
   ...args:
-    | [values: readonly T[], predicate: FilterPredicate<T>]
+    | [values: IterableInput<T>, predicate: FilterPredicate<T>]
     | [predicate: FilterPredicate<T>]
 ) {
   if (args.length === 1) {
     const [predicate] = args
 
-    return <Value extends T>(values: readonly Value[]) =>
-      values.filter((value, index) => !predicate(value, index, values))
+    return <Value extends T>(values: IterableInput<Value>) => {
+      const source = toReadonlyArray(values)
+
+      return source.filter((value, index) => !predicate(value, index, source))
+    }
   }
 
   const [values, predicate] = args
+  const source = toReadonlyArray(values)
 
-  return values.filter((value, index) => !predicate(value, index, values))
+  return source.filter((value, index) => !predicate(value, index, source))
 }

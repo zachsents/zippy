@@ -1,7 +1,7 @@
 # @zachsents/zippy
 
-Small TypeScript utility functions for arrays, objects, guards, math, sets, and
-zipping values.
+Small TypeScript utility functions for finite iterables, objects, guards, math,
+sets, and zipping values.
 
 Most collection helpers can be called data-first or data-last for piping. The
 examples below use the data-first form. Helpers that accept selectors take a
@@ -10,31 +10,31 @@ callback or a type-safe property/dot path on the base helper name, such as
 
 ## Functions
 
-### Arrays
+### Iterables
 
 - `castArray` - Keep arrays as-is, return an empty array for `undefined`,
   otherwise wrap a value in an array.
-- `filter` - Filter an array with a predicate or type guard. Like
-  `values.filter(predicate)`.
+- `filter` - Filter a finite iterable with a predicate or type guard. Like
+  `Array.from(values).filter(predicate)`.
 - `filterOut` - Remove values that match a predicate or type guard. Like
-  `values.filter((value, index) => !predicate(value, index, values))`.
-- `map` - Map array values. Like `values.map(mapper)`.
-- `mapAsync` - Map array values with async support. Like
-  `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit parallel
-  mapper calls.
+  `Array.from(values).filter((value, index, source) => !predicate(value, index, source))`.
+- `map` - Map finite iterable values. Like `Array.from(values).map(mapper)`.
+- `mapAsync` - Map finite iterable values with async support. Like
+  `Promise.all(Array.from(values).map(mapper))`, or pass `{ concurrency }` to
+  limit parallel mapper calls.
 - `unique` - Remove duplicate values, optionally by a selected key. Like
   `[...new Set(values)]`.
 
 ### Math
 
 - `mean` - Return the arithmetic average of numbers, or numbers selected from
-  each value. Returns `undefined` for an empty array.
+  each value. Returns `undefined` for an empty finite iterable.
 - `median` - Return the median of numbers, or numbers selected from each value.
-  Returns `undefined` for an empty array.
+  Returns `undefined` for an empty finite iterable.
 - `mode` - Return the most common value, or the first value whose selected key
-  is most common. Returns `undefined` for an empty array.
+  is most common. Returns `undefined` for an empty finite iterable.
 - `sum` - Add numbers, or numbers selected from each value. Returns `0` for an
-  empty array.
+  empty finite iterable.
 
 ### Objects
 
@@ -61,11 +61,12 @@ callback or a type-safe property/dot path on the base helper name, such as
 - `match` - Pair values by matching each left value with the first unmatched
   right value using a required matcher callback or shared property path. Pass a
   merger callback as the fourth argument to map each matched pair.
-- `matchMerge` - Match arrays of objects with a required matcher and shallow
-  merge each matched pair.
-- `zip` - Pair values from two arrays by index. Like
-  `left.slice(0, right.length).map((value, index) => [value, right[index]])`.
-  Pass a merger callback as the third argument to map each positional pair.
+- `matchMerge` - Match finite iterables of objects with a required matcher and
+  shallow merge each matched pair.
+- `zip` - Pair values from two finite iterables by index. Like materializing
+  both sides and mapping to `[leftValue, rightValue]` pairs up to the shorter
+  side. Pass a merger callback as the third argument to map each positional
+  pair.
 
 ### Guards
 
