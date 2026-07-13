@@ -1,5 +1,3 @@
-import { isNullish, isTruthy, isUndefined, type Falsy } from "./guards"
-
 type FilterGuard<T, Narrowed extends T> = (
   value: T,
   index: number,
@@ -12,31 +10,87 @@ type FilterPredicate<T> = (
   values: readonly T[],
 ) => unknown
 
-type FilteredByGuard<Value, Narrowed> = Narrowed extends Value
-  ? Narrowed
-  : Extract<Value, Narrowed>
-
-function isNonNullish<T>(value: T): value is NonNullable<T> {
-  return !isNullish(value)
-}
-
-function isDefined<T>(value: T): value is Exclude<T, undefined | void> {
-  return !isUndefined(value)
-}
-
+// normal; type guard
+/**
+ * Filters the passed array to values matched by the type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filter(values, (value): value is 1 => value === 1) // [1]
+ */
 export function filter<T, Narrowed extends T>(
   values: readonly T[],
   predicate: FilterGuard<T, Narrowed>,
 ): Narrowed[]
+
+// normal; predicate
+/**
+ * Filters the passed array to values matched by the predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filter(values, (value) => value % 2 === 0) // [2, 4]
+ */
 export function filter<T>(
   values: readonly T[],
   predicate: FilterPredicate<T>,
 ): T[]
+
+// authoritative pipe curry; type guard
+// The `unknown` gate keeps this overload contextual: without a concrete `T`
+// from a surrounding call like `pipe(data, filter(guard))`, standalone
+// `filter(guard)(data)` calls fall through to the generic overload below.
+/**
+ * Returns a function that filters the passed array to values matched by the
+ * type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filter((value): value is 1 => value === 1)(values) // [1]
+ */
+export function filter<T, Narrowed extends T>(
+  predicate: FilterGuard<NoInfer<T>, Narrowed> &
+    (unknown extends T ? never : unknown),
+): (values: readonly T[]) => Narrowed[]
+
+// generic curry; type guard
+/**
+ * Returns a function that filters the passed array to values matched by the
+ * type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filter((value): value is 1 => value === 1)(values) // [1]
+ */
 export function filter<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
 ): <Value extends T>(
   values: readonly Value[],
-) => Array<FilteredByGuard<Value, Narrowed>>
+) => Array<Narrowed extends Value ? Narrowed : Extract<Value, Narrowed>>
+
+// authoritative pipe curry; predicate
+/**
+ * Returns a function that filters the passed array to values matched by the
+ * predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filter((value) => value % 2 === 0)(values) // [2, 4]
+ */
+export function filter<T>(
+  predicate: FilterPredicate<NoInfer<T>> &
+    (unknown extends T ? never : unknown),
+): (values: readonly T[]) => T[]
+
+// generic curry; predicate
+/**
+ * Returns a function that filters the passed array to values matched by the
+ * predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filter((value) => value % 2 === 0)(values) // [2, 4]
+ */
 export function filter<T>(
   predicate: FilterPredicate<T>,
 ): <Value extends T>(values: readonly Value[]) => Value[]
@@ -57,19 +111,84 @@ export function filter<T>(
   return values.filter((value, index) => predicate(value, index, values))
 }
 
+// normal; type guard
+/**
+ * Filters the passed array to values not matched by the type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filterOut(values, (value): value is 1 => value === 1) // ["two"]
+ */
 export function filterOut<T, Narrowed extends T>(
   values: readonly T[],
   predicate: FilterGuard<T, Narrowed>,
 ): Array<Exclude<T, Narrowed>>
+
+// normal; predicate
+/**
+ * Filters the passed array to values not matched by the predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filterOut(values, (value) => value % 2 === 0) // [1, 3]
+ */
 export function filterOut<T>(
   values: readonly T[],
   predicate: FilterPredicate<T>,
 ): T[]
+
+// authoritative pipe curry; type guard
+/**
+ * Returns a function that filters the passed array to values not matched by the
+ * type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filterOut((value): value is 1 => value === 1)(values) // ["two"]
+ */
+export function filterOut<T, Narrowed extends T>(
+  predicate: FilterGuard<NoInfer<T>, Narrowed> &
+    (unknown extends T ? never : unknown),
+): (values: readonly T[]) => Array<Exclude<T, Narrowed>>
+
+// generic curry; type guard
+/**
+ * Returns a function that filters the passed array to values not matched by the
+ * type guard.
+ *
+ * @example
+ *   const values = [1, "two"] as const
+ *   filterOut((value): value is 1 => value === 1)(values) // ["two"]
+ */
 export function filterOut<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
 ): <Value extends T>(
   values: readonly Value[],
 ) => Array<Exclude<Value, Narrowed>>
+
+// authoritative pipe curry; predicate
+/**
+ * Returns a function that filters the passed array to values not matched by the
+ * predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filterOut((value) => value % 2 === 0)(values) // [1, 3]
+ */
+export function filterOut<T>(
+  predicate: FilterPredicate<NoInfer<T>> &
+    (unknown extends T ? never : unknown),
+): (values: readonly T[]) => T[]
+
+// generic curry; predicate
+/**
+ * Returns a function that filters the passed array to values not matched by the
+ * predicate.
+ *
+ * @example
+ *   const values = [1, 2, 3, 4]
+ *   filterOut((value) => value % 2 === 0)(values) // [1, 3]
+ */
 export function filterOut<T>(
   predicate: FilterPredicate<T>,
 ): <Value extends T>(values: readonly Value[]) => Value[]
@@ -88,44 +207,4 @@ export function filterOut<T>(
   const [values, predicate] = args
 
   return values.filter((value, index) => !predicate(value, index, values))
-}
-
-export function filterOutFalsy<T>(
-  values: readonly T[],
-): Array<Exclude<T, Falsy>>
-export function filterOutFalsy(): <T>(
-  values: readonly T[],
-) => Array<Exclude<T, Falsy>>
-export function filterOutFalsy<T>(values?: readonly T[]) {
-  if (values === undefined) {
-    return <Value>(values: readonly Value[]) => values.filter(isTruthy)
-  }
-
-  return values.filter(isTruthy)
-}
-
-export function filterOutNullish<T>(values: readonly T[]): NonNullable<T>[]
-export function filterOutNullish(): <T>(
-  values: readonly T[],
-) => NonNullable<T>[]
-export function filterOutNullish<T>(values?: readonly T[]) {
-  if (values === undefined) {
-    return <Value>(values: readonly Value[]) => values.filter(isNonNullish)
-  }
-
-  return values.filter(isNonNullish)
-}
-
-export function filterOutUndefined<T>(
-  values: readonly T[],
-): Array<Exclude<T, undefined | void>>
-export function filterOutUndefined(): <T>(
-  values: readonly T[],
-) => Array<Exclude<T, undefined | void>>
-export function filterOutUndefined<T>(values?: readonly T[]) {
-  if (values === undefined) {
-    return <Value>(values: readonly Value[]) => values.filter(isDefined)
-  }
-
-  return values.filter(isDefined)
 }

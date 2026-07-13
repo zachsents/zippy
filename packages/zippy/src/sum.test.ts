@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test"
 
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
 import { sum } from "./sum"
 
 describe("sum", () => {
@@ -71,5 +75,65 @@ describe("sum selectors", () => {
 
   test("adds dot path numbers data-last", () => {
     expect(sum("stats.score")([{ stats: { score: 2 } }])).toBe(2)
+  })
+})
+
+describe("sum autocomplete", () => {
+  test("completes numeric path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { sum } from "./sum"
+
+        const values = [
+          { count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        sum(values, "${completionMarker}")
+      `),
+    ).toEqual(["count", "stats.score"])
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { sum } from "./sum"
+
+        sum("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes numeric path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { sum } from "./sum"
+
+        type Value = {
+          count: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        sum<Value>("${completionMarker}")
+      `),
+    ).toEqual(["count", "stats.score"])
+  })
+
+  test("completes numeric path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { sum } from "./sum"
+
+        const values = [
+          { count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, sum("${completionMarker}"))
+      `),
+    ).toEqual(["count", "stats.score"])
   })
 })

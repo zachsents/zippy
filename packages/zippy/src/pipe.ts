@@ -1,6 +1,7 @@
 import type { Promisable } from "type-fest"
 
 type PipeFunction<Input, Output> = (input: Input) => Output
+type PipeGuard<Input, Output extends Input> = (input: Input) => input is Output
 type PipeImplementationFunction = (input: never) => unknown
 
 function callPipeFunction(func: PipeImplementationFunction, input: unknown) {
@@ -34,6 +35,7 @@ async function pipeValueAsync(
 }
 
 export function pipe<A>(data: A): A
+export function pipe<A, B extends A>(data: A, funcA: PipeGuard<A, B>): data is B
 export function pipe<A, B>(data: A, funcA: PipeFunction<A, B>): B
 export function pipe<A, B, C>(
   data: A,

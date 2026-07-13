@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test"
 
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
 import { median } from "./median"
 
 describe("median", () => {
@@ -100,5 +104,65 @@ describe("median selectors", () => {
         { stats: { score: 2 } },
       ]),
     ).toBe(6)
+  })
+})
+
+describe("median autocomplete", () => {
+  test("completes numeric path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { median } from "./median"
+
+        const values = [
+          { score: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        median(values, "${completionMarker}")
+      `),
+    ).toEqual(["score", "stats.score"])
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { median } from "./median"
+
+        median("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes numeric path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { median } from "./median"
+
+        type Value = {
+          score: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        median<Value>("${completionMarker}")
+      `),
+    ).toEqual(["score", "stats.score"])
+  })
+
+  test("completes numeric path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { median } from "./median"
+
+        const values = [
+          { score: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, median("${completionMarker}"))
+      `),
+    ).toEqual(["score", "stats.score"])
   })
 })

@@ -37,6 +37,19 @@ const uniqueByPathDataLast = unique("id")([
   { id: 2 },
   { id: 1 },
 ] as const)
+const uniqueByPathValuesWithExtraProperties = [
+  { a: 5, b: "first" },
+  { a: 6, b: "second" },
+  { a: 5, b: "duplicate" },
+] as const
+const uniqueByPathDataLastWithExtraPropertiesFromVariable = unique("a")(
+  uniqueByPathValuesWithExtraProperties,
+)
+const uniqueByPathDataLastWithExtraPropertiesInline = unique("a")([
+  { a: 5, b: "first" },
+  { a: 6, b: "second" },
+  { a: 5, b: "duplicate" },
+] as const)
 const uniqueByDotPathDataLast = unique("user.id")([
   { user: { id: 1 } },
   { user: { id: 2 } },
@@ -44,14 +57,18 @@ const uniqueByDotPathDataLast = unique("user.id")([
 ] as const)
 
 type UniqueByExpected = Array<{ readonly id: 1 } | { readonly id: 2 }>
-type UniqueByWidenedExpected = Array<{ readonly id: number }>
 type UniqueByInlineExtraExpected = Array<{ id: number; leftOnly: string }>
 type UniqueByDotPathExpected = Array<
   { readonly user: { readonly id: 1 } } | { readonly user: { readonly id: 2 } }
 >
+type UniqueByPathExtraExpected = Array<
+  | { readonly a: 5; readonly b: "first" }
+  | { readonly a: 6; readonly b: "second" }
+  | { readonly a: 5; readonly b: "duplicate" }
+>
 
 true satisfies IsEqual<typeof uniqueByDataFirst, UniqueByExpected>
-true satisfies IsEqual<typeof uniqueByDataLast, UniqueByWidenedExpected>
+true satisfies IsEqual<typeof uniqueByDataLast, UniqueByExpected>
 true satisfies IsEqual<
   typeof uniqueByFunctionDataLastWithInlineExtraProperties,
   UniqueByInlineExtraExpected
@@ -59,6 +76,14 @@ true satisfies IsEqual<
 true satisfies IsEqual<typeof uniqueByPathDataFirst, UniqueByExpected>
 true satisfies IsEqual<typeof uniqueByDotPathDataFirst, UniqueByDotPathExpected>
 true satisfies IsEqual<typeof uniqueByPathDataLast, UniqueByExpected>
+true satisfies IsEqual<
+  typeof uniqueByPathDataLastWithExtraPropertiesFromVariable,
+  UniqueByPathExtraExpected
+>
+true satisfies IsEqual<
+  typeof uniqueByPathDataLastWithExtraPropertiesInline,
+  UniqueByPathExtraExpected
+>
 true satisfies IsEqual<typeof uniqueByDotPathDataLast, UniqueByDotPathExpected>
 
 // @ts-expect-error string selectors must exist on the value type.

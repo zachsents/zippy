@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test"
 
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
 import { mean } from "./mean"
 
 describe("mean", () => {
@@ -70,5 +74,65 @@ describe("mean selectors", () => {
 
   test("returns the average of dot path numbers data-last", () => {
     expect(mean("stats.score")([{ stats: { score: 2 } }])).toBe(2)
+  })
+})
+
+describe("mean autocomplete", () => {
+  test("completes numeric path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mean } from "./mean"
+
+        const values = [
+          { score: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        mean(values, "${completionMarker}")
+      `),
+    ).toEqual(["score", "stats.score"])
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mean } from "./mean"
+
+        mean("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes numeric path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mean } from "./mean"
+
+        type Value = {
+          score: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        mean<Value>("${completionMarker}")
+      `),
+    ).toEqual(["score", "stats.score"])
+  })
+
+  test("completes numeric path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { mean } from "./mean"
+
+        const values = [
+          { score: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, mean("${completionMarker}"))
+      `),
+    ).toEqual(["score", "stats.score"])
   })
 })

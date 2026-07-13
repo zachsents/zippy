@@ -108,4 +108,4 @@ fi
 
 echo
 echo "Testing..."
-bun test $runtime_test_files
+bun run test $runtime_test_files

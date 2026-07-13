@@ -2,13 +2,8 @@
 import { pipe } from "remeda"
 import type { IsEqual } from "type-fest"
 import { castArray } from "./cast-array"
-import {
-  filter,
-  filterOut,
-  filterOutFalsy,
-  filterOutNullish,
-  filterOutUndefined,
-} from "./filter"
+import { filter, filterOut } from "./filter"
+import { isDefined, isNonNullish, isTruthy } from "./guards"
 import {
   map,
   mapAsync,
@@ -63,29 +58,23 @@ const filterOutPipe = pipe(
   filterOut((value: 1 | 2 | 3 | 4) => value > 1),
 )
 const filterOutGuardPipe = pipe(entries, filterOut(isAEntry))
-const filterOutFalsyPipe = pipe(
+const filterTruthyPipe = pipe(
   [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n] as const,
-  filterOutFalsy(),
+  filter(isTruthy),
 )
-const filterOutNullishPipe = pipe(
+const filterNonNullishPipe = pipe(
   [1, null, 2, undefined] as const,
-  filterOutNullish(),
+  filter(isNonNullish),
 )
-const filterOutUndefinedPipe = pipe(
-  [1, null, undefined] as const,
-  filterOutUndefined(),
-)
+const filterDefinedPipe = pipe([1, null, undefined] as const, filter(isDefined))
 
 true satisfies IsEqual<typeof filterPipe, Array<1 | 2 | 3 | 4>>
 true satisfies IsEqual<typeof filterGuardPipe, AEntry[]>
 true satisfies IsEqual<typeof filterOutPipe, Array<1 | 2 | 3 | 4>>
 true satisfies IsEqual<typeof filterOutGuardPipe, Array<BEntry | null>>
-true satisfies IsEqual<
-  typeof filterOutFalsyPipe,
-  Array<1 | "zippy" | true | 2n>
->
-true satisfies IsEqual<typeof filterOutNullishPipe, Array<1 | 2>>
-true satisfies IsEqual<typeof filterOutUndefinedPipe, Array<1 | null>>
+true satisfies IsEqual<typeof filterTruthyPipe, Array<1 | "zippy" | true | 2n>>
+true satisfies IsEqual<typeof filterNonNullishPipe, Array<1 | 2>>
+true satisfies IsEqual<typeof filterDefinedPipe, Array<1 | null>>
 
 const uniquePipe = pipe([1, 2, 1] as const, unique())
 const uniqueByPipe = pipe([{ id: 1 }, { id: 2 }, { id: 1 }], unique("id"))
@@ -392,17 +381,17 @@ const filterOutInferencePipe = pipe(
   filterOut((value: 1 | 2 | 3) => value > 1),
 )
 const filterOutGuardInferencePipe = pipe(entries, filterOut(isAEntry))
-const filterOutFalsyInferencePipe = pipe(
+const filterTruthyInferencePipe = pipe(
   [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n] as const,
-  filterOutFalsy(),
+  filter(isTruthy),
 )
-const filterOutNullishInferencePipe = pipe(
+const filterNonNullishInferencePipe = pipe(
   [1, null, 2, undefined] as const,
-  filterOutNullish(),
+  filter(isNonNullish),
 )
-const filterOutUndefinedInferencePipe = pipe(
+const filterDefinedInferencePipe = pipe(
   [1, null, undefined] as const,
-  filterOutUndefined(),
+  filter(isDefined),
 )
 const uniqueInferencePipe = pipe([1, 2, 1] as const, unique())
 const uniqueByInferencePipe = pipe(
@@ -546,11 +535,11 @@ true satisfies IsEqual<typeof filterGuardInferencePipe, AEntry[]>
 true satisfies IsEqual<typeof filterOutInferencePipe, Array<1 | 2 | 3>>
 true satisfies IsEqual<typeof filterOutGuardInferencePipe, Array<BEntry | null>>
 true satisfies IsEqual<
-  typeof filterOutFalsyInferencePipe,
+  typeof filterTruthyInferencePipe,
   Array<1 | "zippy" | true | 2n>
 >
-true satisfies IsEqual<typeof filterOutNullishInferencePipe, Array<1 | 2>>
-true satisfies IsEqual<typeof filterOutUndefinedInferencePipe, Array<1 | null>>
+true satisfies IsEqual<typeof filterNonNullishInferencePipe, Array<1 | 2>>
+true satisfies IsEqual<typeof filterDefinedInferencePipe, Array<1 | null>>
 true satisfies IsEqual<typeof uniqueInferencePipe, Array<1 | 2>>
 true satisfies IsEqual<typeof uniqueByInferencePipe, Array<{ id: number }>>
 true satisfies IsEqual<typeof mapInferencePipe, Array<"one" | "other">>

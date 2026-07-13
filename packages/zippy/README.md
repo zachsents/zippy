@@ -18,11 +18,6 @@ callback or a type-safe property/dot path on the base helper name, such as
   `values.filter(predicate)`.
 - `filterOut` - Remove values that match a predicate or type guard. Like
   `values.filter((value, index) => !predicate(value, index, values))`.
-- `filterOutFalsy` - Remove falsy values. Like `values.filter(Boolean)`.
-- `filterOutNullish` - Remove `null` and `undefined`. Like
-  `values.filter((value) => value != null)`.
-- `filterOutUndefined` - Remove `undefined`. Like
-  `values.filter((value) => value !== undefined)`.
 - `map` - Map array values. Like `values.map(mapper)`.
 - `mapAsync` - Map array values with async support. Like
   `Promise.all(values.map(mapper))`, or pass `{ concurrency }` to limit parallel
@@ -74,14 +69,20 @@ callback or a type-safe property/dot path on the base helper name, such as
 
 ### Guards
 
+- `isDefined` - Check whether a value is not `undefined`.
 - `isFalsy` - Check whether a value is falsy. Like `!value`.
-- `isNull` - Check whether a value is `null`. Like `value === null`.
 - `isNullish` - Check whether a value is `null` or `undefined`. Like
   `value == null`.
+- `isNonNullish` - Check whether a value is not `null` or `undefined`.
 - `isPlainObject` - Check whether a value is a plain object.
+- `isReadonlyArray` - Check whether a value is an array, preserving readonly
+  array types.
 - `isTruthy` - Check whether a value is truthy. Like `Boolean(value)`.
 - `isUndefined` - Check whether a value is `undefined`. Like
   `value === undefined`.
+- `propIsDefined`, `propIsFalsy`, `propIsNullish`, `propIsNonNullish`,
+  `propIsPlainObject`, `propIsTruthy`, and `propIsUndefined` - Return a guard
+  that checks a type-safe property/dot path.
 
 ### Other
 

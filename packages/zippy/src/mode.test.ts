@@ -1,5 +1,9 @@
 import { describe, expect, test } from "bun:test"
 
+import {
+  completionMarker,
+  getStringLiteralCompletionNames,
+} from "./lib/autocomplete-test-utils"
 import { mode } from "./mode"
 
 describe("mode", () => {
@@ -112,5 +116,75 @@ describe("mode selectors", () => {
     const secondA = { meta: { kind: "a" }, label: "second-a" }
 
     expect(mode("meta.kind")([firstA, b, secondA])).toBe(firstA)
+  })
+})
+
+describe("mode autocomplete", () => {
+  const allPathCompletions = [
+    "count",
+    "kind",
+    "label",
+    "stats",
+    "stats.name",
+    "stats.score",
+  ]
+
+  test("completes path selectors from data-first values", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        const values = [
+          { kind: "a", count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        mode(values, "${completionMarker}")
+      `),
+    ).toEqual(allPathCompletions)
+  })
+
+  test("does not complete data-last path selectors without value context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        mode("${completionMarker}")
+      `),
+    ).toEqual([])
+  })
+
+  test("completes path selectors from an explicit data-last value type", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { mode } from "./mode"
+
+        type Value = {
+          kind: string
+          count: number
+          label: string
+          stats: {
+            score: number
+            name: string
+          }
+        }
+
+        mode<Value>("${completionMarker}")
+      `),
+    ).toEqual(allPathCompletions)
+  })
+
+  test("completes path selectors from pipe context", () => {
+    expect(
+      getStringLiteralCompletionNames(`
+        import { pipe } from "./pipe"
+        import { mode } from "./mode"
+
+        const values = [
+          { kind: "a", count: 1, label: "one", stats: { score: 2, name: "Ada" } },
+        ]
+
+        pipe(values, mode("${completionMarker}"))
+      `),
+    ).toEqual(allPathCompletions)
   })
 })

@@ -1,4 +1,4 @@
-import { isReadonlyArray } from "./is-readonly-array"
+import { isReadonlyArray } from "./guards"
 import {
   getPropertyPathValue,
   type PathSatisfier,

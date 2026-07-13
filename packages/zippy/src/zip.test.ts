@@ -33,6 +33,12 @@ describe("zip", () => {
     ).toEqual(["a:1", "b:2"])
   })
 
+  test("returns an empty array when either input is empty", () => {
+    expect(zip([], [1, 2])).toEqual([])
+    expect(zip(["a", "b"], [])).toEqual([])
+    expect(zip([1, 2])([])).toEqual([])
+  })
+
   test("truncates to the shorter array", () => {
     expect(zip(["a", "b"], [1, 2, 3])).toEqual([
       ["a", 1],
@@ -46,6 +52,11 @@ describe("zip", () => {
       zip(["a", "b", "c"], [1, 2], (leftValue, rightValue) => {
         return `${leftValue}:${rightValue}`
       }),
+    ).toEqual(["a:1", "b:2"])
+    expect(
+      zip([1, 2], (leftValue: string, rightValue) => {
+        return `${leftValue}:${rightValue}`
+      })(["a", "b", "c"]),
     ).toEqual(["a:1", "b:2"])
   })
 
@@ -71,6 +82,21 @@ describe("zip", () => {
           return `${index}:${leftValue}:${rightValue}`
         },
       ),
+    ).toEqual(["0:z:1", "1:i:2"])
+    expect(sourcesMatch).toEqual([true, true])
+  })
+
+  test("passes index and source arrays to data-last mergers", () => {
+    const leftValues = ["z", "i"]
+    const rightValues = [1, 2]
+    const sourcesMatch: boolean[] = []
+
+    expect(
+      zip(rightValues, (leftValue: string, rightValue, index, left, right) => {
+        sourcesMatch.push(left === leftValues && right === rightValues)
+
+        return `${index}:${leftValue}:${rightValue}`
+      })(leftValues),
     ).toEqual(["0:z:1", "1:i:2"])
     expect(sourcesMatch).toEqual([true, true])
   })

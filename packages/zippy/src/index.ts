@@ -1,19 +1,21 @@
 export { castArray } from "./cast-array"
-export {
-  filter,
-  filterOut,
-  filterOutFalsy,
-  filterOutNullish,
-  filterOutUndefined,
-} from "./filter"
+export { filter, filterOut } from "./filter"
 export {
   isDefined,
   isFalsy,
   isNullish,
   isNonNullish,
   isPlainObject,
+  isReadonlyArray,
   isTruthy,
   isUndefined,
+  propIsDefined,
+  propIsFalsy,
+  propIsNullish,
+  propIsNonNullish,
+  propIsPlainObject,
+  propIsTruthy,
+  propIsUndefined,
   type Falsy,
   type Truthy,
 } from "./guards"

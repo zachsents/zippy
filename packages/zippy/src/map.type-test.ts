@@ -10,6 +10,7 @@ import {
   mapValues,
   mapValuesAsync,
 } from "./map"
+import { pipe } from "./pipe"
 
 const mapDataFirst = map([1, 2, 3] as const, (value) =>
   value === 1 ? "one" : "other",
@@ -17,6 +18,18 @@ const mapDataFirst = map([1, 2, 3] as const, (value) =>
 const mapDataLast = map((value: 1 | 2 | 3) => (value === 1 ? "one" : "other"))([
   1, 2, 3,
 ] as const)
+const annotatedMapValuesWithExtraProperties = [
+  { count: 1, label: "one" },
+] as const
+const annotatedMapRecordWithExtraProperties = {
+  first: { count: 1, label: "one" },
+} as const
+const mapDataLastWithAnnotatedSelectorVariable = map(
+  (value: { readonly count: number }) => value.count,
+)(annotatedMapValuesWithExtraProperties)
+const mapDataLastWithAnnotatedSelectorInline = map(
+  (value: { readonly count: number }) => value.count,
+)([{ count: 1, label: "one" }] as const)
 const mapPathDataFirst = map(
   [
     { id: 1, profile: { name: "Ada" } },
@@ -28,11 +41,21 @@ const mapPathDataLast = map("id")([
   { id: 1, profile: { name: "Ada" } },
   { id: 2, profile: { name: "Linus" } },
 ] as const)
+const mapPipeContext = pipe(
+  [1, 2, 3] as const,
+  map((value) => (value === 1 ? "one" : "other")),
+)
 
 true satisfies IsEqual<typeof mapDataFirst, Array<"one" | "other">>
 true satisfies IsEqual<typeof mapDataLast, Array<"one" | "other">>
+true satisfies IsEqual<
+  typeof mapDataLastWithAnnotatedSelectorVariable,
+  number[]
+>
+true satisfies IsEqual<typeof mapDataLastWithAnnotatedSelectorInline, number[]>
 true satisfies IsEqual<typeof mapPathDataFirst, Array<"Ada" | "Linus">>
 true satisfies IsEqual<typeof mapPathDataLast, Array<1 | 2>>
+true satisfies IsEqual<typeof mapPipeContext, Array<"one" | "other">>
 
 // @ts-expect-error string selectors must exist on the value type.
 map([{ id: 1 }] as const, "missing")
@@ -46,6 +69,12 @@ const mapAsyncDataFirst = mapAsync([1, 2, 3] as const, async (value) =>
 const mapAsyncDataLast = mapAsync(async (value: 1 | 2 | 3) =>
   value === 1 ? "one" : "other",
 )([1, 2, 3] as const)
+const mapAsyncDataLastWithAnnotatedMapperVariable = mapAsync(
+  async (value: { readonly count: number }) => value.count,
+)(annotatedMapValuesWithExtraProperties)
+const mapAsyncDataLastWithAnnotatedMapperInline = mapAsync(
+  async (value: { readonly count: number }) => value.count,
+)([{ count: 1, label: "one" }] as const)
 const mapAsyncOptionsDataFirst = mapAsync(
   [1, 2, 3] as const,
   async (value) => (value === 1 ? "one" : "other"),
@@ -73,6 +102,14 @@ true satisfies IsEqual<
 >
 true satisfies IsEqual<typeof mapAsyncDataLast, Promise<Array<"one" | "other">>>
 true satisfies IsEqual<
+  typeof mapAsyncDataLastWithAnnotatedMapperVariable,
+  Promise<number[]>
+>
+true satisfies IsEqual<
+  typeof mapAsyncDataLastWithAnnotatedMapperInline,
+  Promise<number[]>
+>
+true satisfies IsEqual<
   typeof mapAsyncOptionsDataFirst,
   Promise<Array<"one" | "other">>
 >
@@ -98,6 +135,12 @@ const mapValuesDataFirst = mapValues({ a: 1, b: 2 } as const, (value) =>
 const mapValuesDataLast = mapValues((value: 1 | 2) =>
   value === 1 ? "one" : "other",
 )({ a: 1, b: 2 } as const)
+const mapValuesDataLastWithAnnotatedMapperVariable = mapValues(
+  (value: { readonly count: number }) => value.count,
+)(annotatedMapRecordWithExtraProperties)
+const mapValuesDataLastWithAnnotatedMapperInline = mapValues(
+  (value: { readonly count: number }) => value.count,
+)({ first: { count: 1, label: "one" } } as const)
 const mapValuesPathDataFirst = mapValues(
   {
     first: { id: 1, profile: { name: "Ada" } },
@@ -119,6 +162,14 @@ true satisfies IsEqual<
   Record<string, "one" | "other">
 >
 true satisfies IsEqual<
+  typeof mapValuesDataLastWithAnnotatedMapperVariable,
+  Record<string, number>
+>
+true satisfies IsEqual<
+  typeof mapValuesDataLastWithAnnotatedMapperInline,
+  Record<string, number>
+>
+true satisfies IsEqual<
   typeof mapValuesPathDataFirst,
   Record<string, "Ada" | "Linus">
 >
@@ -137,6 +188,12 @@ const mapValuesAsyncDataFirst = mapValuesAsync(
 const mapValuesAsyncDataLast = mapValuesAsync(async (value: 1 | 2) =>
   value === 1 ? "one" : "other",
 )({ a: 1, b: 2 } as const)
+const mapValuesAsyncDataLastWithAnnotatedMapperVariable = mapValuesAsync(
+  async (value: { readonly count: number }) => value.count,
+)(annotatedMapRecordWithExtraProperties)
+const mapValuesAsyncDataLastWithAnnotatedMapperInline = mapValuesAsync(
+  async (value: { readonly count: number }) => value.count,
+)({ first: { count: 1, label: "one" } } as const)
 const mapValuesAsyncOptionsDataFirst = mapValuesAsync(
   { a: 1, b: 2 } as const,
   async (value) => (value === 1 ? "one" : "other"),
@@ -167,6 +224,14 @@ true satisfies IsEqual<
   Promise<Record<string, "one" | "other">>
 >
 true satisfies IsEqual<
+  typeof mapValuesAsyncDataLastWithAnnotatedMapperVariable,
+  Promise<Record<string, number>>
+>
+true satisfies IsEqual<
+  typeof mapValuesAsyncDataLastWithAnnotatedMapperInline,
+  Promise<Record<string, number>>
+>
+true satisfies IsEqual<
   typeof mapValuesAsyncOptionsDataFirst,
   Promise<Record<string, "one" | "other">>
 >
@@ -195,6 +260,12 @@ const mapKeysDataFirst = mapKeys({ a: 1, b: 2 } as const, (_value, key) =>
 const mapKeysDataLast = mapKeys((_value: 1 | 2, key) =>
   key === "a" ? "first" : "other",
 )({ a: 1, b: 2 } as const)
+const mapKeysDataLastWithAnnotatedMapperVariable = mapKeys(
+  (value: { readonly count: number }) => value.count,
+)(annotatedMapRecordWithExtraProperties)
+const mapKeysDataLastWithAnnotatedMapperInline = mapKeys(
+  (value: { readonly count: number }) => value.count,
+)({ first: { count: 1, label: "one" } } as const)
 const mapKeysPathDataFirst = mapKeys(
   {
     first: { id: "user-1", profile: { name: "Ada" } },
@@ -212,6 +283,14 @@ true satisfies IsEqual<
   Record<"first" | "other", 1 | 2>
 >
 true satisfies IsEqual<typeof mapKeysDataLast, Record<"first" | "other", 1 | 2>>
+true satisfies IsEqual<
+  typeof mapKeysDataLastWithAnnotatedMapperVariable,
+  Record<number, { readonly count: 1; readonly label: "one" }>
+>
+true satisfies IsEqual<
+  typeof mapKeysDataLastWithAnnotatedMapperInline,
+  Record<number, { readonly count: 1; readonly label: "one" }>
+>
 true satisfies IsEqual<
   typeof mapKeysPathDataFirst,
   Record<
@@ -242,6 +321,12 @@ const mapKeysAsyncDataFirst = mapKeysAsync(
 const mapKeysAsyncDataLast = mapKeysAsync(async (_value: 1 | 2, key) =>
   key === "a" ? "first" : "other",
 )({ a: 1, b: 2 } as const)
+const mapKeysAsyncDataLastWithAnnotatedMapperVariable = mapKeysAsync(
+  async (value: { readonly count: number }) => value.count,
+)(annotatedMapRecordWithExtraProperties)
+const mapKeysAsyncDataLastWithAnnotatedMapperInline = mapKeysAsync(
+  async (value: { readonly count: number }) => value.count,
+)({ first: { count: 1, label: "one" } } as const)
 const mapKeysAsyncOptionsDataFirst = mapKeysAsync(
   { a: 1, b: 2 } as const,
   async (_value, key) => (key === "a" ? "first" : "other"),
@@ -270,6 +355,14 @@ true satisfies IsEqual<
 true satisfies IsEqual<
   typeof mapKeysAsyncDataLast,
   Promise<Record<"first" | "other", 1 | 2>>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncDataLastWithAnnotatedMapperVariable,
+  Promise<Record<number, { readonly count: 1; readonly label: "one" }>>
+>
+true satisfies IsEqual<
+  typeof mapKeysAsyncDataLastWithAnnotatedMapperInline,
+  Promise<Record<number, { readonly count: 1; readonly label: "one" }>>
 >
 true satisfies IsEqual<
   typeof mapKeysAsyncOptionsDataFirst,
@@ -315,6 +408,14 @@ const mapEntriesDataLast = mapEntries(
   ([key, value]: readonly [string, 1 | 2]) =>
     [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
 )({ a: 1, b: 2 } as const)
+const mapEntriesDataLastWithAnnotatedMapperVariable = mapEntries(
+  ([key, value]: readonly [string, { readonly count: number }]) =>
+    [key, value.count] as const,
+)(annotatedMapRecordWithExtraProperties)
+const mapEntriesDataLastWithAnnotatedMapperInline = mapEntries(
+  ([key, value]: readonly [string, { readonly count: number }]) =>
+    [key, value.count] as const,
+)({ first: { count: 1, label: "one" } } as const)
 
 true satisfies IsEqual<
   typeof mapEntriesDataFirst,
@@ -323,6 +424,14 @@ true satisfies IsEqual<
 true satisfies IsEqual<
   typeof mapEntriesDataLast,
   Record<"first" | "other", "one" | "other">
+>
+true satisfies IsEqual<
+  typeof mapEntriesDataLastWithAnnotatedMapperVariable,
+  Record<string, number>
+>
+true satisfies IsEqual<
+  typeof mapEntriesDataLastWithAnnotatedMapperInline,
+  Record<string, number>
 >
 
 const mapEntriesAsyncDataFirst = mapEntriesAsync(
@@ -334,6 +443,14 @@ const mapEntriesAsyncDataLast = mapEntriesAsync(
   async ([key, value]: readonly [string, 1 | 2]) =>
     [key === "a" ? "first" : "other", value === 1 ? "one" : "other"] as const,
 )({ a: 1, b: 2 } as const)
+const mapEntriesAsyncDataLastWithAnnotatedMapperVariable = mapEntriesAsync(
+  async ([key, value]: readonly [string, { readonly count: number }]) =>
+    [key, value.count] as const,
+)(annotatedMapRecordWithExtraProperties)
+const mapEntriesAsyncDataLastWithAnnotatedMapperInline = mapEntriesAsync(
+  async ([key, value]: readonly [string, { readonly count: number }]) =>
+    [key, value.count] as const,
+)({ first: { count: 1, label: "one" } } as const)
 const mapEntriesAsyncOptionsDataFirst = mapEntriesAsync(
   { a: 1, b: 2 } as const,
   async ([key, value]) =>
@@ -353,6 +470,14 @@ true satisfies IsEqual<
 true satisfies IsEqual<
   typeof mapEntriesAsyncDataLast,
   Promise<Record<"first" | "other", "one" | "other">>
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncDataLastWithAnnotatedMapperVariable,
+  Promise<Record<string, number>>
+>
+true satisfies IsEqual<
+  typeof mapEntriesAsyncDataLastWithAnnotatedMapperInline,
+  Promise<Record<string, number>>
 >
 true satisfies IsEqual<
   typeof mapEntriesAsyncOptionsDataFirst,
