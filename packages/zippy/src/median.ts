@@ -180,13 +180,14 @@ function medianImpl(
     return undefined
   }
 
-  const sorted = source
-    .map((value, index, source) =>
-      typeof selector === "string"
-        ? Number(getPropertyPathValue(value, selector))
-        : selector(value, index, source),
-    )
-    .toSorted((left, right) => left - right)
+  const sorted = source.map((value, index, source) =>
+    typeof selector === "string"
+      ? Number(getPropertyPathValue(value, selector))
+      : selector(value, index, source),
+  )
+
+  // oxlint-disable-next-line unicorn/no-array-sort -- The mapped values are a new array.
+  sorted.sort((left, right) => left - right)
 
   const midpoint = Math.floor(sorted.length / 2)
   const right = sorted[midpoint]

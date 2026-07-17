@@ -46,7 +46,7 @@ export function getStringLiteralCompletionNames(source: string) {
 
   const probeFile = path.join(sourceRoot, "__autocomplete_probe__.ts")
   const probeSource = source.replace(completionMarker, "")
-  return (
+  const completionNames = (
     ts
       .createLanguageService({
         directoryExists: (directoryName) =>
@@ -87,5 +87,8 @@ export function getStringLiteralCompletionNames(source: string) {
   )
     .map((entry) => entry.name)
     .filter((name) => name.length > 0)
-    .toSorted()
+
+  // oxlint-disable-next-line unicorn/no-array-sort -- The mapped entries are a new array.
+  completionNames.sort()
+  return completionNames
 }
