@@ -126,8 +126,8 @@ export function match<Right, Path extends SelectorPath<Right>>(
  * @example
  *   const left = [{ id: 1, name: "Ada" }]
  *   match(
- *   [{ id: 1, score: 10 }],
- *   (a: { id: number; name: string }, b) => a.id === b.id,
+ *     [{ id: 1, score: 10 }],
+ *     (a: { id: number; name: string }, b) => a.id === b.id,
  *   )(left) // [[left[0], { id: 1, score: 10 }]]
  *
  * @param rightValues - The right-side values.
@@ -146,8 +146,8 @@ export function match<Left, Right>(
  * @example
  *   const left = [{ id: 1, name: "Ada" }]
  *   match(
- *   [{ id: 1, score: 10 }],
- *   (a: { id: number; name: string }, b) => a.id === b.id,
+ *     [{ id: 1, score: 10 }],
+ *     (a: { id: number; name: string }, b) => a.id === b.id,
  *   )(left) // [[left[0], { id: 1, score: 10 }]]
  *
  * @param rightValues - The right-side values.
@@ -245,8 +245,8 @@ export function matchMerge<
  * @example
  *   const left = [{ id: 1, name: "Ada" }]
  *   matchMerge(
- *   [{ id: 1, score: 10 }],
- *   (a: { id: number; name: string }, b) => a.id === b.id,
+ *     [{ id: 1, score: 10 }],
+ *     (a: { id: number; name: string }, b) => a.id === b.id,
  *   )(left) // [{ id: 1, name: "Ada", score: 10 }]
  *
  * @param rightValues - The right-side values.
@@ -265,8 +265,8 @@ export function matchMerge<Left extends object, Right extends object>(
  * @example
  *   const left = [{ id: 1, name: "Ada" }]
  *   matchMerge(
- *   [{ id: 1, score: 10 }],
- *   (a: { id: number; name: string }, b) => a.id === b.id,
+ *     [{ id: 1, score: 10 }],
+ *     (a: { id: number; name: string }, b) => a.id === b.id,
  *   )(left) // [{ id: 1, name: "Ada", score: 10 }]
  *
  * @param rightValues - The right-side values.

@@ -31,10 +31,8 @@
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@zachsents/oxlint-config": "^0.2.6",
-    "@zachsents/prettier-config": "^0.1.0",
-    "eslint-plugin-jsdoc": "^63.0.13",
-    "eslint-plugin-zachs-rules": "^0.2.2",
+    "@zachsents/oxlint-config": "^0.2.7",
+    "@zachsents/prettier-config": "^0.1.1",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
     "prettier": "catalog:",

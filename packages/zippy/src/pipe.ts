@@ -200,14 +200,14 @@ export function pipe<A, B, C, D, E, F, G>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 7
  *
  * @param data - The initial pipeline value.
@@ -236,15 +236,15 @@ export function pipe<A, B, C, D, E, F, G, H>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 8
  *
  * @param data - The initial pipeline value.
@@ -275,16 +275,16 @@ export function pipe<A, B, C, D, E, F, G, H, I>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 9
  *
  * @param data - The initial pipeline value.
@@ -317,17 +317,17 @@ export function pipe<A, B, C, D, E, F, G, H, I, J>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 10
  *
  * @param data - The initial pipeline value.
@@ -362,18 +362,18 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 11
  *
  * @param data - The initial pipeline value.
@@ -410,19 +410,19 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 12
  *
  * @param data - The initial pipeline value.
@@ -461,20 +461,20 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 13
  *
  * @param data - The initial pipeline value.
@@ -515,21 +515,21 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 14
  *
  * @param data - The initial pipeline value.
@@ -572,22 +572,22 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @example
  *   const increment = (value: number) => value + 1
  *   pipe(
- *   0,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     0,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   ) // 15
  *
  * @param data - The initial pipeline value.
@@ -731,12 +731,12 @@ export function piped<A, B, C, D, E, F>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 6
  *
  * @param funcA - The first pipe function.
@@ -761,13 +761,13 @@ export function piped<A, B, C, D, E, F, G>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 7
  *
  * @param funcA - The first pipe function.
@@ -794,14 +794,14 @@ export function piped<A, B, C, D, E, F, G, H>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 8
  *
  * @param funcA - The first pipe function.
@@ -830,15 +830,15 @@ export function piped<A, B, C, D, E, F, G, H, I>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 9
  *
  * @param funcA - The first pipe function.
@@ -869,16 +869,16 @@ export function piped<A, B, C, D, E, F, G, H, I, J>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 10
  *
  * @param funcA - The first pipe function.
@@ -911,17 +911,17 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 11
  *
  * @param funcA - The first pipe function.
@@ -956,18 +956,18 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 12
  *
  * @param funcA - The first pipe function.
@@ -1004,19 +1004,19 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 13
  *
  * @param funcA - The first pipe function.
@@ -1055,20 +1055,20 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 14
  *
  * @param funcA - The first pipe function.
@@ -1109,21 +1109,21 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @example
  *   const increment = (value: number) => value + 1
  *   piped(
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
- *   increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
+ *     increment,
  *   )(0) // 15
  *
  * @param funcA - The first pipe function.
@@ -1231,11 +1231,11 @@ export function pipeAsync<A, B, C, D>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 4
  *
  * @param data - The initial pipeline value.
@@ -1258,12 +1258,12 @@ export function pipeAsync<A, B, C, D, E>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 5
  *
  * @param data - The initial pipeline value.
@@ -1288,13 +1288,13 @@ export function pipeAsync<A, B, C, D, E, F>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 6
  *
  * @param data - The initial pipeline value.
@@ -1321,14 +1321,14 @@ export function pipeAsync<A, B, C, D, E, F, G>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 7
  *
  * @param data - The initial pipeline value.
@@ -1357,15 +1357,15 @@ export function pipeAsync<A, B, C, D, E, F, G, H>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 8
  *
  * @param data - The initial pipeline value.
@@ -1396,16 +1396,16 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 9
  *
  * @param data - The initial pipeline value.
@@ -1438,17 +1438,17 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 10
  *
  * @param data - The initial pipeline value.
@@ -1483,18 +1483,18 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 11
  *
  * @param data - The initial pipeline value.
@@ -1531,19 +1531,19 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 12
  *
  * @param data - The initial pipeline value.
@@ -1582,20 +1582,20 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 13
  *
  * @param data - The initial pipeline value.
@@ -1636,21 +1636,21 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 14
  *
  * @param data - The initial pipeline value.
@@ -1693,22 +1693,22 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipeAsync(
- *   0,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     0,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   ) // 15
  *
  * @param data - The initial pipeline value.
@@ -1817,10 +1817,10 @@ export function pipedAsync<A, B, C, D>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 4
  *
  * @param funcA - The first pipe function.
@@ -1841,11 +1841,11 @@ export function pipedAsync<A, B, C, D, E>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 5
  *
  * @param funcA - The first pipe function.
@@ -1868,12 +1868,12 @@ export function pipedAsync<A, B, C, D, E, F>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 6
  *
  * @param funcA - The first pipe function.
@@ -1898,13 +1898,13 @@ export function pipedAsync<A, B, C, D, E, F, G>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 7
  *
  * @param funcA - The first pipe function.
@@ -1931,14 +1931,14 @@ export function pipedAsync<A, B, C, D, E, F, G, H>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 8
  *
  * @param funcA - The first pipe function.
@@ -1967,15 +1967,15 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 9
  *
  * @param funcA - The first pipe function.
@@ -2006,16 +2006,16 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 10
  *
  * @param funcA - The first pipe function.
@@ -2048,17 +2048,17 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 11
  *
  * @param funcA - The first pipe function.
@@ -2093,18 +2093,18 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 12
  *
  * @param funcA - The first pipe function.
@@ -2141,19 +2141,19 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 13
  *
  * @param funcA - The first pipe function.
@@ -2192,20 +2192,20 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 14
  *
  * @param funcA - The first pipe function.
@@ -2246,21 +2246,21 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @example
  *   const incrementAsync = async (value: number) => value + 1
  *   await pipedAsync(
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
- *   incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
+ *     incrementAsync,
  *   )(0) // 15
  *
  * @param funcA - The first pipe function.

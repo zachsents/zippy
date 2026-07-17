@@ -17,8 +17,8 @@ import {
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique("id")(data) // [{ id: 1, name: "first" }]
  *
@@ -36,8 +36,8 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique("id")(data) // [{ id: 1, name: "first" }]
  *
@@ -56,8 +56,8 @@ export function unique<Path extends string>(
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
  *
@@ -75,8 +75,8 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
  *
@@ -94,8 +94,8 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique(data, "id") // [{ id: 1, name: "first" }]
  *
@@ -114,8 +114,8 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *   { id: 1, name: "first" },
- *   { id: 1, name: "duplicate" },
+ *     { id: 1, name: "first" },
+ *     { id: 1, name: "duplicate" },
  *   ]
  *   unique(data, (x) => x.id) // [{ id: 1, name: "first" }]
  *
