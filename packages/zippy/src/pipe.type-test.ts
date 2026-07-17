@@ -3,8 +3,20 @@ import { pipe as remedaPipe, piped as remedaPiped } from "remeda"
 import type { IsEqual } from "type-fest"
 import { pipe, pipeAsync, piped, pipedAsync } from "./pipe"
 
+/**
+ * Named fixture for reusable-value inference checks involving
+ * pipeMatchesRemeda.
+ */
 const pipeMatchesRemeda: typeof remedaPipe = pipe
+/**
+ * Named fixture for reusable-value inference checks involving
+ * pipedMatchesRemeda.
+ */
 const pipedMatchesRemeda: typeof remedaPiped = piped
+/**
+ * Named fixture for reusable-value inference checks involving
+ * remedaMatchesPiped.
+ */
 const remedaMatchesPiped: typeof piped = remedaPiped
 
 void pipeMatchesRemeda
@@ -87,6 +99,7 @@ const asyncMiddlePromise = pipeAsync(
     Promise.resolve(value === 1 ? ("one" as const) : ("other" as const)),
   (value) => (value === "one" ? 1 : 2),
 )
+/** Named fixture for reusable-value inference checks involving asyncReusable. */
 const asyncReusable = pipedAsync(
   (value: number) => Promise.resolve(value + 1),
   (value) => `${value}` as const,

@@ -16,19 +16,20 @@ export type SelectorFunction<T, Selected = unknown> = (
 
 export type SelectorPath<T, Selected = unknown> = Extract<
   keyof {
-    [K in Extract<Paths<T, { bracketNotation: false }>, string> as Get<
-      T,
-      K
-    > extends Selected
-      ? K
-      : never]: never
+    [
+      K in Extract<Paths<T, { bracketNotation: false }>, string> as Get<
+        T,
+        K
+      > extends Selected
+        ? K
+        : never
+    ]: never
   },
   string
 >
 
 export type Selector<T, Selected = unknown> =
-  | SelectorFunction<T, Selected>
-  | SelectorPath<T, Selected>
+  SelectorFunction<T, Selected> | SelectorPath<T, Selected>
 
 export type MatchingPathValue<T, Path extends string> =
   IsLiteral<Get<T, Path>> extends true
@@ -37,12 +38,14 @@ export type MatchingPathValue<T, Path extends string> =
 
 export type MatchingPath<Left, Right> = Extract<
   keyof {
-    [K in Extract<SelectorPath<Left>, SelectorPath<Right>> as IsEqual<
-      MatchingPathValue<Left, K>,
-      MatchingPathValue<Right, K>
-    > extends true
-      ? K
-      : never]: never
+    [
+      K in Extract<SelectorPath<Left>, SelectorPath<Right>> as IsEqual<
+        MatchingPathValue<Left, K>,
+        MatchingPathValue<Right, K>
+      > extends true
+        ? K
+        : never
+    ]: never
   },
   string
 >
@@ -54,6 +57,12 @@ export type PathSatisfier<
   ? { [K in Key]: PathSatisfier<Rest, Value> }
   : { [K in Path]: Value }
 
+/**
+ * Checks whether a value can contain keyed properties.
+ *
+ * @param value - The value to process.
+ * @returns Whether the value matches.
+ */
 function isPropertyContainer(
   value: unknown,
 ): value is { readonly [key: string]: unknown } {
@@ -62,10 +71,30 @@ function isPropertyContainer(
   )
 }
 
+/**
+ * Reads a nested property path from a value.
+ *
+ * @example
+ *   getPropertyPathValue({ profile: { name: "Ada" } }, "profile.name") // "Ada"
+ *
+ * @param value - The value to process.
+ * @param path - The property path.
+ * @returns The value at the property path.
+ */
 export function getPropertyPathValue<T, Path extends SelectorPath<T>>(
   value: T,
   path: Path,
 ): Get<T, Path>
+/**
+ * Reads a nested property path from a value.
+ *
+ * @example
+ *   getPropertyPathValue({ profile: { name: "Ada" } }, "profile.name") // "Ada"
+ *
+ * @param value - The value to process.
+ * @param path - The property path.
+ * @returns The value at the property path.
+ */
 export function getPropertyPathValue<T>(
   value: T,
   path: string,

@@ -17,10 +17,13 @@ import {
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique("id")(data) // [{ id: 1, name: "first" }]
+ *
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorPath<T>,
@@ -33,14 +36,17 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique("id")(data) // [{ id: 1, name: "first" }]
+ *
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<Path extends string>(
   selector: Path,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <T extends PathSatisfier<Path>>(values: IterableInput<T>) => T[]
 
 // authoritative pipe curry; selector fn
@@ -50,10 +56,13 @@ export function unique<Path extends string>(
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
+ *
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorFunction<NoInfer<T>>,
@@ -66,14 +75,17 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
+ *
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorFunction<T>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => U[]
 
 // normal; path
@@ -82,10 +94,14 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique(data, "id") // [{ id: 1, name: "first" }]
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<T>(
   values: IterableInput<T>,
@@ -98,10 +114,14 @@ export function unique<T>(
  *
  * @example
  *   const data = [
- *     { id: 1, name: "first" },
- *     { id: 1, name: "duplicate" },
+ *   { id: 1, name: "first" },
+ *   { id: 1, name: "duplicate" },
  *   ]
  *   unique(data, (x) => x.id) // [{ id: 1, name: "first" }]
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The unique values.
  */
 export function unique<T>(
   values: IterableInput<T>,
@@ -114,6 +134,9 @@ export function unique<T>(
  *
  * @example
  *   unique([1, 2, 1, 3]) // [1, 2, 3]
+ *
+ * @param values - The values to process.
+ * @returns The unique values.
  */
 export function unique<T>(values: IterableInput<T>): T[]
 
@@ -124,6 +147,8 @@ export function unique<T>(values: IterableInput<T>): T[]
  *
  * @example
  *   unique()([1, 2, 1, 3]) // [1, 2, 3]
+ *
+ * @returns The unique values.
  */
 export function unique(): <T>(values: IterableInput<T>) => T[]
 
@@ -151,6 +176,13 @@ export function unique(
   return uniqueImpl(...args)
 }
 
+/**
+ * Implements the runtime behavior for unique.
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The unique values.
+ */
 function uniqueImpl<T>(
   values: IterableInput<T>,
   selector: string | SelectorFunction<T> = (value) => value,

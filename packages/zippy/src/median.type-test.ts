@@ -19,6 +19,10 @@ const medianByDataFirst = median(
 const medianByDataLast = median(
   (value: { readonly score: number }) => value.score,
 )([{ score: 1 }, { score: 2 }] as const)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * medianAnnotatedSelectorValuesWithExtraProperties.
+ */
 const medianAnnotatedSelectorValuesWithExtraProperties = [
   { score: 1, label: "one" },
 ] as const

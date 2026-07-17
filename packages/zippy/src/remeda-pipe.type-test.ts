@@ -27,6 +27,12 @@ type AEntry = { kind: "a"; value: number }
 type BEntry = { kind: "b"; value: string }
 type Entry = AEntry | BEntry | null
 
+/**
+ * Declares the A-entry type guard used by type tests.
+ *
+ * @param value - The value to process.
+ * @returns Whether the value is an A entry.
+ */
 declare function isAEntry(value: unknown): value is AEntry
 
 const entries = [
@@ -464,6 +470,10 @@ const mapKeysInferencePipe = pipe(
   { a: 1, b: 2 } as const,
   mapKeys((_value, key) => (key === "a" ? "first" : "other")),
 )
+/**
+ * Named fixture for reusable-value inference checks involving
+ * mapKeysPathInferenceValues.
+ */
 const mapKeysPathInferenceValues = {
   first: { id: "user-1", profile: { name: "Ada" } },
   second: { id: "user-2", profile: { name: "Linus" } },

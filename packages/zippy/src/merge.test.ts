@@ -28,9 +28,7 @@ describe("merge", () => {
     const destination = { a: 1, b: 1 }
     const source = { b: 2, c: 3 }
 
-    const result = merge(destination, source)
-
-    expect(result).toEqual({ a: 1, b: 2, c: 3 })
+    expect(merge(destination, source)).toEqual({ a: 1, b: 2, c: 3 })
     expect(destination).toEqual({ a: 1, b: 1 })
     expect(source).toEqual({ b: 2, c: 3 })
   })
@@ -80,12 +78,12 @@ describe("deepMerge", () => {
   })
 
   test("replaces non-plain object values instead of recursing into them", () => {
-    const start = new Date("2026-01-01T00:00:00.000Z")
     const end = new Date("2026-01-02T00:00:00.000Z")
 
-    const result = deepMerge({ value: start }, { value: end })
-
-    expect(result.value).toBe(end)
+    expect(
+      deepMerge({ value: new Date("2026-01-01T00:00:00.000Z") }, { value: end })
+        .value,
+    ).toBe(end)
   })
 
   test("does not mutate either input object", () => {
@@ -102,9 +100,7 @@ describe("deepMerge", () => {
       },
     }
 
-    const result = deepMerge(destination, source)
-
-    expect(result).toEqual({
+    expect(deepMerge(destination, source)).toEqual({
       config: {
         retries: 1,
         timeout: 100,

@@ -2,6 +2,13 @@ import type { Merge, MergeDeep } from "type-fest"
 
 import { isPlainObject } from "./guards"
 
+/**
+ * Shallowly merges a source object into a destination object.
+ *
+ * @param destination - The destination object.
+ * @param source - The source object.
+ * @returns The merged object.
+ */
 function mergeValues<Destination extends object, Source extends object>(
   destination: Destination,
   source: Source,
@@ -11,6 +18,13 @@ function mergeValues<Destination extends object, Source extends object>(
   return Object.assign({}, destination, source)
 }
 
+/**
+ * Recursively merges a source object into a destination object.
+ *
+ * @param destination - The destination object.
+ * @param source - The source object.
+ * @returns The deeply merged object.
+ */
 function deepMergeValues<Destination extends object, Source extends object>(
   destination: Destination,
   source: Source,
@@ -18,16 +32,15 @@ function deepMergeValues<Destination extends object, Source extends object>(
   const result = Object.assign({}, destination) as Partial<
     Record<PropertyKey, unknown>
   >
-  const sourceRecord = source as Partial<Record<PropertyKey, unknown>>
-  const destinationRecord = destination as Partial<Record<PropertyKey, unknown>>
-
   for (const key of Reflect.ownKeys(source)) {
     if (!Object.prototype.propertyIsEnumerable.call(source, key)) {
       continue
     }
 
-    const destinationValue = destinationRecord[key]
-    const sourceValue = sourceRecord[key]
+    const destinationValue = (
+      destination as Partial<Record<PropertyKey, unknown>>
+    )[key]
+    const sourceValue = (source as Partial<Record<PropertyKey, unknown>>)[key]
 
     result[key] =
       isPlainObject(destinationValue) && isPlainObject(sourceValue)
@@ -40,10 +53,29 @@ function deepMergeValues<Destination extends object, Source extends object>(
   return result
 }
 
+/**
+ * Shallowly merges objects, directly or in data-last form.
+ *
+ * @example
+ *   merge({ a: 1 }, { b: 2 }) // { a: 1, b: 2 }
+ *
+ * @param destination - The destination object.
+ * @param source - The source object.
+ * @returns The merged object or reusable merger.
+ */
 export function merge<Destination extends object, Source extends object>(
   destination: Destination,
   source: Source,
 ): Merge<Destination, Source>
+/**
+ * Shallowly merges objects, directly or in data-last form.
+ *
+ * @example
+ *   merge({ b: 2 })({ a: 1 }) // { a: 1, b: 2 }
+ *
+ * @param source - The source object.
+ * @returns The merged object or reusable merger.
+ */
 export function merge<Source extends object>(
   source: Source,
 ): <Destination extends object>(
@@ -63,10 +95,29 @@ export function merge<Destination extends object, Source extends object>(
   return mergeValues(destination, source)
 }
 
+/**
+ * Deeply merges objects, directly or in data-last form.
+ *
+ * @example
+ *   deepMerge({ config: { retries: 1 } }, { config: { timeout: 100 } }) // { config: { retries: 1, timeout: 100 } }
+ *
+ * @param destination - The destination object.
+ * @param source - The source object.
+ * @returns The deeply merged object or reusable merger.
+ */
 export function deepMerge<Destination extends object, Source extends object>(
   destination: Destination,
   source: Source,
 ): MergeDeep<Destination, Source>
+/**
+ * Deeply merges objects, directly or in data-last form.
+ *
+ * @example
+ *   deepMerge({ config: { timeout: 100 } })({ config: { retries: 1 } }) // { config: { retries: 1, timeout: 100 } }
+ *
+ * @param source - The source object.
+ * @returns The deeply merged object or reusable merger.
+ */
 export function deepMerge<Source extends object>(
   source: Source,
 ): <Destination extends object>(

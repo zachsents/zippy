@@ -23,6 +23,10 @@ const zipMergerDataLast = zip(
   (leftValue: "a" | "b", rightValue) =>
     leftValue === "a" && rightValue === 1 ? "first" : "other",
 )(["a", "b"] as const)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * annotatedZipLeftValuesWithExtraProperties.
+ */
 const annotatedZipLeftValuesWithExtraProperties = [
   { count: 1, label: "one" },
 ] as const

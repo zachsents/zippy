@@ -24,6 +24,10 @@ const mapIterableDataFirst = map(new Set([1, 2, 3] as const), (value) =>
 const mapIterableDataLast = map((value: 1 | 2 | 3) =>
   value === 1 ? "one" : "other",
 )(new Set([1, 2, 3] as const))
+/**
+ * Named fixture for reusable-value inference checks involving
+ * annotatedMapValuesWithExtraProperties.
+ */
 const annotatedMapValuesWithExtraProperties = [
   { count: 1, label: "one" },
 ] as const

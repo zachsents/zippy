@@ -14,6 +14,7 @@ const readonlyArrayDataLast = castArray()([1, 2] as const)
 true satisfies IsEqual<typeof readonlyArrayDataFirst, readonly [1, 2]>
 true satisfies IsEqual<typeof readonlyArrayDataLast, readonly [1, 2]>
 
+/** Named fixture for reusable-value inference checks involving mutableArray. */
 const mutableArray = [1, 2] as Array<1 | 2>
 const mutableArrayDataFirst = castArray(mutableArray)
 const mutableArrayDataLast = castArray()(mutableArray)

@@ -191,7 +191,18 @@ match([{ name: "one" }] as const, "id")
 // @ts-expect-error data-last string matchers are checked once left values are provided.
 match([{ id: 1 }] as const, "id")([{ name: "one" }] as const)
 
+/**
+ * Named fixture for reusable-value inference checks involving
+ * wrongMatcherLeftValues.
+ */
 const wrongMatcherLeftValues = [{ id: 1 }] as const
+/**
+ * Named fixture for reusable-value inference checks involving nameMatcher.
+ *
+ * @param leftValue - The left value to match.
+ * @param leftValue.name - The name used by the matcher.
+ * @returns Whether the name is truthy.
+ */
 const nameMatcher = (leftValue: { name: string }) => !!leftValue.name
 
 // @ts-expect-error data-last matcher callbacks constrain accepted left values.

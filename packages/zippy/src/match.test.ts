@@ -6,15 +6,13 @@ describe("match", () => {
   test("matches values with a custom matcher", () => {
     const leftB = { id: "b", label: "B" }
     const leftA = { id: "a", label: "A" }
-    const leftMissing = { id: "missing", label: "Missing" }
     const rightA = { id: "a", count: 1 }
     const rightB = { id: "b", count: 2 }
-    const rightDuplicateB = { id: "b", count: 3 }
 
     expect(
       match(
-        [leftB, leftA, leftMissing],
-        [rightA, rightB, rightDuplicateB],
+        [leftB, leftA, { id: "missing", label: "Missing" }],
+        [rightA, rightB, { id: "b", count: 3 }],
         (leftValue, rightValue) => leftValue.id === rightValue.id,
       ),
     ).toEqual([
@@ -26,15 +24,13 @@ describe("match", () => {
   test("matches values with a property path matcher", () => {
     const leftB = { id: "b", label: "B" }
     const leftA = { id: "a", label: "A" }
-    const leftMissing = { id: "missing", label: "Missing" }
     const rightA = { id: "a", count: 1 }
     const rightB = { id: "b", count: 2 }
-    const rightDuplicateB = { id: "b", count: 3 }
 
     expect(
       match(
-        [leftB, leftA, leftMissing],
-        [rightA, rightB, rightDuplicateB],
+        [leftB, leftA, { id: "missing", label: "Missing" }],
+        [rightA, rightB, { id: "b", count: 3 }],
         "id",
       ),
     ).toEqual([
@@ -77,6 +73,11 @@ describe("match", () => {
     const rightA = { id: "a", count: 1 }
     const rightB = { id: "b", count: 2 }
 
+    /**
+     * Implements the runtime dispatch for rightValues.
+     *
+     * @yields The right-side values.
+     */
     function* rightValues() {
       yield rightB
       yield rightA
@@ -180,8 +181,6 @@ describe("match", () => {
   })
 
   test("passes materialized source arrays to iterable matchers", () => {
-    const leftValues = new Set(["z", "i"])
-    const rightValues = new Set(["skip", "z", "i"])
     const sources: Array<{
       left: readonly string[]
       right: readonly string[]
@@ -189,8 +188,8 @@ describe("match", () => {
 
     expect(
       match(
-        leftValues,
-        rightValues,
+        new Set(["z", "i"]),
+        new Set(["skip", "z", "i"]),
         (leftValue, rightValue, _leftIndex, _rightIndex, left, right) => {
           sources.push({ left, right })
 

@@ -41,6 +41,10 @@ const uniqueByPathDataLast = unique("id")([
   { id: 2 },
   { id: 1 },
 ] as const)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * uniqueByPathValuesWithExtraProperties.
+ */
 const uniqueByPathValuesWithExtraProperties = [
   { a: 5, b: "first" },
   { a: 6, b: "second" },

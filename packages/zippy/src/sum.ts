@@ -18,6 +18,9 @@ import {
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum("a.num")(data) // 17
+ *
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorPath<T, number>,
@@ -31,10 +34,13 @@ export function sum<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum("a.num")(data) // 17
+ *
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<Path extends string>(
   selector: Path,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <T extends PathSatisfier<Path, number>>(values: IterableInput<T>) => number
 
 // authoritative pipe curry; selector fn
@@ -45,6 +51,9 @@ export function sum<Path extends string>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum((x) => x.a.num)(data) // 17
+ *
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -58,10 +67,13 @@ export function sum<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum((x) => x.a.num)(data) // 17
+ *
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorFunction<T, number>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => number
 
 // normal; path
@@ -72,6 +84,10 @@ export function sum<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum(data, "a.num") // 17
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<T>(
   values: IterableInput<T>,
@@ -86,6 +102,10 @@ export function sum<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   sum(data, (x) => x.a.num) // 17
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The sum.
  */
 export function sum<T>(
   values: IterableInput<T>,
@@ -99,6 +119,9 @@ export function sum<T>(
  * @example
  *   const data = [5, 12]
  *   sum(data) // 17
+ *
+ * @param values - The values to process.
+ * @returns The sum.
  */
 export function sum(values: IterableInput<number>): number
 
@@ -109,6 +132,8 @@ export function sum(values: IterableInput<number>): number
  * @example
  *   const data = [5, 12]
  *   sum()(data) // 17
+ *
+ * @returns The sum.
  */
 export function sum(): (values: IterableInput<number>) => number
 
@@ -134,13 +159,18 @@ export function sum(
   return sumImpl(...args)
 }
 
+/**
+ * Implements the runtime behavior for sum.
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The sum.
+ */
 function sumImpl(
   values: IterableInput<unknown>,
   selector: string | SelectorFunction<unknown, number> = Number,
 ) {
-  const source = toReadonlyArray(values)
-
-  return source.reduce<number>(
+  return toReadonlyArray(values).reduce<number>(
     (sum, cur, i, arr) =>
       sum +
       (typeof selector === "string"

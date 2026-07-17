@@ -19,6 +19,10 @@ const meanByDataFirst = mean(
 const meanByDataLast = mean((value: { readonly score: number }) => value.score)(
   [{ score: 1 }, { score: 2 }] as const,
 )
+/**
+ * Named fixture for reusable-value inference checks involving
+ * meanAnnotatedSelectorValuesWithExtraProperties.
+ */
 const meanAnnotatedSelectorValuesWithExtraProperties = [
   { score: 1, label: "one" },
 ] as const

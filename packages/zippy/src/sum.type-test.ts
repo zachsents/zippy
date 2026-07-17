@@ -20,6 +20,10 @@ const sumByDataLast = sum((value: { readonly count: number }) => value.count)([
   { count: 1 },
   { count: 2 },
 ] as const)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * annotatedSelectorValuesWithExtraProperties.
+ */
 const annotatedSelectorValuesWithExtraProperties = [
   { count: 1, label: "one" },
 ] as const

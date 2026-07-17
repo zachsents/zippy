@@ -13,6 +13,14 @@ type ZipMerger<Left = unknown, Right = unknown, Mapped = unknown> = (
   rightValues: readonly Right[],
 ) => Mapped
 
+/**
+ * Zips two inputs with the provided merger.
+ *
+ * @param leftValues - The left-side values.
+ * @param rightValues - The right-side values.
+ * @param merger - The merger to apply.
+ * @returns The zipped values.
+ */
 function zipImpl(
   leftValues: IterableInput<unknown>,
   rightValues: IterableInput<unknown>,
@@ -21,9 +29,11 @@ function zipImpl(
   const leftSource = toReadonlyArray(leftValues)
   const rightSource = toReadonlyArray(rightValues)
   const result: unknown[] = []
-  const length = Math.min(leftSource.length, rightSource.length)
-
-  for (let index = 0; index < length; index += 1) {
+  for (
+    let index = 0;
+    index < Math.min(leftSource.length, rightSource.length);
+    index += 1
+  ) {
     result.push(
       merger(
         leftSource[index],
@@ -46,6 +56,10 @@ function zipImpl(
  * @example
  *   const left = ["a", "b"]
  *   zip([1, 2], (l, r) => `${l}:${r}`)(left) // ["a:1", "b:2"]
+ *
+ * @param rightValues - The right-side values.
+ * @param merger - The merger to apply.
+ * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   rightValues: IterableInput<Right>,
@@ -61,11 +75,15 @@ export function zip<Left, Right, Mapped>(
  * @example
  *   const left = ["a", "b"]
  *   zip([1, 2], (l: string, r) => `${l}:${r}`)(left) // ["a:1", "b:2"]
+ *
+ * @param rightValues - The right-side values.
+ * @param merger - The merger to apply.
+ * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   rightValues: IterableInput<Right>,
   merger: ZipMerger<Left, Right, Mapped>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <InputLeft extends Left>(leftValues: IterableInput<InputLeft>) => Mapped[]
 
 // curried pairs
@@ -75,6 +93,9 @@ export function zip<Left, Right, Mapped>(
  * @example
  *   const left = ["a", "b"]
  *   zip([1, 2])(left) // [["a", 1], ["b", 2]]
+ *
+ * @param rightValues - The right-side values.
+ * @returns The zipped values.
  */
 export function zip<Right>(
   rightValues: IterableInput<Right>,
@@ -86,6 +107,11 @@ export function zip<Right>(
  *
  * @example
  *   zip(["a", "b"], [1, 2], (l, r) => `${l}:${r}`) // ["a:1", "b:2"]
+ *
+ * @param leftValues - The left-side values.
+ * @param rightValues - The right-side values.
+ * @param merger - The merger to apply.
+ * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   leftValues: IterableInput<Left>,
@@ -99,6 +125,10 @@ export function zip<Left, Right, Mapped>(
  *
  * @example
  *   zip(["a", "b"], [1, 2]) // [["a", 1], ["b", 2]]
+ *
+ * @param leftValues - The left-side values.
+ * @param rightValues - The right-side values.
+ * @returns The zipped values.
  */
 export function zip<Left, Right>(
   leftValues: IterableInput<Left>,

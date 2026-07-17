@@ -18,6 +18,9 @@ import {
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median("a.num")(data) // 8.5
+ *
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<T>(
   selector: SelectorPath<T, number>,
@@ -31,10 +34,13 @@ export function median<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median("a.num")(data) // 8.5
+ *
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<Path extends string>(
   selector: Path,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <T extends PathSatisfier<Path, number>>(
   values: IterableInput<T>,
 ) => number | undefined
@@ -47,6 +53,9 @@ export function median<Path extends string>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median((x) => x.a.num)(data) // 8.5
+ *
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -60,10 +69,13 @@ export function median<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median((x) => x.a.num)(data) // 8.5
+ *
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<T>(
   selector: SelectorFunction<T, number>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => number | undefined
 
 // normal; path
@@ -74,6 +86,10 @@ export function median<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median(data, "a.num") // 8.5
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<T>(
   values: IterableInput<T>,
@@ -88,6 +104,10 @@ export function median<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 12 } }]
  *   median(data, (x) => x.a.num) // 8.5
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The median value.
  */
 export function median<T>(
   values: IterableInput<T>,
@@ -101,6 +121,9 @@ export function median<T>(
  * @example
  *   const data = [5, 12]
  *   median(data) // 8.5
+ *
+ * @param values - The values to process.
+ * @returns The median value.
  */
 export function median(values: IterableInput<number>): number | undefined
 
@@ -111,6 +134,8 @@ export function median(values: IterableInput<number>): number | undefined
  * @example
  *   const data = [5, 12]
  *   median()(data) // 8.5
+ *
+ * @returns The median value.
  */
 export function median(): (values: IterableInput<number>) => number | undefined
 
@@ -138,6 +163,13 @@ export function median(
   return medianImpl(...args)
 }
 
+/**
+ * Implements the runtime behavior for median.
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The median value.
+ */
 function medianImpl(
   values: IterableInput<unknown>,
   selector: string | SelectorFunction<unknown, number> = Number,

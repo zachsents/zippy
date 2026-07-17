@@ -18,6 +18,9 @@ import {
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode("kind")(data) // { kind: "a" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorPath<T>,
@@ -31,10 +34,13 @@ export function mode<T>(
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode("kind")(data) // { kind: "a" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<Path extends string>(
   selector: Path,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <T extends PathSatisfier<Path>>(values: IterableInput<T>) => T | undefined
 
 // authoritative pipe curry; selector fn
@@ -45,6 +51,9 @@ export function mode<Path extends string>(
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode((x) => x.kind)(data) // { kind: "a" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorFunction<NoInfer<T>>,
@@ -58,10 +67,13 @@ export function mode<T>(
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode((x) => x.kind)(data) // { kind: "a" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorFunction<T>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => U | undefined
 
 // normal; path
@@ -71,6 +83,10 @@ export function mode<T>(
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode(data, "kind") // { kind: "a" }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<T>(
   values: IterableInput<T>,
@@ -85,6 +101,10 @@ export function mode<T>(
  * @example
  *   const data = [{ kind: "a" }, { kind: "b" }, { kind: "a" }]
  *   mode(data, (x) => x.kind) // { kind: "a" }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
  */
 export function mode<T>(
   values: IterableInput<T>,
@@ -98,6 +118,9 @@ export function mode<T>(
  * @example
  *   const data = ["z", "i", "p", "p", "y"]
  *   mode(data) // "p"
+ *
+ * @param values - The values to process.
+ * @returns The most frequent value.
  */
 export function mode<T>(values: IterableInput<T>): T | undefined
 
@@ -108,6 +131,8 @@ export function mode<T>(values: IterableInput<T>): T | undefined
  * @example
  *   const data = ["z", "i", "p", "p", "y"]
  *   mode()(data) // "p"
+ *
+ * @returns The most frequent value.
  */
 export function mode(): <T>(values: IterableInput<T>) => T | undefined
 
@@ -135,6 +160,13 @@ export function mode(
   return modeImpl(...args)
 }
 
+/**
+ * Implements the runtime behavior for mode.
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The most frequent value.
+ */
 function modeImpl<T>(
   values: IterableInput<T>,
   selector?: string | SelectorFunction<T>,

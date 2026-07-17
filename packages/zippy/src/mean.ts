@@ -18,6 +18,9 @@ import {
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean("a.num")(data) // 10
+ *
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorPath<T, number>,
@@ -31,10 +34,13 @@ export function mean<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean("a.num")(data) // 10
+ *
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<Path extends string>(
   selector: Path,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <T extends PathSatisfier<Path, number>>(
   values: IterableInput<T>,
 ) => number | undefined
@@ -47,6 +53,9 @@ export function mean<Path extends string>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean((x) => x.a.num)(data) // 10
+ *
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -60,10 +69,13 @@ export function mean<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean((x) => x.a.num)(data) // 10
+ *
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorFunction<T, number>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => number | undefined
 
 // normal; path
@@ -74,6 +86,10 @@ export function mean<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean(data, "a.num") // 10
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<T>(
   values: IterableInput<T>,
@@ -88,6 +104,10 @@ export function mean<T>(
  * @example
  *   const data = [{ a: { num: 5 } }, { a: { num: 15 } }]
  *   mean(data, (x) => x.a.num) // 10
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
  */
 export function mean<T>(
   values: IterableInput<T>,
@@ -101,6 +121,9 @@ export function mean<T>(
  * @example
  *   const data = [5, 15]
  *   mean(data) // 10
+ *
+ * @param values - The values to process.
+ * @returns The arithmetic mean.
  */
 export function mean(values: IterableInput<number>): number | undefined
 
@@ -111,6 +134,8 @@ export function mean(values: IterableInput<number>): number | undefined
  * @example
  *   const data = [5, 15]
  *   mean()(data) // 10
+ *
+ * @returns The arithmetic mean.
  */
 export function mean(): (values: IterableInput<number>) => number | undefined
 
@@ -138,6 +163,13 @@ export function mean(
   return meanImpl(...args)
 }
 
+/**
+ * Implements the runtime behavior for mean.
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The arithmetic mean.
+ */
 function meanImpl(
   values: IterableInput<unknown>,
   selector: string | SelectorFunction<unknown, number> = Number,

@@ -85,11 +85,9 @@ describe("type guards", () => {
   })
 
   test("detects array values", () => {
-    const readonlyTuple = [1, 2] as const
-
     expect(isReadonlyArray([])).toBe(true)
     expect(isReadonlyArray(["zippy"])).toBe(true)
-    expect(isReadonlyArray(readonlyTuple)).toBe(true)
+    expect(isReadonlyArray([1, 2] as const)).toBe(true)
   })
 
   test("rejects non-array values", () => {

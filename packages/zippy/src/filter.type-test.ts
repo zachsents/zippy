@@ -12,6 +12,12 @@ type User = {
   profile?: { name?: string | null } | null
 }
 
+/**
+ * Declares the A-entry type guard used by type tests.
+ *
+ * @param value - The value to process.
+ * @returns Whether the value is an A entry.
+ */
 declare function isAEntry(value: unknown): value is AEntry
 
 const entries = [
@@ -27,6 +33,10 @@ const filterDataLast = filter((value: 1 | 2 | 3 | 4) => value > 1)([
 const filterByCountDataLast = filter(
   (value: { readonly count: number }) => value.count > 1,
 )([{ count: 1 }, { count: 2 }] as const)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * annotatedPredicateValuesWithExtraProperties.
+ */
 const annotatedPredicateValuesWithExtraProperties = [
   { count: 1, label: "one" },
 ] as const
@@ -119,8 +129,17 @@ true satisfies IsEqual<typeof definedDataFirst, Array<1 | null>>
 true satisfies IsEqual<typeof definedDataLast, Array<1 | null>>
 
 const users = [] as User[]
+/** Named fixture for reusable-value inference checks involving usersWithEmail. */
 const usersWithEmail = filter(users, propIsTruthy("email"))
+/**
+ * Named fixture for reusable-value inference checks involving
+ * usersWithEmailDataLast.
+ */
 const usersWithEmailDataLast = filter(propIsTruthy("email"))(users)
+/**
+ * Named fixture for reusable-value inference checks involving
+ * usersWithProfileName.
+ */
 const usersWithProfileName = filter(users, propIsTruthy("profile.name"))
 const selectorPredicate = filter((value: User) => value.email)(users)
 
@@ -139,6 +158,10 @@ const definedPiped = pipe(
   [1, null, undefined, voidValue] as const,
   filter(isDefined),
 )
+/**
+ * Named fixture for reusable-value inference checks involving
+ * usersWithEmailPiped.
+ */
 const usersWithEmailPiped = pipe(users, filter(propIsTruthy("email")))
 
 true satisfies IsEqual<typeof truthyPiped, Array<1 | "zippy" | true | 2n>>

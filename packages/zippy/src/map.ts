@@ -64,8 +64,7 @@ type AsyncEntryMapper<
 
 type RuntimeArrayMapper = AsyncArrayMapper | string
 type RuntimeDictionaryMapper<Mapped = unknown> =
-  | AsyncDictionaryMapper<unknown, Mapped>
-  | string
+  AsyncDictionaryMapper<unknown, Mapped> | string
 type RuntimeEntryMapper = AsyncEntryMapper
 
 type MapAsyncArgs =
@@ -92,6 +91,12 @@ type MapEntriesAsyncArgs =
       options?: MapAsyncOptions,
     ]
 
+/**
+ * Checks whether array mapping arguments use the data-first form.
+ *
+ * @param args - The runtime arguments.
+ * @returns Whether the value matches.
+ */
 function isMapAsyncDataFirstArgs(
   args: MapAsyncArgs,
 ): args is [
@@ -102,6 +107,12 @@ function isMapAsyncDataFirstArgs(
   return isIterableInput(args[0])
 }
 
+/**
+ * Checks whether dictionary mapping arguments use the data-first form.
+ *
+ * @param args - The runtime arguments.
+ * @returns Whether the value matches.
+ */
 function isDictionaryAsyncDataFirstArgs<Mapped>(
   args: MapDictionaryAsyncArgs<Mapped>,
 ): args is [
@@ -112,6 +123,12 @@ function isDictionaryAsyncDataFirstArgs<Mapped>(
   return typeof args[0] !== "function" && typeof args[0] !== "string"
 }
 
+/**
+ * Checks whether entry mapping arguments use the data-first form.
+ *
+ * @param args - The runtime arguments.
+ * @returns Whether the value matches.
+ */
 function isEntriesAsyncDataFirstArgs(
   args: MapEntriesAsyncArgs,
 ): args is [
@@ -122,6 +139,14 @@ function isEntriesAsyncDataFirstArgs(
   return typeof args[0] !== "function"
 }
 
+/**
+ * Maps items asynchronously with optional concurrency control.
+ *
+ * @param items - The items to map.
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
+ */
 async function mapAsyncItems<Item, Mapped>(
   items: readonly Item[],
   mapper: (item: Item, index: number) => Promisable<Mapped>,
@@ -144,6 +169,7 @@ async function mapAsyncItems<Item, Mapped>(
   const result: Array<Awaited<Mapped>> = []
   let rejected = false
 
+  /** Processes asynchronous mapping work from the shared queue. */
   async function worker() {
     for (;;) {
       if (rejected) {
@@ -181,6 +207,9 @@ async function mapAsyncItems<Item, Mapped>(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   map("profile.name")(values) // ["Ada"]
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   selector: Path,
@@ -194,6 +223,9 @@ export function map<T, Path extends SelectorPath<T> = SelectorPath<T>>(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   map("profile.name")(values) // ["Ada"]
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<Path extends string>(
   selector: Path,
@@ -208,6 +240,9 @@ export function map<Path extends string>(
  * @example
  *   const values = [{ count: 1 }]
  *   map((value) => value.count)(values) // [1]
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<T, Mapped>(
   selector: SelectorFunction<NoInfer<T>, Mapped> &
@@ -221,10 +256,13 @@ export function map<T, Mapped>(
  * @example
  *   const values = [{ count: 1 }]
  *   map((value: { count: number }) => value.count)(values) // [1]
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<T, Mapped>(
   selector: SelectorFunction<T, Mapped>,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => Mapped[]
 
 // normal; path
@@ -234,6 +272,10 @@ export function map<T, Mapped>(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   map(values, "profile.name") // ["Ada"]
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<T, Path extends SelectorPath<T>>(
   values: IterableInput<T>,
@@ -247,6 +289,10 @@ export function map<T, Path extends SelectorPath<T>>(
  * @example
  *   const values = [{ count: 1 }]
  *   map(values, (value) => value.count) // [1]
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function map<T, Mapped>(
   values: IterableInput<T>,
@@ -290,6 +336,10 @@ export function map(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   await mapAsync("profile.name")(values) // ["Ada"]
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   selector: Path,
@@ -304,6 +354,10 @@ export function mapAsync<T, Path extends SelectorPath<T> = SelectorPath<T>>(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   await mapAsync("profile.name")(values) // ["Ada"]
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<Path extends string>(
   selector: Path,
@@ -320,6 +374,10 @@ export function mapAsync<Path extends string>(
  * @example
  *   const values = [1, 2]
  *   await mapAsync(async (value) => value * 2)(values) // [2, 4]
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<T, Mapped>(
   mapper: AsyncArrayMapper<NoInfer<T>, Mapped> &
@@ -335,11 +393,15 @@ export function mapAsync<T, Mapped>(
  * @example
  *   const values = [1, 2]
  *   await mapAsync(async (value: number) => value * 2)(values) // [2, 4]
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<T, Mapped>(
   mapper: AsyncArrayMapper<T, Mapped>,
   options?: MapAsyncOptions,
-): // oxlint-disable eslint/no-unnecessary-type-parameters
+): // oxlint-disable eslint/no-unnecessary-type-parameters -- returned generic preserves extra properties in data-last calls
 <U extends T>(values: IterableInput<U>) => Promise<Array<Awaited<Mapped>>>
 
 // normal; path
@@ -350,6 +412,11 @@ export function mapAsync<T, Mapped>(
  * @example
  *   const values = [{ profile: { name: "Ada" } }]
  *   await mapAsync(values, "profile.name") // ["Ada"]
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<T, Path extends SelectorPath<T>>(
   values: IterableInput<T>,
@@ -364,6 +431,11 @@ export function mapAsync<T, Path extends SelectorPath<T>>(
  * @example
  *   const values = [1, 2]
  *   await mapAsync(values, async (value) => value * 2) // [2, 4]
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapAsync<T, Mapped>(
   values: IterableInput<T>,
@@ -410,6 +482,9 @@ export function mapAsync(...args: MapAsyncArgs) {
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   mapValues("profile.name")(values) // { user: "Ada" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapValues<
   Value,
@@ -426,6 +501,9 @@ export function mapValues<
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   mapValues("profile.name")(values) // { user: "Ada" }
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapValues<Path extends string>(
   selector: Path,
@@ -440,6 +518,9 @@ export function mapValues<Path extends string>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   mapValues((value) => value * 10)(values) // { a: 10, b: 20 }
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapValues<Value, Mapped>(
   mapper: DictionaryMapper<NoInfer<Value>, Mapped> &
@@ -453,6 +534,9 @@ export function mapValues<Value, Mapped>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   mapValues((value: number) => value * 10)(values) // { a: 10, b: 20 }
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapValues<Value, Mapped>(
   mapper: DictionaryMapper<Value, Mapped>,
@@ -467,6 +551,10 @@ export function mapValues<Value, Mapped>(
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   mapValues(values, "profile.name") // { user: "Ada" }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapValues<Value, Path extends SelectorPath<Value>>(
   values: Dictionary<Value>,
@@ -480,6 +568,10 @@ export function mapValues<Value, Path extends SelectorPath<Value>>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   mapValues(values, (value) => value * 10) // { a: 10, b: 20 }
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapValues<Value, Mapped>(
   values: Dictionary<Value>,
@@ -529,6 +621,10 @@ export function mapValues(
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   await mapValuesAsync("profile.name")(values) // { user: "Ada" }
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<
   Value,
@@ -548,6 +644,10 @@ export function mapValuesAsync<
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   await mapValuesAsync("profile.name")(values) // { user: "Ada" }
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<Path extends string>(
   selector: Path,
@@ -564,6 +664,10 @@ export function mapValuesAsync<Path extends string>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   await mapValuesAsync(async (value) => value * 10)(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<Value, Mapped>(
   mapper: AsyncDictionaryMapper<NoInfer<Value>, Mapped> &
@@ -579,6 +683,10 @@ export function mapValuesAsync<Value, Mapped>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   await mapValuesAsync(async (value: number) => value * 10)(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<Value, Mapped>(
   mapper: AsyncDictionaryMapper<Value, Mapped>,
@@ -595,6 +703,11 @@ export function mapValuesAsync<Value, Mapped>(
  * @example
  *   const values = { user: { profile: { name: "Ada" } } }
  *   await mapValuesAsync(values, "profile.name") // { user: "Ada" }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<Value, Path extends SelectorPath<Value>>(
   values: Dictionary<Value>,
@@ -609,6 +722,11 @@ export function mapValuesAsync<Value, Path extends SelectorPath<Value>>(
  * @example
  *   const values = { a: 1, b: 2 }
  *   await mapValuesAsync(values, async (value) => value * 10)
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapValuesAsync<Value, Mapped>(
   values: Dictionary<Value>,
@@ -661,6 +779,9 @@ export function mapValuesAsync(...args: MapDictionaryAsyncArgs) {
  * @example
  *   const values = { user: { id: "user-1" } }
  *   mapKeys("id")(values) // { "user-1": values.user }
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<
   Value,
@@ -680,6 +801,9 @@ export function mapKeys<
  * @example
  *   const values = { user: { id: "user-1" } }
  *   mapKeys("id")(values) // { "user-1": values.user }
+ *
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<Path extends string>(
   selector: Path,
@@ -694,6 +818,9 @@ export function mapKeys<Path extends string>(
  * @example
  *   const values = { first: 1 }
  *   mapKeys((_value, key) => key.toUpperCase())(values) // { FIRST: 1 }
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<Value, MappedKey extends PropertyKey>(
   mapper: DictionaryMapper<NoInfer<Value>, MappedKey> &
@@ -707,6 +834,9 @@ export function mapKeys<Value, MappedKey extends PropertyKey>(
  * @example
  *   const values = { first: 1 }
  *   mapKeys((_value: number, key) => key.toUpperCase())(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<Value, MappedKey extends PropertyKey>(
   mapper: DictionaryMapper<Value, MappedKey>,
@@ -721,6 +851,10 @@ export function mapKeys<Value, MappedKey extends PropertyKey>(
  * @example
  *   const values = { user: { id: "user-1" } }
  *   mapKeys(values, "id") // { "user-1": values.user }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<Value, Path extends SelectorPath<Value, PropertyKey>>(
   values: Dictionary<Value>,
@@ -734,6 +868,10 @@ export function mapKeys<Value, Path extends SelectorPath<Value, PropertyKey>>(
  * @example
  *   const values = { first: 1 }
  *   mapKeys(values, (_value, key) => key.toUpperCase()) // { FIRST: 1 }
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapKeys<Value, MappedKey extends PropertyKey>(
   values: Dictionary<Value>,
@@ -802,6 +940,10 @@ export function mapKeys(
  * @example
  *   const values = { user: { id: "user-1" } }
  *   await mapKeysAsync("id")(values) // { "user-1": values.user }
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<
   Value,
@@ -824,6 +966,10 @@ export function mapKeysAsync<
  * @example
  *   const values = { user: { id: "user-1" } }
  *   await mapKeysAsync("id")(values) // { "user-1": values.user }
+ *
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<Path extends string>(
   selector: Path,
@@ -840,6 +986,10 @@ export function mapKeysAsync<Path extends string>(
  * @example
  *   const values = { first: 1 }
  *   await mapKeysAsync(async (_value, key) => key.toUpperCase())(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
   mapper: AsyncDictionaryMapper<NoInfer<Value>, MappedKey> &
@@ -857,6 +1007,10 @@ export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
  *   await mapKeysAsync(async (_value: number, key) => key.toUpperCase())(
  *     values,
  *   )
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
   mapper: AsyncDictionaryMapper<Value, MappedKey>,
@@ -873,6 +1027,11 @@ export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
  * @example
  *   const values = { user: { id: "user-1" } }
  *   await mapKeysAsync(values, "id") // { "user-1": values.user }
+ *
+ * @param values - The values to process.
+ * @param selector - The selector to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<
   Value,
@@ -890,6 +1049,11 @@ export function mapKeysAsync<
  * @example
  *   const values = { first: 1 }
  *   await mapKeysAsync(values, async (_value, key) => key.toUpperCase())
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapKeysAsync<Value, MappedKey extends PropertyKey>(
   values: Dictionary<Value>,
@@ -969,6 +1133,9 @@ export function mapKeysAsync(...args: MapDictionaryAsyncArgs<PropertyKey>) {
  * @example
  *   const values = { a: 1 }
  *   mapEntries(([key, value]) => [key.toUpperCase(), value])(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
   mapper: EntryMapper<NoInfer<Value>, MappedKey, MappedValue> &
@@ -984,6 +1151,9 @@ export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
  *   mapEntries(([key, value]: readonly [string, number]) => [key, value])(
  *     values,
  *   )
+ *
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
   mapper: EntryMapper<Value, MappedKey, MappedValue>,
@@ -998,6 +1168,10 @@ export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
  * @example
  *   const values = { a: 1 }
  *   mapEntries(values, ([key, value]) => [key.toUpperCase(), value])
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @returns The mapped result.
  */
 export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
   values: Dictionary<Value>,
@@ -1006,17 +1180,14 @@ export function mapEntries<Value, MappedKey extends PropertyKey, MappedValue>(
 
 export function mapEntries(
   ...args:
-    | [mapper: EntryMapper]
-    | [values: Dictionary<unknown>, mapper: EntryMapper]
+    [mapper: EntryMapper] | [values: Dictionary<unknown>, mapper: EntryMapper]
 ) {
   if (args.length === 1) {
     const [mapper] = args
 
     return (<Value>(values: Dictionary<Value>) => {
       const result: Record<PropertyKey, unknown> = Object.create(null)
-      const entries = Object.entries(values)
-
-      for (const [index, entry] of entries.entries()) {
+      for (const [index, entry] of Object.entries(values).entries()) {
         const [key, value] = mapper(entry, index, values)
 
         result[key] = value
@@ -1028,9 +1199,7 @@ export function mapEntries(
 
   const [values, mapper] = args
   const result: Record<PropertyKey, unknown> = Object.create(null)
-  const entries = Object.entries(values)
-
-  for (const [index, entry] of entries.entries()) {
+  for (const [index, entry] of Object.entries(values).entries()) {
     const [key, value] = mapper(entry, index, values)
 
     result[key] = value
@@ -1046,6 +1215,10 @@ export function mapEntries(
  * @example
  *   const values = { a: 1 }
  *   await mapEntriesAsync(async ([key, value]) => [key, value])(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapEntriesAsync<
   Value,
@@ -1068,6 +1241,10 @@ export function mapEntriesAsync<
  *   await mapEntriesAsync(
  *     async ([key, value]: readonly [string, number]) => [key, value],
  *   )(values)
+ *
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapEntriesAsync<
   Value,
@@ -1087,6 +1264,11 @@ export function mapEntriesAsync<
  * @example
  *   const values = { a: 1 }
  *   await mapEntriesAsync(values, async ([key, value]) => [key, value])
+ *
+ * @param values - The values to process.
+ * @param mapper - The mapper to apply.
+ * @param options - The mapping options.
+ * @returns The mapped result.
  */
 export function mapEntriesAsync<
   Value,

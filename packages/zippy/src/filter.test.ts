@@ -7,6 +7,12 @@ import type { IterableInput } from "./iterable"
 type AEntry = { kind: "a"; value: number }
 type User = { name: string; email?: string | null }
 
+/**
+ * Checks whether a test value is an A entry.
+ *
+ * @param value - The value to process.
+ * @returns Whether the value matches.
+ */
 function isAEntry(value: unknown): value is AEntry {
   return (
     typeof value === "object" &&
@@ -32,10 +38,12 @@ describe("filter", () => {
   })
 
   test("keeps values matched by a type guard", () => {
-    const entries = [{ kind: "a", value: 1 }, { kind: "b", value: "two" }, null]
-    const onlyA = filter(entries, isAEntry)
-
-    expect(onlyA).toEqual([{ kind: "a", value: 1 }])
+    expect(
+      filter(
+        [{ kind: "a", value: 1 }, { kind: "b", value: "two" }, null],
+        isAEntry,
+      ),
+    ).toEqual([{ kind: "a", value: 1 }])
   })
 
   test("keeps values matched by a data-last type guard", () => {
@@ -48,10 +56,12 @@ describe("filter", () => {
   })
 
   test("keeps values matched by a value guard", () => {
-    const values = [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n]
-    const truthy = filter(values, isTruthy)
-
-    expect(truthy).toEqual([1, "zippy", true, 2n])
+    expect(
+      filter(
+        [0, 1, "", "zippy", false, true, null, undefined, 0n, 2n],
+        isTruthy,
+      ),
+    ).toEqual([1, "zippy", true, 2n])
   })
 
   test("keeps values matched by a data-last value guard", () => {
@@ -112,10 +122,12 @@ describe("filterOut", () => {
   })
 
   test("removes values matched by a type guard", () => {
-    const entries = [{ kind: "a", value: 1 }, { kind: "b", value: "two" }, null]
-    const withoutA = filterOut(entries, isAEntry)
-
-    expect(withoutA).toEqual([{ kind: "b", value: "two" }, null])
+    expect(
+      filterOut(
+        [{ kind: "a", value: 1 }, { kind: "b", value: "two" }, null],
+        isAEntry,
+      ),
+    ).toEqual([{ kind: "b", value: "two" }, null])
   })
 
   test("removes values matched by a data-last type guard", () => {
@@ -126,10 +138,10 @@ describe("filterOut", () => {
   })
 
   test("removes values matched by a value guard", () => {
-    const values = [1, null, undefined, void 0]
-    const undefinedValues = filterOut(values, isDefined)
-
-    expect(undefinedValues).toEqual([undefined, undefined])
+    expect(filterOut([1, null, undefined, void 0], isDefined)).toEqual([
+      undefined,
+      undefined,
+    ])
   })
 
   test("removes values matched by a data-last value guard", () => {

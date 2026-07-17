@@ -38,6 +38,7 @@ const truthy = values.filter(isTruthy)
 const falsy = values.filter(isFalsy)
 const nonNullish = values.filter(isNonNullish)
 const defined = values.filter(isDefined)
+/** Named fixture for reusable-value inference checks involving narrowFalsy. */
 const narrowFalsy = [0, 1] as const satisfies ReadonlyArray<0 | 1>
 const onlyZero = narrowFalsy.filter(isFalsy)
 
@@ -116,6 +117,7 @@ if (isReadonlyArray(maybeStringOrReadonlyArray)) {
   >
 }
 
+/** Named fixture for reusable-value inference checks involving mixedValues. */
 const mixedValues: unknown[] = [
   1,
   ["zippy"] as const,
@@ -128,11 +130,16 @@ const arrays = mixedValues.filter(isReadonlyArray)
 true satisfies IsEqual<typeof arrays, Array<ReadonlyArray<unknown>>>
 
 type Contact =
-  | { kind: "email"; email?: string | null }
-  | { kind: "phone"; phone: string }
+  { kind: "email"; email?: string | null } | { kind: "phone"; phone: string }
 
+/** Named fixture for reusable-value inference checks involving contacts. */
 const contacts = [] as Contact[]
+/** Named fixture for reusable-value inference checks involving emailContacts. */
 const emailContacts = contacts.filter(propIsTruthy("email"))
+/**
+ * Named fixture for reusable-value inference checks involving
+ * nullishEmailContacts.
+ */
 const nullishEmailContacts = contacts.filter(propIsNullish("email"))
 declare const maybeContact: Contact
 
@@ -155,13 +162,24 @@ type User = {
 
 const users = [] as User[]
 
+/** Named fixture for reusable-value inference checks involving withEmail. */
 const withEmail = users.filter(propIsNonNullish("email"))
+/** Named fixture for reusable-value inference checks involving withDefinedEmail. */
 const withDefinedEmail = users.filter(propIsDefined("email"))
+/** Named fixture for reusable-value inference checks involving withoutEmail. */
 const withoutEmail = users.filter(propIsNullish("email"))
+/** Named fixture for reusable-value inference checks involving withDisabled. */
 const withDisabled = users.filter(propIsFalsy("disabled"))
+/** Named fixture for reusable-value inference checks involving withMissingEmail. */
 const withMissingEmail = users.filter(propIsUndefined("email"))
+/** Named fixture for reusable-value inference checks involving withProfileName. */
 const withProfileName = users.filter(propIsTruthy("profile.name"))
+/**
+ * Named fixture for reusable-value inference checks involving
+ * withPayloadObject.
+ */
 const withPayloadObject = users.filter(propIsPlainObject("payload"))
+/** Named fixture for reusable-value inference checks involving withMissingPath. */
 const withMissingPath = users.filter(propIsTruthy("missing"))
 
 withEmail[0]!.email satisfies string

@@ -122,8 +122,6 @@ describe("zip", () => {
   })
 
   test("passes materialized source arrays to iterable mergers", () => {
-    const leftValues = new Set(["z", "i"])
-    const rightValues = new Set([1, 2])
     const sources: Array<{
       left: readonly string[]
       right: readonly number[]
@@ -131,8 +129,8 @@ describe("zip", () => {
 
     expect(
       zip(
-        leftValues,
-        rightValues,
+        new Set(["z", "i"]),
+        new Set([1, 2]),
         (leftValue, rightValue, index, left, right) => {
           sources.push({ left, right })
 

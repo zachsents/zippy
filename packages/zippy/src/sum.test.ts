@@ -78,11 +78,10 @@ describe("sum selectors", () => {
   })
 
   test("passes a materialized source array for iterable selectors", () => {
-    const values = new Set([{ count: 2 }, { count: 3 }])
     const sources: Array<readonly { count: number }[]> = []
 
     expect(
-      sum(values, (value, index, source) => {
+      sum(new Set([{ count: 2 }, { count: 3 }]), (value, index, source) => {
         sources.push(source)
 
         return value.count + index

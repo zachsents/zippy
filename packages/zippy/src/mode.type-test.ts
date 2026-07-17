@@ -21,6 +21,10 @@ const modeByDataFirst = mode(values, (value) => value.kind)
 const modeByDataLast = mode((value: (typeof values)[number]) => value.kind)(
   values,
 )
+/**
+ * Named fixture for reusable-value inference checks involving
+ * modeAnnotatedSelectorValuesWithExtraProperties.
+ */
 const modeAnnotatedSelectorValuesWithExtraProperties = [
   { kind: "a", label: "one" },
   { kind: "b", label: "two" },
