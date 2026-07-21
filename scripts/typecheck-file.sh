@@ -57,8 +57,4 @@ printf '{"extends":"../../tsconfig.base.json","files":["%s"]}\n' "$relative_file
 
 cd "$package_dir"
 
-if command -v tsgo >/dev/null 2>&1; then
-  tsgo --noEmit -p "$tmp_config"
-else
-  bunx tsc --noEmit -p "$tmp_config"
-fi
+bunx tsc --noEmit -p "$tmp_config"

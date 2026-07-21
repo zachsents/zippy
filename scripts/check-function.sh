@@ -65,7 +65,7 @@ printf '  %s\n' $target_files
 
 echo
 echo "Linting..."
-oxlint --type-aware --fix --fix-suggestions $target_files
+oxlint --type-aware --fix-suggestions $target_files
 
 echo
 echo "Formatting..."
@@ -92,11 +92,7 @@ trap 'rm -f "$tmp_config"' EXIT HUP INT TERM
 
 echo
 echo "Typechecking..."
-if command -v tsgo >/dev/null 2>&1; then
-  tsgo --noEmit -p "$tmp_config"
-else
-  bunx tsc --noEmit -p "$tmp_config"
-fi
+bunx tsc --noEmit -p "$tmp_config"
 
 runtime_test_files=$(printf '%s\n' $target_files | grep '\.test\.ts$' || true)
 

@@ -29,16 +29,16 @@
     }
   },
   "scripts": {
-    "typecheck": "command -v tsgo >/dev/null && tsgo --noEmit || tsc --noEmit",
+    "typecheck": "tsc --noEmit",
     "lint": "oxlint --type-aware",
-    "lint:fix": "oxlint --type-aware --fix --fix-suggestions",
+    "lint:fix": "oxlint --type-aware --fix-suggestions",
     "format": "prettier . --write",
-    "fix": "bun run lint:fix && bun run format",
+    "fix": "bun run typecheck && bun run lint:fix && bun run format",
     "check:fn": "../../scripts/check-function.sh",
     "test": "bun test --concurrent",
     "build": "zshy",
     "pack:dry": "npm pack --dry-run --json",
-    "check": "bun run typecheck && bun run fix && bun run test && bun run build && bun run pack:dry",
+    "check": "bun run typecheck && bun run lint && bun run test && bun run build && bun run pack:dry",
     "prepublishOnly": "bun run check"
   },
   "files": [

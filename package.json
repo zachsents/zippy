@@ -25,13 +25,14 @@
     "test": "turbo run test",
     "build": "turbo run build",
     "format": "prettier . --write",
-    "fix": "turbo run lint:fix && bun run format",
-    "check": "bun run typecheck && bun run fix && bun run test && bun run build && bun run pack:dry",
+    "fix": "bun run typecheck && bun run lint:fix && bun run format",
+    "check": "turbo run check",
     "pack:dry": "turbo run pack:dry"
   },
   "devDependencies": {
     "@types/bun": "catalog:",
-    "@zachsents/oxlint-config": "^0.2.7",
+    "@typescript/native": "npm:typescript@^7.0.2",
+    "@zachsents/oxlint-config": "^0.2.9",
     "@zachsents/prettier-config": "^0.1.1",
     "oxlint": "catalog:",
     "oxlint-tsgolint": "catalog:",
