@@ -20,7 +20,6 @@ import {
  *   mode("kind")(data) // { kind: "a" }
  *
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorPath<T>,
@@ -36,7 +35,6 @@ export function mode<T>(
  *   mode("kind")(data) // { kind: "a" }
  *
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<Path extends string>(
   selector: Path,
@@ -53,7 +51,6 @@ export function mode<Path extends string>(
  *   mode((x) => x.kind)(data) // { kind: "a" }
  *
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorFunction<NoInfer<T>>,
@@ -69,7 +66,6 @@ export function mode<T>(
  *   mode((x) => x.kind)(data) // { kind: "a" }
  *
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<T>(
   selector: SelectorFunction<T>,
@@ -86,7 +82,6 @@ export function mode<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<T>(
   values: IterableInput<T>,
@@ -104,7 +99,6 @@ export function mode<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 export function mode<T>(
   values: IterableInput<T>,
@@ -120,7 +114,6 @@ export function mode<T>(
  *   mode(data) // "p"
  *
  * @param values - The values to process.
- * @returns The most frequent value.
  */
 export function mode<T>(values: IterableInput<T>): T | undefined
 
@@ -131,8 +124,6 @@ export function mode<T>(values: IterableInput<T>): T | undefined
  * @example
  *   const data = ["z", "i", "p", "p", "y"]
  *   mode()(data) // "p"
- *
- * @returns The most frequent value.
  */
 export function mode(): <T>(values: IterableInput<T>) => T | undefined
 
@@ -161,11 +152,10 @@ export function mode(
 }
 
 /**
- * Implements the runtime behavior for mode.
+ * Returns the first value with the most frequent selected key.
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The most frequent value.
  */
 function modeImpl<T>(
   values: IterableInput<T>,

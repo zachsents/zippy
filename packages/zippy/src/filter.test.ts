@@ -11,7 +11,6 @@ type User = { name: string; email?: string | null }
  * Checks whether a test value is an A entry.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 function isAEntry(value: unknown): value is AEntry {
   return (

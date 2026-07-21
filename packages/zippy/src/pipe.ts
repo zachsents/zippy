@@ -9,7 +9,6 @@ type PipeImplementationFunction = (input: never) => unknown
  *
  * @param func - The function to call.
  * @param input - The input value.
- * @returns The resulting value.
  */
 function callPipeFunction(func: PipeImplementationFunction, input: unknown) {
   return Reflect.apply(func, undefined, [input]) as unknown
@@ -20,7 +19,6 @@ function callPipeFunction(func: PipeImplementationFunction, input: unknown) {
  *
  * @param input - The input value.
  * @param functions - The functions to compose.
- * @returns The composed result.
  */
 function pipeValue(
   input: unknown,
@@ -40,7 +38,6 @@ function pipeValue(
  *
  * @param input - The input value.
  * @param functions - The functions to compose.
- * @returns The composed result.
  */
 async function pipeValueAsync(
   input: unknown,
@@ -62,7 +59,6 @@ async function pipeValueAsync(
  *   pipe(1) // 1
  *
  * @param data - The initial pipeline value.
- * @returns The pipeline result.
  */
 export function pipe<A>(data: A): A
 /**
@@ -74,7 +70,6 @@ export function pipe<A>(data: A): A
  *
  * @param data - The initial pipeline value.
  * @param funcA - The first pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B extends A>(data: A, funcA: PipeGuard<A, B>): data is B
 /**
@@ -86,7 +81,6 @@ export function pipe<A, B extends A>(data: A, funcA: PipeGuard<A, B>): data is B
  *
  * @param data - The initial pipeline value.
  * @param funcA - The first pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B>(data: A, funcA: PipeFunction<A, B>): B
 /**
@@ -99,7 +93,6 @@ export function pipe<A, B>(data: A, funcA: PipeFunction<A, B>): B
  * @param data - The initial pipeline value.
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C>(
   data: A,
@@ -117,7 +110,6 @@ export function pipe<A, B, C>(
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D>(
   data: A,
@@ -137,7 +129,6 @@ export function pipe<A, B, C, D>(
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E>(
   data: A,
@@ -159,7 +150,6 @@ export function pipe<A, B, C, D, E>(
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F>(
   data: A,
@@ -183,7 +173,6 @@ export function pipe<A, B, C, D, E, F>(
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G>(
   data: A,
@@ -218,7 +207,6 @@ export function pipe<A, B, C, D, E, F, G>(
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H>(
   data: A,
@@ -256,7 +244,6 @@ export function pipe<A, B, C, D, E, F, G, H>(
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I>(
   data: A,
@@ -297,7 +284,6 @@ export function pipe<A, B, C, D, E, F, G, H, I>(
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J>(
   data: A,
@@ -341,7 +327,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J>(
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K>(
   data: A,
@@ -388,7 +373,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K>(
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K, L>(
   data: A,
@@ -438,7 +422,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   data: A,
@@ -491,7 +474,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   data: A,
@@ -547,7 +529,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   data: A,
@@ -606,7 +587,6 @@ export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
  * @param funcO - The next pipe function.
- * @returns The pipeline result.
  */
 export function pipe<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   data: A,
@@ -638,8 +618,6 @@ export function pipe(
  *
  * @example
  *   piped<number>()(1) // 1
- *
- * @returns The reusable pipeline.
  */
 export function piped<A>(): PipeFunction<A, A>
 /**
@@ -650,7 +628,6 @@ export function piped<A>(): PipeFunction<A, A>
  *   piped(increment)(0) // 1
  *
  * @param funcA - The first pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B>(funcA: PipeFunction<A, B>): PipeFunction<A, B>
 /**
@@ -662,7 +639,6 @@ export function piped<A, B>(funcA: PipeFunction<A, B>): PipeFunction<A, B>
  *
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C>(
   funcA: PipeFunction<A, B>,
@@ -678,7 +654,6 @@ export function piped<A, B, C>(
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D>(
   funcA: PipeFunction<A, B>,
@@ -696,7 +671,6 @@ export function piped<A, B, C, D>(
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E>(
   funcA: PipeFunction<A, B>,
@@ -716,7 +690,6 @@ export function piped<A, B, C, D, E>(
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F>(
   funcA: PipeFunction<A, B>,
@@ -745,7 +718,6 @@ export function piped<A, B, C, D, E, F>(
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G>(
   funcA: PipeFunction<A, B>,
@@ -777,7 +749,6 @@ export function piped<A, B, C, D, E, F, G>(
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H>(
   funcA: PipeFunction<A, B>,
@@ -812,7 +783,6 @@ export function piped<A, B, C, D, E, F, G, H>(
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I>(
   funcA: PipeFunction<A, B>,
@@ -850,7 +820,6 @@ export function piped<A, B, C, D, E, F, G, H, I>(
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J>(
   funcA: PipeFunction<A, B>,
@@ -891,7 +860,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J>(
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K>(
   funcA: PipeFunction<A, B>,
@@ -935,7 +903,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K>(
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K, L>(
   funcA: PipeFunction<A, B>,
@@ -982,7 +949,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   funcA: PipeFunction<A, B>,
@@ -1032,7 +998,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   funcA: PipeFunction<A, B>,
@@ -1085,7 +1050,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   funcA: PipeFunction<A, B>,
@@ -1141,7 +1105,6 @@ export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
  * @param funcO - The next pipe function.
- * @returns The reusable pipeline.
  */
 export function piped<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   funcA: PipeFunction<A, B>,
@@ -1171,7 +1134,6 @@ export function piped(...functions: readonly PipeImplementationFunction[]) {
  *   await pipeAsync(Promise.resolve(1)) // 1
  *
  * @param data - The initial pipeline value.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A>(data: A): Promise<Awaited<A>>
 /**
@@ -1183,7 +1145,6 @@ export function pipeAsync<A>(data: A): Promise<Awaited<A>>
  *
  * @param data - The initial pipeline value.
  * @param funcA - The first pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B>(
   data: A,
@@ -1199,7 +1160,6 @@ export function pipeAsync<A, B>(
  * @param data - The initial pipeline value.
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C>(
   data: A,
@@ -1217,7 +1177,6 @@ export function pipeAsync<A, B, C>(
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D>(
   data: A,
@@ -1243,7 +1202,6 @@ export function pipeAsync<A, B, C, D>(
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E>(
   data: A,
@@ -1272,7 +1230,6 @@ export function pipeAsync<A, B, C, D, E>(
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F>(
   data: A,
@@ -1304,7 +1261,6 @@ export function pipeAsync<A, B, C, D, E, F>(
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G>(
   data: A,
@@ -1339,7 +1295,6 @@ export function pipeAsync<A, B, C, D, E, F, G>(
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H>(
   data: A,
@@ -1377,7 +1332,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H>(
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I>(
   data: A,
@@ -1418,7 +1372,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I>(
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J>(
   data: A,
@@ -1462,7 +1415,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J>(
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
   data: A,
@@ -1509,7 +1461,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
   data: A,
@@ -1559,7 +1510,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   data: A,
@@ -1612,7 +1562,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   data: A,
@@ -1668,7 +1617,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   data: A,
@@ -1727,7 +1675,6 @@ export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
  * @param funcO - The next pipe function.
- * @returns A promise for the pipeline result.
  */
 export function pipeAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   data: A,
@@ -1759,8 +1706,6 @@ export function pipeAsync(
  *
  * @example
  *   await pipedAsync<number>()(1) // 1
- *
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A>(): PipeFunction<
   Promisable<A>,
@@ -1774,7 +1719,6 @@ export function pipedAsync<A>(): PipeFunction<
  *   await pipedAsync(incrementAsync)(0) // 1
  *
  * @param funcA - The first pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B>(
   funcA: PipeFunction<A, B>,
@@ -1788,7 +1732,6 @@ export function pipedAsync<A, B>(
  *
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C>(
   funcA: PipeFunction<A, B>,
@@ -1804,7 +1747,6 @@ export function pipedAsync<A, B, C>(
  * @param funcA - The first pipe function.
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D>(
   funcA: PipeFunction<A, B>,
@@ -1827,7 +1769,6 @@ export function pipedAsync<A, B, C, D>(
  * @param funcB - The next pipe function.
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E>(
   funcA: PipeFunction<A, B>,
@@ -1853,7 +1794,6 @@ export function pipedAsync<A, B, C, D, E>(
  * @param funcC - The next pipe function.
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F>(
   funcA: PipeFunction<A, B>,
@@ -1882,7 +1822,6 @@ export function pipedAsync<A, B, C, D, E, F>(
  * @param funcD - The next pipe function.
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G>(
   funcA: PipeFunction<A, B>,
@@ -1914,7 +1853,6 @@ export function pipedAsync<A, B, C, D, E, F, G>(
  * @param funcE - The next pipe function.
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H>(
   funcA: PipeFunction<A, B>,
@@ -1949,7 +1887,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H>(
  * @param funcF - The next pipe function.
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I>(
   funcA: PipeFunction<A, B>,
@@ -1987,7 +1924,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I>(
  * @param funcG - The next pipe function.
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J>(
   funcA: PipeFunction<A, B>,
@@ -2028,7 +1964,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J>(
  * @param funcH - The next pipe function.
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K>(
   funcA: PipeFunction<A, B>,
@@ -2072,7 +2007,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K>(
  * @param funcI - The next pipe function.
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
   funcA: PipeFunction<A, B>,
@@ -2119,7 +2053,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L>(
  * @param funcJ - The next pipe function.
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
   funcA: PipeFunction<A, B>,
@@ -2169,7 +2102,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M>(
  * @param funcK - The next pipe function.
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
   funcA: PipeFunction<A, B>,
@@ -2222,7 +2154,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N>(
  * @param funcL - The next pipe function.
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
   funcA: PipeFunction<A, B>,
@@ -2278,7 +2209,6 @@ export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O>(
  * @param funcM - The next pipe function.
  * @param funcN - The next pipe function.
  * @param funcO - The next pipe function.
- * @returns The reusable asynchronous pipeline.
  */
 export function pipedAsync<A, B, C, D, E, F, G, H, I, J, K, L, M, N, O, P>(
   funcA: PipeFunction<A, B>,

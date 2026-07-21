@@ -11,10 +11,9 @@ type CastArrayResult<T> = [Exclude<T, void>] extends [infer E]
   : never
 
 /**
- * Shared castArrayImpl implementation detail.
+ * Returns the value wrapped in an array when needed.
  *
  * @param value - The value to cast.
- * @returns The value wrapped in an array when needed.
  */
 const castArrayImpl = (value: unknown) =>
   value === undefined ? [] : Array.isArray(value) ? value : [value]
@@ -25,8 +24,6 @@ const castArrayImpl = (value: unknown) =>
  * @example
  *   const toArray = castArray()
  *   toArray("zippy") // ["zippy"]
- *
- * @returns The cast array or reusable array caster.
  */
 export function castArray(): <T>(value: T) => CastArrayResult<T>
 /**
@@ -36,7 +33,6 @@ export function castArray(): <T>(value: T) => CastArrayResult<T>
  *   castArray("zippy") // ["zippy"]
  *
  * @param value - The value to process.
- * @returns The cast array or reusable array caster.
  */
 export function castArray<T>(value: T): CastArrayResult<T>
 export function castArray(...args: [] | [unknown]) {

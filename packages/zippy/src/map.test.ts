@@ -16,10 +16,9 @@ import {
 } from "./map"
 
 /**
- * Shared asyncNumberIdentity fixture for runtime tests.
+ * Returns the passed number for runtime tests.
  *
  * @param value - The number to return.
- * @returns The passed number.
  */
 const asyncNumberIdentity = async (value: number) => value
 const wait = (duration: number) =>

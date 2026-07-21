@@ -16,7 +16,6 @@ type User = {
  * Declares the A-entry type guard used by type tests.
  *
  * @param value - The value to process.
- * @returns Whether the value is an A entry.
  */
 declare function isAEntry(value: unknown): value is AEntry
 

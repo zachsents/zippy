@@ -25,20 +25,19 @@ type Cb<Left, Right, Out = unknown> = (
  *
  * @param left - The left value.
  * @param right - The right value.
- * @returns Whether the value matches.
  */
 function isSameValueZero(left: unknown, right: unknown) {
   return left === right || (left !== left && right !== right)
 }
 
 /**
- * Implements the shared matching behavior.
+ * Matches left- and right-side values and combines each matching pair with the
+ * merger.
  *
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
  * @param merger - The merger to apply.
- * @returns The resulting value.
  */
 function impl(
   leftValues: IterableInput<unknown>,
@@ -93,7 +92,6 @@ function impl(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched pairs or reusable matcher.
  */
 export function match<Left, Right>(
   rightValues: IterableInput<Right>,
@@ -110,7 +108,6 @@ export function match<Left, Right>(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched pairs or reusable matcher.
  */
 export function match<Right, Path extends SelectorPath<Right>>(
   rightValues: IterableInput<Right>,
@@ -132,7 +129,6 @@ export function match<Right, Path extends SelectorPath<Right>>(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched pairs or reusable matcher.
  */
 export function match<Left, Right>(
   rightValues: IterableInput<Right>,
@@ -152,7 +148,6 @@ export function match<Left, Right>(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched pairs or reusable matcher.
  */
 export function match<Right, TMatcher extends Cb<never, Right>>(
   rightValues: IterableInput<Right>,
@@ -171,7 +166,6 @@ export function match<Right, TMatcher extends Cb<never, Right>>(
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched pairs or reusable matcher.
  */
 export function match<Left, Right>(
   leftValues: IterableInput<Left>,
@@ -209,7 +203,6 @@ export function match(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched merged objects or reusable matcher.
  */
 export function matchMerge<Left extends object, Right extends object>(
   rightValues: IterableInput<Right>,
@@ -226,7 +219,6 @@ export function matchMerge<Left extends object, Right extends object>(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched merged objects or reusable matcher.
  */
 export function matchMerge<
   Right extends object,
@@ -251,7 +243,6 @@ export function matchMerge<
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched merged objects or reusable matcher.
  */
 export function matchMerge<Left extends object, Right extends object>(
   rightValues: IterableInput<Right>,
@@ -271,7 +262,6 @@ export function matchMerge<Left extends object, Right extends object>(
  *
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched merged objects or reusable matcher.
  */
 export function matchMerge<
   Right extends object,
@@ -293,7 +283,6 @@ export function matchMerge<
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
  * @param matcher - The matcher to apply.
- * @returns The matched merged objects or reusable matcher.
  */
 export function matchMerge<Left extends object, Right extends object>(
   leftValues: IterableInput<Left>,

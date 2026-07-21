@@ -23,7 +23,6 @@ import {
  *   unique("id")(data) // [{ id: 1, name: "first" }]
  *
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorPath<T>,
@@ -42,7 +41,6 @@ export function unique<T>(
  *   unique("id")(data) // [{ id: 1, name: "first" }]
  *
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<Path extends string>(
   selector: Path,
@@ -62,7 +60,6 @@ export function unique<Path extends string>(
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
  *
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorFunction<NoInfer<T>>,
@@ -81,7 +78,6 @@ export function unique<T>(
  *   unique((x) => x.id)(data) // [{ id: 1, name: "first" }]
  *
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<T>(
   selector: SelectorFunction<T>,
@@ -101,7 +97,6 @@ export function unique<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<T>(
   values: IterableInput<T>,
@@ -121,7 +116,6 @@ export function unique<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 export function unique<T>(
   values: IterableInput<T>,
@@ -136,7 +130,6 @@ export function unique<T>(
  *   unique([1, 2, 1, 3]) // [1, 2, 3]
  *
  * @param values - The values to process.
- * @returns The unique values.
  */
 export function unique<T>(values: IterableInput<T>): T[]
 
@@ -147,8 +140,6 @@ export function unique<T>(values: IterableInput<T>): T[]
  *
  * @example
  *   unique()([1, 2, 1, 3]) // [1, 2, 3]
- *
- * @returns The unique values.
  */
 export function unique(): <T>(values: IterableInput<T>) => T[]
 
@@ -177,11 +168,10 @@ export function unique(
 }
 
 /**
- * Implements the runtime behavior for unique.
+ * Returns the first value for each unique selected key.
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The unique values.
  */
 function uniqueImpl<T>(
   values: IterableInput<T>,

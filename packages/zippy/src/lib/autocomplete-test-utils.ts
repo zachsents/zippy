@@ -34,7 +34,6 @@ const parsedConfig = ts.parseJsonConfigFileContent(
  * Returns string-literal completion names from a TypeScript source snippet.
  *
  * @param source - The TypeScript source snippet.
- * @returns The string-literal completion names.
  * @throws If the source does not contain the completion marker.
  */
 export function getStringLiteralCompletionNames(source: string) {

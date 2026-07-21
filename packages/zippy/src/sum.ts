@@ -20,7 +20,6 @@ import {
  *   sum("a.num")(data) // 17
  *
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorPath<T, number>,
@@ -36,7 +35,6 @@ export function sum<T>(
  *   sum("a.num")(data) // 17
  *
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<Path extends string>(
   selector: Path,
@@ -53,7 +51,6 @@ export function sum<Path extends string>(
  *   sum((x) => x.a.num)(data) // 17
  *
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -69,7 +66,6 @@ export function sum<T>(
  *   sum((x) => x.a.num)(data) // 17
  *
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<T>(
   selector: SelectorFunction<T, number>,
@@ -87,7 +83,6 @@ export function sum<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<T>(
   values: IterableInput<T>,
@@ -105,7 +100,6 @@ export function sum<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 export function sum<T>(
   values: IterableInput<T>,
@@ -121,7 +115,6 @@ export function sum<T>(
  *   sum(data) // 17
  *
  * @param values - The values to process.
- * @returns The sum.
  */
 export function sum(values: IterableInput<number>): number
 
@@ -132,8 +125,6 @@ export function sum(values: IterableInput<number>): number
  * @example
  *   const data = [5, 12]
  *   sum()(data) // 17
- *
- * @returns The sum.
  */
 export function sum(): (values: IterableInput<number>) => number
 
@@ -160,11 +151,10 @@ export function sum(
 }
 
 /**
- * Implements the runtime behavior for sum.
+ * Returns the sum of the selected values.
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The sum.
  */
 function sumImpl(
   values: IterableInput<unknown>,

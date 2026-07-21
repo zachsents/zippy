@@ -7,7 +7,6 @@ import { isPlainObject } from "./guards"
  *
  * @param destination - The destination object.
  * @param source - The source object.
- * @returns The merged object.
  */
 function mergeValues<Destination extends object, Source extends object>(
   destination: Destination,
@@ -23,7 +22,6 @@ function mergeValues<Destination extends object, Source extends object>(
  *
  * @param destination - The destination object.
  * @param source - The source object.
- * @returns The deeply merged object.
  */
 function deepMergeValues<Destination extends object, Source extends object>(
   destination: Destination,
@@ -61,7 +59,6 @@ function deepMergeValues<Destination extends object, Source extends object>(
  *
  * @param destination - The destination object.
  * @param source - The source object.
- * @returns The merged object or reusable merger.
  */
 export function merge<Destination extends object, Source extends object>(
   destination: Destination,
@@ -74,7 +71,6 @@ export function merge<Destination extends object, Source extends object>(
  *   merge({ b: 2 })({ a: 1 }) // { a: 1, b: 2 }
  *
  * @param source - The source object.
- * @returns The merged object or reusable merger.
  */
 export function merge<Source extends object>(
   source: Source,
@@ -103,7 +99,6 @@ export function merge<Destination extends object, Source extends object>(
  *
  * @param destination - The destination object.
  * @param source - The source object.
- * @returns The deeply merged object or reusable merger.
  */
 export function deepMerge<Destination extends object, Source extends object>(
   destination: Destination,
@@ -116,7 +111,6 @@ export function deepMerge<Destination extends object, Source extends object>(
  *   deepMerge({ config: { timeout: 100 } })({ config: { retries: 1 } }) // { config: { retries: 1, timeout: 100 } }
  *
  * @param source - The source object.
- * @returns The deeply merged object or reusable merger.
  */
 export function deepMerge<Source extends object>(
   source: Source,

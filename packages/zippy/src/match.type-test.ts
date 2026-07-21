@@ -197,11 +197,11 @@ match([{ id: 1 }] as const, "id")([{ name: "one" }] as const)
  */
 const wrongMatcherLeftValues = [{ id: 1 }] as const
 /**
- * Named fixture for reusable-value inference checks involving nameMatcher.
+ * Declares the reusable-value inference fixture that checks whether the name is
+ * truthy.
  *
  * @param leftValue - The left value to match.
  * @param leftValue.name - The name used by the matcher.
- * @returns Whether the name is truthy.
  */
 const nameMatcher = (leftValue: { name: string }) => !!leftValue.name
 

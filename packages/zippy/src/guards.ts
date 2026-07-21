@@ -12,7 +12,6 @@ export type Truthy<T> = Exclude<T, Falsy>
  * Checks whether a value satisfies Nullish.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isNullish<T>(value: T): value is T & (null | undefined) {
   return value == null
@@ -33,7 +32,6 @@ export function isNullish<T>(value: T): value is T & (null | undefined) {
  *   const hasMissingName = propIsNullish<User>("profile.name")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsNullish<
   T,
@@ -58,7 +56,6 @@ export function propIsNullish<
  *   values.filter(propIsNullish("name")) // [{ name: null }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsNullish<Path extends string>(
   path: Path,
@@ -77,7 +74,6 @@ export function propIsNullish(path: string) {
  * Checks whether a value satisfies NonNullish.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isNonNullish<T>(value: T): value is NonNullable<T> {
   return value != null
@@ -93,7 +89,6 @@ export function isNonNullish<T>(value: T): value is NonNullable<T> {
  *   const hasName = propIsNonNullish<User>("profile.name")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsNonNullish<
   T,
@@ -118,7 +113,6 @@ export function propIsNonNullish<
  *   values.filter(propIsNonNullish("name")) // [{ name: "Ada" }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsNonNullish<Path extends string>(
   path: Path,
@@ -137,7 +131,6 @@ export function propIsNonNullish(path: string) {
  * Checks whether a value satisfies Truthy.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isTruthy<T>(value: T): value is Truthy<T> {
   return Boolean(value)
@@ -153,7 +146,6 @@ export function isTruthy<T>(value: T): value is Truthy<T> {
  *   const hasName = propIsTruthy<User>("profile.name")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsTruthy<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   path: Path,
@@ -175,7 +167,6 @@ export function propIsTruthy<T, Path extends SelectorPath<T> = SelectorPath<T>>(
  *   values.filter(propIsTruthy("name")) // [{ name: "Ada" }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsTruthy<Path extends string>(
   path: Path,
@@ -194,7 +185,6 @@ export function propIsTruthy(path: string) {
  * Checks whether a value satisfies Falsy.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isFalsy<T>(value: T): value is T & Falsy {
   return !value
@@ -210,7 +200,6 @@ export function isFalsy<T>(value: T): value is T & Falsy {
  *   const isDisabledFalsy = propIsFalsy<User>("disabled")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsFalsy<T, Path extends SelectorPath<T> = SelectorPath<T>>(
   path: Path,
@@ -232,7 +221,6 @@ export function propIsFalsy<T, Path extends SelectorPath<T> = SelectorPath<T>>(
  *   values.filter(propIsFalsy("disabled")) // [{ disabled: false }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsFalsy<Path extends string>(
   path: Path,
@@ -251,7 +239,6 @@ export function propIsFalsy(path: string) {
  * Checks whether a value satisfies Undefined.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isUndefined<T>(
   value: T,
@@ -269,7 +256,6 @@ export function isUndefined<T>(
  *   const isMissingEmail = propIsUndefined<User>("email")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsUndefined<
   T,
@@ -294,7 +280,6 @@ export function propIsUndefined<
  *   values.filter(propIsUndefined("email")) // [{}]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsUndefined<Path extends string>(
   path: Path,
@@ -313,7 +298,6 @@ export function propIsUndefined(path: string) {
  * Checks whether a value satisfies Defined.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isDefined<T>(value: T): value is Exclude<T, undefined | void> {
   return value !== undefined
@@ -329,7 +313,6 @@ export function isDefined<T>(value: T): value is Exclude<T, undefined | void> {
  *   const hasEmailProperty = propIsDefined<User>("email")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsDefined<
   T,
@@ -354,7 +337,6 @@ export function propIsDefined<
  *   values.filter(propIsDefined("email")) // [{ email: "ada@example.com" }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsDefined<Path extends string>(
   path: Path,
@@ -379,7 +361,6 @@ export function propIsDefined(path: string) {
  *   isReadonlyArray(value) // true
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isReadonlyArray<T extends readonly unknown[]>(
   value: T,
@@ -394,7 +375,6 @@ export function isReadonlyArray<T extends readonly unknown[]>(
  *   isReadonlyArray(value) // true
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isReadonlyArray(value: unknown): value is readonly unknown[]
 export function isReadonlyArray(value: unknown) {
@@ -405,7 +385,6 @@ export function isReadonlyArray(value: unknown) {
  * Checks whether a value satisfies PlainObject.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 export function isPlainObject<T>(
   value: T,
@@ -429,7 +408,6 @@ export function isPlainObject<T>(
  *   const hasPayloadObject = propIsPlainObject<User>("payload")
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsPlainObject<
   T,
@@ -454,7 +432,6 @@ export function propIsPlainObject<
  *   values.filter(propIsPlainObject("payload")) // [{ payload: { source: "test" } }]
  *
  * @param path - The property path.
- * @returns A predicate for the selected property.
  */
 export function propIsPlainObject<Path extends string>(
   path: Path,

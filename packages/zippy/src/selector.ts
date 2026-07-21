@@ -61,7 +61,6 @@ export type PathSatisfier<
  * Checks whether a value can contain keyed properties.
  *
  * @param value - The value to process.
- * @returns Whether the value matches.
  */
 function isPropertyContainer(
   value: unknown,
@@ -79,7 +78,6 @@ function isPropertyContainer(
  *
  * @param value - The value to process.
  * @param path - The property path.
- * @returns The value at the property path.
  */
 export function getPropertyPathValue<T, Path extends SelectorPath<T>>(
   value: T,
@@ -93,7 +91,6 @@ export function getPropertyPathValue<T, Path extends SelectorPath<T>>(
  *
  * @param value - The value to process.
  * @param path - The property path.
- * @returns The value at the property path.
  */
 export function getPropertyPathValue<T>(
   value: T,

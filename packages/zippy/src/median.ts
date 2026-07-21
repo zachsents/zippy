@@ -20,7 +20,6 @@ import {
  *   median("a.num")(data) // 8.5
  *
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<T>(
   selector: SelectorPath<T, number>,
@@ -36,7 +35,6 @@ export function median<T>(
  *   median("a.num")(data) // 8.5
  *
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<Path extends string>(
   selector: Path,
@@ -55,7 +53,6 @@ export function median<Path extends string>(
  *   median((x) => x.a.num)(data) // 8.5
  *
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -71,7 +68,6 @@ export function median<T>(
  *   median((x) => x.a.num)(data) // 8.5
  *
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<T>(
   selector: SelectorFunction<T, number>,
@@ -89,7 +85,6 @@ export function median<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<T>(
   values: IterableInput<T>,
@@ -107,7 +102,6 @@ export function median<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 export function median<T>(
   values: IterableInput<T>,
@@ -123,7 +117,6 @@ export function median<T>(
  *   median(data) // 8.5
  *
  * @param values - The values to process.
- * @returns The median value.
  */
 export function median(values: IterableInput<number>): number | undefined
 
@@ -134,8 +127,6 @@ export function median(values: IterableInput<number>): number | undefined
  * @example
  *   const data = [5, 12]
  *   median()(data) // 8.5
- *
- * @returns The median value.
  */
 export function median(): (values: IterableInput<number>) => number | undefined
 
@@ -164,11 +155,10 @@ export function median(
 }
 
 /**
- * Implements the runtime behavior for median.
+ * Returns the median of the selected values.
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The median value.
  */
 function medianImpl(
   values: IterableInput<unknown>,

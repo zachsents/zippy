@@ -20,7 +20,6 @@ import {
  *   mean("a.num")(data) // 10
  *
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorPath<T, number>,
@@ -36,7 +35,6 @@ export function mean<T>(
  *   mean("a.num")(data) // 10
  *
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<Path extends string>(
   selector: Path,
@@ -55,7 +53,6 @@ export function mean<Path extends string>(
  *   mean((x) => x.a.num)(data) // 10
  *
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorFunction<NoInfer<T>, number>,
@@ -71,7 +68,6 @@ export function mean<T>(
  *   mean((x) => x.a.num)(data) // 10
  *
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<T>(
   selector: SelectorFunction<T, number>,
@@ -89,7 +85,6 @@ export function mean<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<T>(
   values: IterableInput<T>,
@@ -107,7 +102,6 @@ export function mean<T>(
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 export function mean<T>(
   values: IterableInput<T>,
@@ -123,7 +117,6 @@ export function mean<T>(
  *   mean(data) // 10
  *
  * @param values - The values to process.
- * @returns The arithmetic mean.
  */
 export function mean(values: IterableInput<number>): number | undefined
 
@@ -134,8 +127,6 @@ export function mean(values: IterableInput<number>): number | undefined
  * @example
  *   const data = [5, 15]
  *   mean()(data) // 10
- *
- * @returns The arithmetic mean.
  */
 export function mean(): (values: IterableInput<number>) => number | undefined
 
@@ -164,11 +155,10 @@ export function mean(
 }
 
 /**
- * Implements the runtime behavior for mean.
+ * Returns the arithmetic mean of the selected values.
  *
  * @param values - The values to process.
  * @param selector - The selector to apply.
- * @returns The arithmetic mean.
  */
 function meanImpl(
   values: IterableInput<unknown>,

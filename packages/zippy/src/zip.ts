@@ -19,7 +19,6 @@ type ZipMerger<Left = unknown, Right = unknown, Mapped = unknown> = (
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
  * @param merger - The merger to apply.
- * @returns The zipped values.
  */
 function zipImpl(
   leftValues: IterableInput<unknown>,
@@ -59,7 +58,6 @@ function zipImpl(
  *
  * @param rightValues - The right-side values.
  * @param merger - The merger to apply.
- * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   rightValues: IterableInput<Right>,
@@ -78,7 +76,6 @@ export function zip<Left, Right, Mapped>(
  *
  * @param rightValues - The right-side values.
  * @param merger - The merger to apply.
- * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   rightValues: IterableInput<Right>,
@@ -95,7 +92,6 @@ export function zip<Left, Right, Mapped>(
  *   zip([1, 2])(left) // [["a", 1], ["b", 2]]
  *
  * @param rightValues - The right-side values.
- * @returns The zipped values.
  */
 export function zip<Right>(
   rightValues: IterableInput<Right>,
@@ -111,7 +107,6 @@ export function zip<Right>(
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
  * @param merger - The merger to apply.
- * @returns The zipped values.
  */
 export function zip<Left, Right, Mapped>(
   leftValues: IterableInput<Left>,
@@ -128,7 +123,6 @@ export function zip<Left, Right, Mapped>(
  *
  * @param leftValues - The left-side values.
  * @param rightValues - The right-side values.
- * @returns The zipped values.
  */
 export function zip<Left, Right>(
   leftValues: IterableInput<Left>,

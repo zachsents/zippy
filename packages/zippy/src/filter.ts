@@ -22,7 +22,6 @@ type FilterPredicate<T> = (
  *
  * @param values - The values to process.
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T, Narrowed extends T>(
   values: IterableInput<T>,
@@ -39,7 +38,6 @@ export function filter<T, Narrowed extends T>(
  *
  * @param values - The values to process.
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T>(
   values: IterableInput<T>,
@@ -59,7 +57,6 @@ export function filter<T>(
  *   filter((value): value is 1 => value === 1)(values) // [1]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T, Narrowed extends T>(
   predicate: FilterGuard<NoInfer<T>, Narrowed> &
@@ -76,7 +73,6 @@ export function filter<T, Narrowed extends T>(
  *   filter((value): value is 1 => value === 1)(values) // [1]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
@@ -94,7 +90,6 @@ export function filter<T, Narrowed extends T>(
  *   filter((value) => value % 2 === 0)(values) // [2, 4]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T>(
   predicate: FilterPredicate<NoInfer<T>> &
@@ -111,7 +106,6 @@ export function filter<T>(
  *   filter((value) => value % 2 === 0)(values) // [2, 4]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filter<T>(
   predicate: FilterPredicate<T>,
@@ -147,7 +141,6 @@ export function filter<T>(
  *
  * @param values - The values to process.
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T, Narrowed extends T>(
   values: IterableInput<T>,
@@ -164,7 +157,6 @@ export function filterOut<T, Narrowed extends T>(
  *
  * @param values - The values to process.
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T>(
   values: IterableInput<T>,
@@ -181,7 +173,6 @@ export function filterOut<T>(
  *   filterOut((value): value is 1 => value === 1)(values) // ["two"]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T, Narrowed extends T>(
   predicate: FilterGuard<NoInfer<T>, Narrowed> &
@@ -198,7 +189,6 @@ export function filterOut<T, Narrowed extends T>(
  *   filterOut((value): value is 1 => value === 1)(values) // ["two"]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T, Narrowed extends T>(
   predicate: FilterGuard<T, Narrowed>,
@@ -216,7 +206,6 @@ export function filterOut<T, Narrowed extends T>(
  *   filterOut((value) => value % 2 === 0)(values) // [1, 3]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T>(
   predicate: FilterPredicate<NoInfer<T>> &
@@ -233,7 +222,6 @@ export function filterOut<T>(
  *   filterOut((value) => value % 2 === 0)(values) // [1, 3]
  *
  * @param predicate - The predicate to apply.
- * @returns The filtered values.
  */
 export function filterOut<T>(
   predicate: FilterPredicate<T>,
