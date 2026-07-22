@@ -1,5 +1,10 @@
 # @zachsents/zippy
 
+> [!IMPORTANT]
+> Zippy has moved to the
+> [`zachsents/zachs-tools` monorepo](https://github.com/zachsents/zachs-tools/tree/main/packages/zippy).
+> This repository is retired and read-only.
+
 Small TypeScript utility functions for finite iterables, objects, guards, math,
 sets, and zipping values.
 

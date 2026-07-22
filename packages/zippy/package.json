@@ -6,7 +6,7 @@
   "type": "module",
   "repository": {
     "type": "git",
-    "url": "https://github.com/zachsents/zippy",
+    "url": "https://github.com/zachsents/zachs-tools.git",
     "directory": "packages/zippy"
   },
   "publishConfig": {
